@@ -1,0 +1,467 @@
+/* =========================================================
+   🚨 根本原因リセット（画面全体をピタッと固定する魔法！）
+   ========================================================= */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  position: fixed;
+}
+
+.app-container,
+.global-header {
+  width: 100%;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.header-right {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* 🌟 デフォルト（大きなモニター）の設定 */
+.toggle-icon {
+  display: none;
+} /* 矢印を隠す */
+.genre-graph-list-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   📱 レスポンシブ設計（1440px〜iPad 横画面向け）
+   ========================================================= */
+
+/* 💻 1. ノートPC（1440px 以下）向けの縮小 */
+@media screen and (min-width: 1181px) and (max-width: 1440px) {
+  .app-container {
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(
+        240px,
+        280px
+      );
+    padding: 0 20px 10px;
+    gap: 15px;
+  }
+
+  .logo-text {
+    font-size: 42px;
+  }
+  .logo-sub {
+    font-size: 10px;
+  }
+  .menu-btn {
+    width: 65px;
+    height: 65px;
+    font-size: 11px;
+    top: 15px;
+    left: 20px;
+  }
+
+  #top3Panel {
+    padding: 15px 20px !important;
+  }
+  #top3Panel .panel-title {
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+  }
+  .ranking-item {
+    padding: 6px 8px;
+    gap: 8px;
+  }
+  .rank-num {
+    font-size: 16px;
+  }
+  .rank-title {
+    font-size: 12px;
+  }
+
+  /* 🌟 ノートPC専用：ジャンル欄を上に開くポップアップに変更！ */
+  #genrePanelBox {
+    flex: none !important;
+    position: relative;
+    padding: 15px 20px !important;
+    overflow: visible !important;
+  }
+  #genreToggleBtn {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+  #genreToggleBtn .toggle-icon {
+    display: block;
+    transition: transform 0.3s;
+  }
+
+  #genreGraphWrapper {
+    display: none; /* 初期は非表示 */
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--c-white);
+  }
+
+  /* JavaScriptで is-open クラスが付いた時のスタイル */
+  #genrePanelBox.is-open #genreGraphWrapper {
+    display: block;
+  }
+  #genrePanelBox.is-open #genreToggleBtn .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* 🌟 中央パネルの底のラインを、左右のパネルとピッタリ揃える魔法！ */
+  .col-center {
+    padding: 0 !important;
+  }
+  /* 🌟 リスト一覧（声優・ジャンル等）の底の隙間を消す設定 */
+  .action-top-row {
+    margin-bottom: 12px !important;
+    gap: 8px;
+  }
+  .filter-area {
+    margin-bottom: 10px !important;
+  }
+
+  .main-search-wrapper {
+    flex: 1;
+    min-width: 150px;
+  }
+  .main-search-bar {
+    height: 40px;
+    font-size: 12px;
+  }
+  .btn-add-anime {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .filter-tabs {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .filter-tab {
+    width: 70px;
+    height: 34px;
+    padding: 0;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .custom-select-sort {
+    padding: 0;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    height: 34px;
+  }
+
+  .custom-select-format {
+    height: 45px;
+  }
+
+  .anime-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+  .card {
+    padding: 8px;
+  }
+  .card-title {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  .card-meta {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+  .score-icon {
+    font-size: 14px;
+  }
+  .score-num {
+    font-size: 16px;
+  }
+  .status-watched,
+  .status-watching,
+  .status-rewatch,
+  .status-dropped,
+  .status-default {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .counter-value {
+    font-size: 36px;
+  }
+  .feed-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .feed-name,
+  .feed-anime-title,
+  .feed-text {
+    font-size: 11px;
+    word-break: break-word;
+  }
+
+  .archive-left {
+    width: 350px;
+    padding: 25px 20px;
+    gap: 10px;
+  }
+
+  .profile-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 12px 15px !important;
+  }
+  .profile-card-actions {
+    width: 100% !important;
+    padding-left: 48px !important;
+    justify-content: flex-start !important;
+  }
+  .btn-profile-text {
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+  }
+}
+
+/* 📱 2. iPad ＆ iPad mini 共通の縮小（1180px 以下は全部これ） */
+@media screen and (max-width: 1180px) {
+  .app-container {
+    grid-template-columns: 240px minmax(0, 1fr) 260px;
+    gap: 15px;
+    padding: 0 15px 10px;
+  }
+  .logo-text {
+    font-size: 36px;
+  }
+  .menu-btn {
+    width: 70px;
+    height: 60px;
+    font-size: 10px;
+    top: 15px;
+    left: 20px;
+  }
+
+  /* 🌟 iPad用：ジャンル欄を「通常の常時表示」に上書きして戻す！ */
+  #genrePanelBox {
+    flex: 1 !important;
+    position: static;
+    padding: 30px 20px !important;
+  }
+  #genreToggleBtn {
+    cursor: default;
+    display: block;
+    text-align: center;
+    margin: 0 0 15px 0;
+    border-bottom: 1px solid var(--c-border);
+    padding-bottom: 10px;
+  }
+  #genreToggleBtn .toggle-icon {
+    display: none !important;
+  }
+
+  #genreGraphWrapper {
+    display: flex !important; /* 常に表示 */
+    position: static;
+    padding: 0;
+    box-shadow: none;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+  /* 🌟 中央パネルの底のラインを、左右のパネルとピッタリ揃える魔法！ */
+  .col-center {
+    padding: 0 !important;
+  }
+  /* 🌟 リスト一覧（声優・ジャンル等）の底の隙間を消す設定 */
+  .action-top-row {
+    margin-bottom: 12px !important;
+    gap: 8px;
+  }
+  .filter-area {
+    margin-bottom: 10px !important;
+  }
+
+  .main-search-wrapper {
+    flex: 1;
+    min-width: 150px;
+  }
+  .main-search-bar {
+    height: 40px;
+    font-size: 12px;
+  }
+  .btn-add-anime {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .filter-tabs {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .filter-tab {
+    width: 65px;
+    height: 34px;
+    padding: 0;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .custom-select-sort {
+    padding: 0;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    height: 34px;
+    width: 135px;
+  }
+
+  .custom-select-format {
+    height: 34px;
+  }
+
+  .anime-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+  .card {
+    padding: 8px;
+  }
+  .card-title {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  .card-meta {
+    font-size: 9px;
+    margin-bottom: 6px;
+  }
+  .score-icon {
+    font-size: 14px;
+  }
+  .score-num {
+    font-size: 16px;
+  }
+  .status-watched,
+  .status-watching,
+  .status-rewatch,
+  .status-dropped,
+  .status-default {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .counter-value {
+    font-size: 36px;
+  }
+  .feed-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+  .feed-name,
+  .feed-anime-title,
+  .feed-text {
+    font-size: 11px;
+    word-break: break-word;
+  }
+
+  .card-title {
+    font-size: 11px;
+  }
+  .score-num {
+    font-size: 11px;
+  }
+  /* 🌟 アーカイブ詳細画面（iPad向け：4:6比率を保ちつつさらにコンパクトに） */
+  .archive-left {
+    width: 390px;
+    padding: 20px 25px;
+    gap: 15px;
+  }
+  .archive-cover-wrapper {
+    margin-top: 0%;
+    width: 190px;
+  }
+
+  .archive-status-badge {
+    width: 190px;
+    margin-top: 15px;
+    margin-bottom: -2px;
+  }
+
+  * .archive-chart-box {
+    transform: scale(0.85);
+    margin-top: 20px;
+  }
+  /* iPadサイズでもノードを外側に逃がす */
+  .pos-top {
+    margin-top: -5% !important;
+  }
+  .pos-right {
+    margin-left: 5% !important;
+  }
+  .pos-left {
+    margin-left: -5% !important;
+  }
+  .pos-bottom-right {
+    margin-top: 5% !important;
+    margin-left: 0% !important;
+  }
+  .pos-bottom-left {
+    margin-top: 5% !important;
+    margin-left: 0% !important;
+  }
+
+  .custom-input,
+  .archive-textarea {
+    padding: 6px;
+    font-size: 11px;
+  }
+
+  .profile-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 12px 15px !important;
+  }
+  .profile-card-actions {
+    width: 100% !important;
+  }
+  .btn-profile-text {
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+  }
+}
+
+/* 📱 3. iPad mini 専用の「上書き」微調整（1024px 以下） */
+@media screen and (max-width: 1024px) {
+  /* 共通設定から変更したい部分（差分）だけを書く！ */
+  .filter-tab {
+    width: 43px; /* ここだけ上書き！ */
+  }
+}

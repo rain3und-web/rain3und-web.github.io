@@ -1,0 +1,147 @@
+/* =========================================================
+   🔽 可愛いプルダウン（Dropdowns）
+   ステータス変更や評価スコア入力に使う、自作のセレクトメニューです。
+   ========================================================= */
+
+/* =========================================================
+   プルダウンを開いたあと
+========================================================= */
+/* 💡 プルダウン全体のすりガラス（グラスモーフィズム）化 */
+.cute-custom-options {
+  position: absolute;
+  /* 少しだけ余白を開けて、浮いているような軽さを出す */
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100% !important;
+  min-width: unset !important;
+
+  /* ガラスの質感を作る設定 */
+  background: rgba(255, 255, 255, 0.75); /* 透けすぎない乳白色 */
+  backdrop-filter: blur(12px); /* 背景をすりガラスのようにぼかす */
+  -webkit-backdrop-filter: blur(12px); /* Safari対応 */
+
+  /* ガラスのフチが光を反射しているような枠線 */
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+
+  /* 影と内側のハイライトで立体感を強調 */
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  z-index: 80 !important;
+  overflow: hidden;
+}
+
+.cute-custom-options.hidden {
+  display: none !important;
+}
+
+/* 💡 プルダウンの中の各項目デザイン */
+.cute-custom-options div {
+  text-align: center !important;
+  padding: 12px 10px; /* 押しやすいように少し縦の余白を広めに */
+  cursor: pointer;
+  font-size: 13px; /* 読みやすさのためにほんの少し大きく */
+  font-weight: 700;
+  line-height: 1.2;
+  color: #475569; /* ベースの文字色は読みやすい濃いグレー */
+
+  /* 項目間のうっすらとした区切り線（ガラス感に合わせて控えめに） */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+
+  /* ホバーしたときのふんわりしたアニメーション */
+  transition: all 0.2s ease;
+}
+
+/* 一番下の項目は区切り線を消す */
+.cute-custom-options div:last-child {
+  border-bottom: none;
+}
+
+/* 💡 マウスを乗せた時（ホバー時）の可愛さアップ */
+.cute-custom-options div:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: var(--c-blue, #6366f1); /* 設定されている青色に変える */
+  transform: scale(1.02); /* ふわっと少しだけ文字が前に出る */
+}
+
+/* --- 🔢 評価スコア専用（横並びの数字ボタン！） --- */
+.score-inputs-ring .cute-custom-options {
+  width: auto !important;
+  min-width: max-content !important;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 999px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ★ 左側のノード */
+.pos-left .cute-custom-options {
+  left: -20px !important;
+  transform: translateX(0) !important;
+}
+
+/* ★ 右側のノード */
+.pos-right .cute-custom-options {
+  left: auto !important;
+  right: -20px !important;
+  transform: translateX(0) !important;
+}
+/* ★ 右下側のノード */
+.pos-bottom-right .cute-custom-options {
+  left: auto !important;
+  right: -90px !important;
+  top: -80px;
+  transform: translateX(0) !important;
+}
+/* ★ 左下側のノード */
+.pos-bottom-left .cute-custom-options {
+  left: auto !important;
+  left: -90px !important;
+  top: -80px;
+  transform: translateX(0) !important;
+}
+
+/* 0〜5の数字ボタン */
+.score-inputs-ring .cute-custom-options div {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0 !important;
+  font-weight: 700;
+}
+.score-inputs-ring .cute-custom-options div:hover {
+  background-color: var(--c-blue);
+  color: white;
+}
+/* =========================================================
+   ✨ 選択肢が開いているノードの重なり順を最優先にする修正
+========================================================= */
+
+/* 内側のプルダウンから .hidden が外れて表示されているとき、その親ノード(.score-node)を最前面へ */
+.score-node:has(.cute-custom-options:not(.hidden)) {
+  z-index: 999 !important;
+}
+
+/* 念のため、左右上下の位置調整クラスがついている要素に対しても開いている間は最前面にする */
+.pos-left:has(.cute-custom-options:not(.hidden)),
+.pos-right:has(.cute-custom-options:not(.hidden)),
+.pos-bottom-right:has(.cute-custom-options:not(.hidden)),
+.pos-bottom-left:has(.cute-custom-options:not(.hidden)) {
+  z-index: 999 !important;
+}
+
+/* ネイティブselectのoption（フォールバック用） 使途不明
+select option { 
+    background-color: #F8FAFC; 
+    color: #1E293B; 
+    font-weight: 700; 
+    padding: 12px; 
+}*/

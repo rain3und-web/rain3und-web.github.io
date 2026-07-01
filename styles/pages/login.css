@@ -1,0 +1,78 @@
+/* =========================================================
+   🔑 ログイン画面（Login）
+   ログイン用のポップアップやボタンのデザインです。
+   ========================================================= */
+
+/* 画面全体を覆う背景 */
+.login-overlay {
+    position: fixed; 
+    inset: 0; 
+    background: var(--c-bg); 
+    z-index: 9900;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+/* 白いポップアップ枠 */
+.login-modal {
+    background: var(--c-white); 
+    padding: 50px 40px; 
+    border-radius: 30px;
+    text-align: center; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05); 
+    width: 90%; 
+    max-width: 400px;
+}
+
+.login-hello{ 
+    font-family: var(--f-jp);
+    font-weight: 700;
+    font-size: 16px;
+    color: #6B7280;       /* ←追加：元の text-gray-500 のグレー色 */
+    margin-bottom: 32px;
+}
+
+/* Googleログインボタン */
+.google-btn-container {
+    display: flex; 
+    justify-content: center;
+}
+.dummy-google-btn {
+    background: var(--c-white); 
+    border: 1px solid #E2E8F0; 
+    padding: 12px 24px; 
+    border-radius: 99px;
+    font-family: var(--f-jp); 
+    font-weight: 700; 
+    font-size: 14px; 
+    color: var(--c-black);
+    cursor: pointer; 
+    transition: 0.2s; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+    width: 100%;
+}
+.dummy-google-btn:hover { 
+    background: #F8FAFC; 
+    border-color: #CBD5E1; 
+}
+/* ▼ Googleボタン内のレイアウト調整 ▼ */
+.google-btn-inner {
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    justify-content: center;
+}
+.google-icon-img {
+    width: 18px;
+}
+
+/* 3. 未ログイン時のテキストとボタン（前回の設定をそのまま維持） */
+.login-savetext {
+    font-family: var(--f-jp); 
+    font-weight: 700; 
+    font-size: 11px; 
+    color: var(--c-text-gray); 
+    margin: 15px 0 10px 0; /* 上下の余白 */
+    text-align: center;
+}

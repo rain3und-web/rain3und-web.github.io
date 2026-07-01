@@ -1,0 +1,28 @@
+/* =========================================================
+   🔤 タイポグラフィ＆便利クラス（Typography & Utilities）
+   HTMLにクラス名をつけるだけで「文字を太くする」「横並びにする」
+   などの効果を出せる便利なパーツ集です。
+   ========================================================= */
+
+/* --- 🔤 文字・フォント関連 --- */
+.font-jp { font-family: var(--f-jp); } /* 日本語フォントにする */
+.text-lg { font-size: 18px; }          /* 少し大きめの文字にする */
+.font-bold { font-weight: 700; }       /* 太文字にする */
+
+/* --- 🖱️ マウスカーソル --- */
+.cursor-pointer { cursor: pointer; }   /* マウスを乗せると「指マーク」になる */
+
+/* --- 📏 幅・位置調整 --- */
+.w-full { width: 100%; }               /* 幅を100%（横いっぱい）にする */
+.relative { position: relative; }      /* 子要素を自由に配置する時の基準にする */
+
+/* --- 📦 配置（Flexbox）関連 --- */
+.flex { display: flex; }               /* 横並びにする魔法の箱 */
+.justify-between { justify-content: space-between; } /* 両端に離して配置する */
+.items-center { align-items: center; }               /* 縦の真ん中に揃える */
+
+/* --- 🈳 余白（Margin & Gap）関連 --- */
+.gap-4 { gap: 16px; }                  /* 要素と要素の隙間を16px空ける */
+.mt-4 { margin-top: 16px; }            /* 上に16pxの余白 */
+.mb-3 { margin-bottom: 12px; }         /* 下に12pxの余白 */
+.mb-4 { margin-bottom: 16px; }         /* 下に16pxの余白 */

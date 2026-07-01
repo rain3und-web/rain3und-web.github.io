@@ -1,0 +1,1744 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTAKU LOG</title>
+    <meta
+      name="description"
+      content="自分の好きを再確認できる可愛いアニメログです"
+    />
+    <link rel="icon" href="favicon.ico" type="image/png" />
+
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+    <script>
+      (function (d) {
+        var config = {
+            kitId: "kld7dtf",
+            scriptTimeout: 3000,
+            async: true,
+          },
+          h = d.documentElement,
+          t = setTimeout(function () {
+            h.className =
+              h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive";
+          }, config.scriptTimeout),
+          tk = d.createElement("script"),
+          f = false,
+          s = d.getElementsByTagName("script")[0],
+          a;
+        h.className += " wf-loading";
+        tk.src = "https://use.typekit.net/" + config.kitId + ".js";
+        tk.async = true;
+        tk.onload = tk.onreadystatechange = function () {
+          a = this.readyState;
+          if (f || (a && a != "complete" && a != "loaded")) return;
+          f = true;
+          clearTimeout(t);
+          try {
+            Typekit.load(config);
+          } catch (e) {}
+        };
+        s.parentNode.insertBefore(tk, s);
+      })(document);
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body class="app-body">
+    <div id="startupOverlay" class="startup-overlay">
+      <div class="startup-content">
+        <h1 class="startup-logo">OTAKU LOG</h1>
+        <p class="startup-loading-text">NOW LOADING...</p>
+      </div>
+    </div>
+
+    <header class="global-header">
+      <div class="header-menu-wrapper">
+        <button
+          class="icon-menu-btn pop-up-animation"
+          id="sidebarToggleBtn"
+          aria-label="メニューを開閉する"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            stroke="#475569"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="header-center cursor-pointer" onclick="location.reload()">
+        <h1 class="logo-text">OTAKU LOG</h1>
+        <p class="logo-sub">ライトオタクのための雑多アニメログ</p>
+      </div>
+    </header>
+    <div class="app-container">
+      <aside class="col-left" id="mainSidebar">
+        <div class="sidebar-inner">
+          <div class="sidebar-scroll-area no-scrollbar">
+            <nav class="sidebar-nav-section">
+              <h4 class="nav-category">メイン</h4>
+              <ul class="nav-list">
+                <li>
+                  <button
+                    class="nav-btn active"
+                    onclick="window.switchView('home')"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <path
+                        d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                      ></path>
+                      <polyline points="9 22 9 12 15 12 15 22"></polyline></svg
+                    >HOME
+                  </button>
+                </li>
+                <li>
+                  <button class="nav-btn" onclick="window.switchView('year')">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line></svg
+                    >放送シーズン
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="nav-btn"
+                    onclick="window.switchView('voiceActor')"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <path
+                        d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
+                      ></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg
+                    >声優一覧
+                  </button>
+                </li>
+                <li>
+                  <button
+                    class="nav-btn"
+                    onclick="window.switchView('director')"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <rect
+                        x="2"
+                        y="2"
+                        width="20"
+                        height="20"
+                        rx="2.18"
+                        ry="2.18"
+                      ></rect></svg
+                    >監督一覧
+                  </button>
+                </li>
+                <li>
+                  <button class="nav-btn" onclick="window.switchView('studio')">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <rect
+                        x="2"
+                        y="7"
+                        width="20"
+                        height="14"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <path
+                        d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"
+                      ></path></svg
+                    >制作会社一覧
+                  </button>
+                </li>
+              </ul>
+
+              <h4 class="nav-category">統計</h4>
+              <ul class="nav-list">
+                <li>
+                  <button class="nav-btn" onclick="window.switchView('stats')">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <line x1="18" y1="20" x2="18" y2="10"></line>
+                      <line x1="12" y1="20" x2="12" y2="4"></line>
+                      <line x1="6" y1="20" x2="6" y2="14"></line></svg
+                    >統計ダッシュボード
+                  </button>
+                </li>
+              </ul>
+
+              <h4 class="nav-category">コレクション</h4>
+              <ul class="nav-list">
+                <li>
+                  <button
+                    class="nav-btn"
+                    onclick="window.switchView('oshiChara')"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                      ></path></svg
+                    >推しキャラコレクション
+                  </button>
+                </li>
+                <li>
+                  <button class="nav-btn">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon></svg
+                    >お気に入り
+                  </button>
+                </li>
+                <li>
+                  <button class="nav-btn">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <circle cx="12" cy="8" r="7"></circle>
+                      <polyline
+                        points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"
+                      ></polyline></svg
+                    >達成トロフィー
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="sidebar-user-box glass-panel">
+            <div id="userProfilePanel" class="profile-card hidden">
+              <div class="profile-card-left">
+                <div id="headerAvatar" class="feed-avatar">ME</div>
+                <div class="profile-card-texts">
+                  <span id="headerName" class="profile-card-name"></span>
+                  <span id="headerId" class="profile-card-id"></span>
+                </div>
+              </div>
+              <div class="profile-card-actions">
+                <button
+                  onclick="window.switchView('mypage')"
+                  class="btn-profile-text pop-up-animation"
+                  title="設定"
+                >
+                  設定
+                </button>
+                <button
+                  id="headerLogoutBtn"
+                  class="btn-profile-text pop-up-animation"
+                  title="ログアウト"
+                >
+                  ログアウト
+                </button>
+              </div>
+            </div>
+            <div id="loginPromptPanel" class="login-card hidden">
+              <div class="login-savetext">ログインしてデータを保存</div>
+              <button id="headerLoginBtn" class="btn-save btn-login">
+                ログイン
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <main class="col-center no-scrollbar">
+        <div class="action-top-row" id="mainActionRow">
+          <div class="main-search-wrapper">
+            <div class="main-search-bar glass-panel">
+              <svg
+                class="search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input
+                type="text"
+                id="mainSearchInput"
+                placeholder="作品名・声優・制作会社から検索..."
+                autocomplete="off"
+              />
+            </div>
+            <div
+              id="searchSuggestBox"
+              class="suggest-box hidden pop-up-animation no-scrollbar"
+            ></div>
+          </div>
+          <div class="add-anime-wrapper">
+            <button class="btn-add-anime" id="addAnimeBtn">アニメを追加</button>
+            <div class="add-popup glass-panel hidden" id="addPopup">
+              <input
+                type="text"
+                class="popup-search-input custom-input"
+                id="addSearchInput"
+                placeholder="アニメを検索..."
+                autocomplete="off"
+              />
+              <div class="popup-result-count" id="popupResultCount">
+                検索結果 0 件
+              </div>
+              <div
+                id="searchLoader"
+                class="search-loader"
+                style="display: none"
+              >
+                Searching...
+              </div>
+              <div class="popup-results no-scrollbar" id="popupResults"></div>
+            </div>
+          </div>
+        </div>
+        <div class="filter-area" id="mainFilterRow">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-status="ALL">ALL</button>
+            <button class="filter-tab" data-status="履修済">履修済</button>
+            <button class="filter-tab" data-status="履修中">履修中</button>
+            <button class="filter-tab" data-status="再履修">再履修</button>
+            <button class="filter-tab" data-status="脱落">脱落</button>
+            <button class="filter-tab" data-status="未履修">未履修</button>
+          </div>
+          <div class="custom-select-wrapper">
+            <div
+              class="custom-select-sort cute-custom-trigger"
+              id="customSortTrigger"
+            >
+              新着順に並べ替え
+            </div>
+            <div class="cute-custom-options hidden">
+              <div data-value="new">新着順に並べ替え</div>
+              <div data-value="score">スコア順に並べ替え</div>
+              <div data-value="year">年代順に並べ替え</div>
+            </div>
+            <input type="hidden" id="sortSelect" value="new" />
+          </div>
+        </div>
+        <div
+          id="breadcrumbArea"
+          class="hidden flex justify-between items-center breadcrumb-custom"
+        >
+          <h2 id="viewTitle" class="oshiChara-title"></h2>
+          <button id="clearFilterBtn" class="btn-clear">
+            ✕ 解除してHOMEへ
+          </button>
+        </div>
+        <div class="anime-grid" id="animeGrid"></div>
+        <div id="listViewArea" class="hidden glass-panel">
+          <div class="list-view-controls flex gap-4">
+            <button class="btn-sort-list active" data-sort="count">
+              作品数順
+            </button>
+            <button class="btn-sort-list" data-sort="name">名前順</button>
+          </div>
+          <div class="tag-cloud-container" id="tagCloudContainer"></div>
+        </div>
+
+        <div id="myPageArea" class="hidden glass-panel">
+          <h2 class="mypage-title">マイページ</h2>
+          <div class="profile-edit-container">
+            <div class="profile-img-section">
+              <div id="profileAvatarWrapper" class="profile-avatar-wrapper">
+                ME
+              </div>
+              <div class="profile-input-group">
+                <label
+                  >アイコン画像リンク
+                  <button
+                    id="clearIconBtn"
+                    class="btn-clear-icon pop-up-animation"
+                  >
+                    ✕ 削除
+                  </button></label
+                >
+                <input
+                  type="text"
+                  id="profileImgUrl"
+                  class="custom-input"
+                  placeholder="画像のURLを入力"
+                />
+              </div>
+            </div>
+            <div class="profile-input-group profile-input-group-custom">
+              <label>表示名（Feedに表示される名前）</label>
+              <input
+                type="text"
+                id="profileDisplayName"
+                class="custom-input"
+                placeholder="例：自分"
+              />
+            </div>
+            <div class="profile-input-group profile-input-group-custom">
+              <label>アカウントID（@の後の英数字）</label>
+              <input
+                type="text"
+                id="profileName"
+                class="custom-input"
+                placeholder="例：otaku_log"
+              />
+            </div>
+            <div class="profile-actions mt-6 text-center">
+              <button id="saveProfileBtn" class="btn-save btn-profile-save">
+                プロフィールを保存
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="oshiCharaArea" class="hidden glass-panel">
+          <div id="globalOshiContainer" class="oshi-grid"></div>
+        </div>
+
+        <div id="statsPageArea" class="hidden">
+          <div class="stats-header-wrap">
+            <h2 class="stats-header-title">
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                stroke="currentColor"
+                stroke-width="2.5"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              統計ダッシュボード
+            </h2>
+            <button
+              onclick="window.switchView('home')"
+              class="btn-clear pop-up-animation"
+            >
+              ✕ 閉じてHOMEへ
+            </button>
+          </div>
+
+          <div id="statsDashboardContainer" class="stats-dashboard-grid">
+            <div class="bento-panel panel-report">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  ></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                診断プロファイル
+              </div>
+              <div class="report-text" id="stat-report-text"></div>
+            </div>
+
+            <div class="bento-panel panel-master">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                  ></polygon>
+                </svg>
+                高評価トップ5
+              </div>
+              <div class="masterpiece-list" id="stat-masterpieces"></div>
+            </div>
+
+            <div class="bento-panel panel-style">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                  <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                視聴スタイル
+              </div>
+              <div id="panelContent-style" class="panel-inner-scroll"></div>
+            </div>
+
+            <div class="bento-panel panel-donut">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="4"></circle>
+                </svg>
+                刺さるジャンル
+              </div>
+
+              <div class="staff-note">
+                ※評価上位20%の作品から抽出。リングやコンボボタンをクリックで一覧へ。
+              </div>
+
+              <div class="donut-chart-wrapper">
+                <div
+                  id="genreDonutContainer"
+                  class="donut-chart-container"
+                ></div>
+              </div>
+
+              <div id="genreDonutLegend" class="combo-legend-container"></div>
+            </div>
+
+            <div class="bento-panel panel-tendency">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M3 3v18h18"></path>
+                  <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+                </svg>
+                評価分析
+              </div>
+              <div id="panelContent-tendency" class="panel-inner-scroll"></div>
+            </div>
+
+            <div class="bento-panel panel-oshi">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  ></path>
+                </svg>
+                運命のキャラクター
+              </div>
+              <div id="panelContent-oshi" class="panel-inner-scroll"></div>
+            </div>
+
+            <div class="bento-panel panel-decade">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                視聴年代ヒストリー
+              </div>
+              <div id="panelContent-decade" class="panel-inner-scroll"></div>
+            </div>
+
+            <div class="bento-panel panel-staff">
+              <div class="bento-title">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                最高のクリエイター陣
+              </div>
+              <div class="staff-note">
+                ※あなたの評価上位20％に入る作品の中で、携わった回数が多い順に選出しています。
+              </div>
+              <div class="staff-grid" id="panelContent-staff"></div>
+            </div>
+          </div>
+
+          <div class="action-footer" style="margin-top: 20px">
+            <button class="btn-recommend">
+              <svg
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                stroke="currentColor"
+                stroke-width="2.5"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                ></polygon>
+              </svg>
+              あなたへのおすすめを発掘
+            </button>
+            <button class="btn-share-small">SHARE</button>
+          </div>
+        </div>
+      </main>
+
+      <aside class="col-right no-scrollbar">
+        <div class="feed-panel glass-panel">
+          <h3 class="panel-title">タイムライン</h3>
+          <div class="feed-list no-scrollbar" id="feedList"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="modal-overlay hidden" id="editModal">
+      <div class="archive-modal pop-up-animation">
+        <input type="hidden" id="editAnilistId" />
+        <input type="hidden" id="editImgUrl" />
+        <input type="hidden" id="editDuration" />
+
+        <div class="archive-content">
+          <div class="archive-left">
+            <div class="archive-cover-wrapper">
+              <img
+                id="editImgPreview"
+                class="crop-target-img"
+                src=""
+                alt="Cover"
+                draggable="false"
+              />
+
+              <div class="crop-overlay-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="15"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path>
+                  <path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path>
+                </svg>
+              </div>
+
+              <input type="hidden" id="editImgPosition" value="50% 50%" />
+            </div>
+
+            <div class="archive-url-box">
+              <span class="archive-section-title">画像URL</span>
+              <div class="url-input-wrapper">
+                <span class="input-left-icon">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    stroke="#64748B"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                    ></path>
+                    <path
+                      d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                    ></path>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="editImageUrl"
+                  class="custom-input has-left-icon"
+                  placeholder="http://..."
+                />
+              </div>
+            </div>
+
+            <div class="archive-status-row">
+              <div class="archive-status-wrapper">
+                <div class="custom-select-wrapper" style="width: 100%">
+                  <div
+                    id="customStatusTrigger"
+                    class="archive-status-btn cute-custom-trigger"
+                    data-status="default"
+                  >
+                    <div class="status-trigger-left">
+                      <svg
+                        class="icon-watched"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path
+                          d="M9 12l2 2 4-4"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                      </svg>
+                      <svg
+                        class="icon-watching"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path
+                          d="M12 8v4l3 3"
+                          stroke="white"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        ></path>
+                      </svg>
+                      <svg
+                        class="icon-rewatch"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                        ></path>
+                        <path d="M3 3v5h5"></path>
+                      </svg>
+                      <svg
+                        class="icon-dropped"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line
+                          x1="15"
+                          y1="9"
+                          x2="9"
+                          y2="15"
+                          stroke="white"
+                          stroke-width="2"
+                        ></line>
+                        <line
+                          x1="9"
+                          y1="9"
+                          x2="15"
+                          y2="15"
+                          stroke="white"
+                          stroke-width="2"
+                        ></line>
+                      </svg>
+                      <svg
+                        class="icon-default"
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                      </svg>
+                      <span class="status-trigger-text">履修済</span>
+                    </div>
+                    <svg
+                      class="status-icon-right"
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="#94A3B8"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="cute-custom-options hidden">
+                    <div data-value="未履修">未履修</div>
+                    <div data-value="履修済">履修済</div>
+                    <div data-value="履修中">履修中</div>
+                    <div data-value="再履修">再履修</div>
+                    <div data-value="脱落">脱落</div>
+                  </div>
+                  <input type="hidden" id="editStatus" value="履修済" />
+                </div>
+              </div>
+
+              <div class="archive-rewatch-counter">
+                <button
+                  type="button"
+                  class="rewatch-btn minus"
+                  id="rewatchMinus"
+                >
+                  -
+                </button>
+                <div class="rewatch-display">
+                  <span id="rewatchCount">1</span
+                  ><span class="rewatch-label">周目</span>
+                </div>
+                <button type="button" class="rewatch-btn plus" id="rewatchPlus">
+                  +
+                </button>
+                <input type="hidden" id="editRewatch" value="1" />
+              </div>
+            </div>
+
+            <div class="archive-evaluation-area">
+              <div class="overall-score-box">
+                <div class="archive-section-title">総合評価</div>
+                <div class="overall-value-row">
+                  <span class="score-main" id="myScoreValue">0.0</span>
+                  <span class="score-max">/ 5.0</span>
+                </div>
+                <div class="overall-stars-outer">
+                  <div class="overall-stars-bg">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#E2E8F0"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#E2E8F0"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#E2E8F0"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#E2E8F0"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#E2E8F0"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                  </div>
+
+                  <div class="overall-stars-fg" id="overallStarsFg">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#5152F5"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#5152F5"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#5152F5"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#5152F5"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="#5152F5"
+                    >
+                      <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                      ></polygon>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="archive-chart-box">
+                <svg viewBox="0 0 100 100" class="radar-bg">
+                  <g stroke="#CBD5E1" stroke-width="0.8" stroke-linecap="round">
+                    <g transform="rotate(0, 50, 50)">
+                      <line x1="50" y1="50" x2="50" y2="5" />
+                      <line x1="48" y1="41" x2="52" y2="41" />
+                      <line x1="48" y1="32" x2="52" y2="32" />
+                      <line x1="48" y1="23" x2="52" y2="23" />
+                      <line x1="48" y1="14" x2="52" y2="14" />
+                      <line x1="48" y1="5" x2="52" y2="5" />
+                    </g>
+                    <g transform="rotate(72, 50, 50)">
+                      <line x1="50" y1="50" x2="50" y2="5" />
+                      <line x1="48" y1="41" x2="52" y2="41" />
+                      <line x1="48" y1="32" x2="52" y2="32" />
+                      <line x1="48" y1="23" x2="52" y2="23" />
+                      <line x1="48" y1="14" x2="52" y2="14" />
+                      <line x1="48" y1="5" x2="52" y2="5" />
+                    </g>
+                    <g transform="rotate(144, 50, 50)">
+                      <line x1="50" y1="50" x2="50" y2="5" />
+                      <line x1="48" y1="41" x2="52" y2="41" />
+                      <line x1="48" y1="32" x2="52" y2="32" />
+                      <line x1="48" y1="23" x2="52" y2="23" />
+                      <line x1="48" y1="14" x2="52" y2="14" />
+                      <line x1="48" y1="5" x2="52" y2="5" />
+                    </g>
+                    <g transform="rotate(216, 50, 50)">
+                      <line x1="50" y1="50" x2="50" y2="5" />
+                      <line x1="48" y1="41" x2="52" y2="41" />
+                      <line x1="48" y1="32" x2="52" y2="32" />
+                      <line x1="48" y1="23" x2="52" y2="23" />
+                      <line x1="48" y1="14" x2="52" y2="14" />
+                      <line x1="48" y1="5" x2="52" y2="5" />
+                    </g>
+                    <g transform="rotate(288, 50, 50)">
+                      <line x1="50" y1="50" x2="50" y2="5" />
+                      <line x1="48" y1="41" x2="52" y2="41" />
+                      <line x1="48" y1="32" x2="52" y2="32" />
+                      <line x1="48" y1="23" x2="52" y2="23" />
+                      <line x1="48" y1="14" x2="52" y2="14" />
+                      <line x1="48" y1="5" x2="52" y2="5" />
+                    </g>
+                  </g>
+
+                  <polygon
+                    points="50,50 50,50 50,50 50,50 50,50"
+                    class="radar-value-polygon"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="2.5"
+                    fill="var(--c-blue)"
+                    class="radar-point"
+                    id="pt-story"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="2.5"
+                    fill="var(--c-blue)"
+                    class="radar-point"
+                    id="pt-visual"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="2.5"
+                    fill="var(--c-blue)"
+                    class="radar-point"
+                    id="pt-music"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="2.5"
+                    fill="var(--c-blue)"
+                    class="radar-point"
+                    id="pt-resonance"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="2.5"
+                    fill="var(--c-blue)"
+                    class="radar-point"
+                    id="pt-character"
+                  />
+                </svg>
+
+                <div class="score-inputs-ring">
+                  <div class="score-node pos-top">
+                    <span>ストーリー</span>
+                    <div class="custom-select-wrapper">
+                      <div class="custom-select-score cute-custom-trigger">
+                        0
+                      </div>
+                      <div class="cute-custom-options hidden">
+                        <div data-value="0">0</div>
+                        <div data-value="1">1</div>
+                        <div data-value="2">2</div>
+                        <div data-value="3">3</div>
+                        <div data-value="4">4</div>
+                        <div data-value="5">5</div>
+                      </div>
+                      <input
+                        type="hidden"
+                        class="score-val"
+                        data-type="story"
+                        value="0"
+                      />
+                    </div>
+                  </div>
+                  <div class="score-node pos-right">
+                    <span>美術・作画</span>
+                    <div class="custom-select-wrapper">
+                      <div class="custom-select-score cute-custom-trigger">
+                        0
+                      </div>
+                      <div class="cute-custom-options hidden">
+                        <div data-value="0">0</div>
+                        <div data-value="1">1</div>
+                        <div data-value="2">2</div>
+                        <div data-value="3">3</div>
+                        <div data-value="4">4</div>
+                        <div data-value="5">5</div>
+                      </div>
+                      <input
+                        type="hidden"
+                        class="score-val"
+                        data-type="visual"
+                        value="0"
+                      />
+                    </div>
+                  </div>
+                  <div class="score-node pos-bottom-right">
+                    <span>音楽</span>
+                    <div class="custom-select-wrapper">
+                      <div class="custom-select-score cute-custom-trigger">
+                        0
+                      </div>
+                      <div class="cute-custom-options hidden">
+                        <div data-value="0">0</div>
+                        <div data-value="1">1</div>
+                        <div data-value="2">2</div>
+                        <div data-value="3">3</div>
+                        <div data-value="4">4</div>
+                        <div data-value="5">5</div>
+                      </div>
+                      <input
+                        type="hidden"
+                        class="score-val"
+                        data-type="music"
+                        value="0"
+                      />
+                    </div>
+                  </div>
+                  <div class="score-node pos-bottom-left">
+                    <span>刺さり度</span>
+                    <div class="custom-select-wrapper">
+                      <div class="custom-select-score cute-custom-trigger">
+                        0
+                      </div>
+                      <div class="cute-custom-options hidden">
+                        <div data-value="0">0</div>
+                        <div data-value="1">1</div>
+                        <div data-value="2">2</div>
+                        <div data-value="3">3</div>
+                        <div data-value="4">4</div>
+                        <div data-value="5">5</div>
+                      </div>
+                      <input
+                        type="hidden"
+                        class="score-val"
+                        data-type="resonance"
+                        value="0"
+                      />
+                    </div>
+                  </div>
+                  <div class="score-node pos-left">
+                    <span>キャラの魅力</span>
+                    <div class="custom-select-wrapper">
+                      <div class="custom-select-score cute-custom-trigger">
+                        0
+                      </div>
+                      <div class="cute-custom-options hidden">
+                        <div data-value="0">0</div>
+                        <div data-value="1">1</div>
+                        <div data-value="2">2</div>
+                        <div data-value="3">3</div>
+                        <div data-value="4">4</div>
+                        <div data-value="5">5</div>
+                      </div>
+                      <input
+                        type="hidden"
+                        class="score-val"
+                        data-type="character"
+                        value="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="editUpdatedAt" class="archive-updated-at"></div>
+          </div>
+
+          <div class="archive-right no-scrollbar">
+            <div class="archive-header-row">
+              <input
+                type="text"
+                id="editTitle"
+                class="archive-title-input"
+                placeholder="アニメタイトル"
+              />
+            </div>
+
+            <div class="archive-meta-grid">
+              <div class="meta-item">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect
+                      x="3"
+                      y="4"
+                      width="18"
+                      height="18"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  放送年
+                </span>
+                <input
+                  type="text"
+                  id="editYear"
+                  class="meta-input-box"
+                  placeholder="例: 2024"
+                />
+              </div>
+
+              <div class="meta-item">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect
+                      x="2"
+                      y="7"
+                      width="20"
+                      height="15"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <polyline points="17 2 12 7 7 2"></polyline>
+                  </svg>
+                  形式
+                </span>
+                <div class="custom-select-wrapper" style="width: 100%">
+                  <div
+                    class="custom-select-format cute-custom-trigger"
+                    id="customFormatTrigger"
+                  >
+                    形式を選択
+                  </div>
+                  <div class="cute-custom-options hidden">
+                    <div data-value="TV">TV</div>
+                    <div data-value="MOVIE">MOVIE</div>
+                    <div data-value="OVA">OVA</div>
+                    <div data-value="ONA">ONA</div>
+                    <div data-value="SPECIAL">SPECIAL</div>
+                  </div>
+                  <input type="hidden" id="editFormat" value="" />
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                  話数
+                </span>
+                <input
+                  type="text"
+                  id="editEps"
+                  class="meta-input-box"
+                  placeholder="全◯話"
+                />
+              </div>
+
+              <div class="meta-item">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                    <path d="M2 2l7.586 7.586"></path>
+                    <circle cx="11" cy="11" r="2"></circle>
+                  </svg>
+                  制作会社
+                </span>
+                <input
+                  type="text"
+                  id="editStudio"
+                  class="meta-input-box"
+                  placeholder="制作会社"
+                />
+              </div>
+
+              <div class="meta-item">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polygon points="11 19 2 12 11 5 11 19"></polygon>
+                    <path d="M22 12A10 10 0 0 0 12 2"></path>
+                  </svg>
+                  監督
+                </span>
+                <div class="director-input-wrapper" style="width: 100%">
+                  <input
+                    type="text"
+                    id="editDirector"
+                    class="meta-input-box director-input"
+                    placeholder="監督"
+                    autocomplete="off"
+                  />
+                  <input type="hidden" id="editDirectorRaw" />
+                  <div id="directorSuggestBox" class="suggest-box hidden"></div>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                    ></path>
+                    <path
+                      d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                    ></path>
+                  </svg>
+                  リンク
+                </span>
+                <input
+                  type="text"
+                  id="editOfficialSite"
+                  class="meta-input-box"
+                  placeholder="公式URL"
+                />
+              </div>
+            </div>
+
+            <div class="archive-section">
+              <div class="archive-section-header">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  キャラクター
+                </span>
+                <button
+                  type="button"
+                  class="btn-svg-icon pop-up-animation"
+                  onclick="
+                    document
+                      .getElementById('charaSearchContainer')
+                      .classList.toggle('hidden')
+                  "
+                >
+                  キャラを追加
+                </button>
+              </div>
+              <div class="oshi-roster" id="oshiRosterDisplay"></div>
+              <div id="charaSearchContainer" class="chara-search-box hidden">
+                <input
+                  type="text"
+                  id="charSearchInput"
+                  class="custom-input"
+                  placeholder="追加したいキャラ名を入力..."
+                />
+                <div id="charSuggestBox" class="chara-suggest-list"></div>
+              </div>
+              <input type="hidden" id="editCharacters" />
+            </div>
+
+            <div class="archive-tags-row">
+              <div class="archive-section genre-section">
+                <div class="archive-section-header">
+                  <span class="archive-section-title">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                      ></path>
+                      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    ジャンル
+                  </span>
+                  <button
+                    type="button"
+                    class="btn-svg-icon pop-up-animation"
+                    id="openGenrePopupBtn"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                      ></path>
+                      <path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                      ></path>
+                    </svg>
+                    編集
+                  </button>
+                </div>
+                <div class="cute-tags-display" id="genresTagsDisplay"></div>
+                <input type="hidden" id="editGenres" />
+
+                <div
+                  id="genrePopup"
+                  class="glass-panel hidden pop-up-animation genre-popup-box"
+                >
+                  <h4 class="genre-popup-title">ジャンルを選択</h4>
+                  <div id="genreCheckboxList" class="genre-checkbox-grid"></div>
+                </div>
+              </div>
+
+              <div class="archive-section voiceActor-section">
+                <div class="archive-section-header">
+                  <span class="archive-section-title">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
+                      ></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <line x1="12" y1="19" x2="12" y2="23"></line>
+                      <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                    声優
+                  </span>
+                  <button
+                    type="button"
+                    class="btn-svg-icon pop-up-animation"
+                    id="openActorPopupBtn"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                    >
+                      <path
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                      ></path>
+                      <path
+                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                      ></path>
+                    </svg>
+                    編集
+                  </button>
+                </div>
+                <div
+                  class="cute-tags-display"
+                  id="voiceActorsTagsDisplay"
+                ></div>
+                <input type="hidden" id="editVoiceActors" />
+
+                <div
+                  id="actorPopup"
+                  class="glass-panel hidden pop-up-animation voiceActor-popup-box"
+                >
+                  <h4 class="voiceActor-popup-title">声優を追加・編集</h4>
+                  <div class="voiceActor-searchbar">
+                    <input
+                      type="text"
+                      id="actorSearchInput"
+                      class="custom-input voiceActor-searchbar-input"
+                      placeholder="声優名を検索..."
+                    />
+                    <div
+                      id="actorSuggestBox"
+                      class="suggest-box hidden pop-up-animation no-scrollbar"
+                    ></div>
+                  </div>
+                  <div
+                    id="actorCurrentList"
+                    class="voiceActor-currentList"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="archive-textarea-row">
+              <div class="archive-section">
+                <div class="archive-section-header">
+                  <span class="archive-section-title">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
+                      ></path>
+                    </svg>
+                    あらすじ
+                  </span>
+                </div>
+                <textarea
+                  id="editSynopsis"
+                  class="archive-textarea"
+                  placeholder="物語のあらすじを入力..."
+                ></textarea>
+              </div>
+
+              <div class="archive-section">
+                <div class="archive-section-header">
+                  <span class="archive-section-title">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 20h9"></path>
+                      <path
+                        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                      ></path>
+                    </svg>
+                    感想
+                  </span>
+                </div>
+                <textarea
+                  id="editMemo"
+                  class="archive-textarea"
+                  placeholder="この作品への愛や感想を綴る..."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="archive-footer">
+              <button class="btn-delete" id="deleteBtn">DELETE</button>
+              <div class="btn-cancel-save-box">
+                <button class="btn-cancel" id="closeEditBtn">CANCEL</button>
+                <button class="btn-save-archive" id="saveBtn">SAVE</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loginOverlay" class="login-overlay hidden">
+      <div class="login-modal pop-up-animation">
+        <h1 class="logo-text">OTAKU LOG</h1>
+        <p class="login-hello">あなただけのアニメログを始めましょう</p>
+        <div id="googleLoginBtnContainer" class="google-btn-container"></div>
+      </div>
+    </div>
+
+    <div id="customConfirmModal" class="modal-overlay hidden">
+      <div class="glass-panel pop-up-animation delete-pop-up">
+        <h3 class="confirmDelete">本当に削除しますか？</h3>
+        <p class="explanDelete">この操作は取り消せません。</p>
+        <div class="btn-confirm-box">
+          <button id="confirmCancelBtn" class="btn-cancel btn-confirm">
+            やめる
+          </button>
+          <button id="confirmDeleteBtn" class="btn-delete btn-confirm">
+            削除する
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="imagePreviewModal" class="modal-overlay hidden">
+      <div class="glass-panel pop-up-animation image-preview-modal-content">
+        <h3 class="preview-title">画像を生成しました！</h3>
+        <p class="preview-desc">
+          PCの方は下のボタンから保存できます。<br />
+          スマホの方は、画像を<strong>「長押し」</strong>して保存してください。
+        </p>
+        <div class="preview-image-container">
+          <img id="generatedImagePreview" src="" alt="Stats Preview" />
+        </div>
+        <div class="preview-actions">
+          <button id="cancelPreviewBtn" class="btn-cancel">やめる</button>
+          <button id="downloadImageBtn" class="btn-recommend">
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              stroke-width="2"
+              fill="none"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            保存する
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="js/api/auth.js"></script>
+    <script src="js/api/api.js"></script>
+    <script src="js/api/anilist.js"></script>
+
+    <script src="js/utils/constants.js"></script>
+    <script src="js/utils/statsExporter.js"></script>
+    <script src="js/utils/helpers.js"></script>
+
+    <script src="js/components/search.js"></script>
+    <script src="js/components/customSelect.js"></script>
+    <script src="js/components/modal.js"></script>
+
+    <script src="js/ui.js"></script>
+
+    <script src="js/pages/home.js"></script>
+    <script src="js/pages/profile.js"></script>
+    <script src="js/pages/oshiChara.js"></script>
+    <script src="js/pages/stats.js"></script>
+
+    <script src="js/app.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+  </body>
+</html>

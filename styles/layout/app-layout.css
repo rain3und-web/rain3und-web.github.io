@@ -1,0 +1,131 @@
+/* =========================================================
+   🏗️ メインレイアウト（App Layout）
+   画面全体を「左・中央・右」の3列に分ける大枠の骨組みです。
+   ========================================================= */
+
+/* -----------------------------------------
+   1. 画面全体の土台（3列グリッド）
+   ----------------------------------------- */
+.app-container {
+  flex: 1;
+  display: grid;
+  /* ★修正：左右のパネルが画面幅に合わせて柔軟に縮むように変更 */
+  grid-template-columns: minmax(200px, 280px) minmax(0, 1fr) minmax(
+      220px,
+      300px
+    );
+  padding: 0 30px 10px; /* ★左右の余白を40pxから30pxにしてスッキリと */
+  gap: 18px; /* ★パネル同士の隙間もバランス良く調整 */
+  height: 100%;
+  overflow: hidden;
+  transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-container.is-sidebar-closed {
+  grid-template-columns: 0px minmax(0, 1fr) minmax(220px, 300px);
+}
+
+/* -----------------------------------------
+   2. 各列（カラム）の共通設定
+   ----------------------------------------- */
+.col-left,
+.col-center,
+.col-right {
+  height: 100%;
+  min-height: 0;
+  min-width: 0; /* ★超重要：中身の文字幅などに負けて枠が広がるのを防ぐ魔法！ */
+  padding-bottom: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ⏺ 中央パネル（検索バー・アニメ一覧など） */
+.col-center {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 0 0 0;
+  position: relative;
+}
+
+.col-left {
+  overflow: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  opacity: 1;
+  visibility: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: space-between;
+}
+.col-left.is-closed {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* 👉 右パネル（フィードなど） */
+.col-right {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 30px;
+  width: 100%;
+}
+
+/* -----------------------------------------
+   4. 中央パネル内のスクロール設定
+   ----------------------------------------- */
+/* 中央パネルの枠自体はスクロールさせない */
+.col-center.no-scrollbar {
+  overflow-y: hidden;
+}
+
+/* アニメ一覧のエリアだけを縦にスクロールさせる */
+.anime-grid {
+  scrollbar-width: none; /* スクロールバーを隠す */
+}
+.anime-grid::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* 🌟 リスト画面の追従ヘッダー（あ行・か行が上にピタッとくっつく魔法！） */
+.sticky-group-header {
+  position: sticky;
+  top: 0; /* 画面の一番上で固定する */
+  z-index: 10;
+  font-size: 18px;
+  font-weight: 900;
+  font-family: var(--f-jp);
+  color: var(--c-blue);
+  border-bottom: 2px solid #e2e8f0;
+  padding: 10px 0 8px 0; /* 隙間を削ってスッキリさせる */
+  margin: 0 0 15px 0;
+  text-align: left;
+  /* 後ろをスクロールするタグが透けないように、背景を半透明の白で塗りつぶす */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 🌟 箱を下までピッタリ伸ばしつつ、底の余白を極限まで削る完全版！ */
+#listViewArea,
+#myPageArea,
+#oshiCharaArea {
+  flex: 1 !important;
+  min-height: 0;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  /* ★ 箱の内側の「底の厚み」を 0px にして、分厚い縁を完全に消滅させます！ */
+  padding: 20px 25px 0px 25px !important;
+}
+#listViewArea::-webkit-scrollbar,
+#myPageArea::-webkit-scrollbar,
+#oshiCharaArea::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}

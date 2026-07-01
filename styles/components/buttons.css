@@ -1,0 +1,402 @@
+/* =========================================================
+   🔘 ボタン（Buttons）
+   サイト内のあらゆるボタン（文字ボタン、アイコンボタン等）
+   のデザインをまとめたファイルです。
+   ========================================================= */
+/* --- 🎛️ 1. 動きの共通設定 (このクラスはどのボタンにも必ずつける) --- */
+.cute-custom-trigger {
+  display: flex !important;
+  align-items: center;
+  justify-content: center !important;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+}
+.cute-custom-trigger::after {
+  content: none !important;
+  display: none !important;
+}
+/* 並べ替えボタン用（カプセル型） */
+/* --- 🔽 標準のセレクトボックスボタン --- */
+.custom-select-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 100 !important;
+  font-family: var(--f-jp);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.custom-select-sort {
+  border-radius: 99px;
+  height: 46px;
+  padding: 0 30px;
+  font-size: 13px;
+  font-weight: 800;
+  background-color: var(--c-white);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+  width: 190px;
+}
+
+/* スコア用（小さい丸いボタン） */
+.custom-select-score {
+  border-radius: 20%;
+  width: 46px;
+  height: 30px;
+  font-size: 14px;
+  font-family: var(--f-num);
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-weight: 700;
+  z-index: 9999;
+}
+
+/* フォーマット用（少し角丸の四角いボタン） */
+.custom-select-format {
+  border-radius: 12px;
+  height: 46px;
+  padding: 0 20px;
+  font-size: 13px;
+  font-weight: 800;
+  background-color: var(--c-white);
+  border: 1px solid #e2e8f0;
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-start !important; /* 中央ではなく左寄せに揃える */
+}
+
+/* =========================================================
+   🗃️ モーダル（アーカイブ）専用ステータスボタン
+   ========================================================= */
+
+/* ボタンのベーススタイル（ネオンクラスとは完全に分離） */
+.archive-status-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+.status-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 【初期状態】左側のステータスSVGアイコンはすべて非表示にしておく */
+.status-trigger-left svg {
+  display: none;
+}
+
+/* 右側の下矢印アイコンは常に表示・色はグレー固定 */
+.status-icon-right {
+  display: block !important;
+  stroke: #94a3b8;
+}
+
+/* =========================================================
+   🎨 状態（data-status）ごとのデザイン管理
+   ========================================================= */
+
+/* 1. 履修済 (watched) */
+.archive-status-btn[data-status="履修済"] {
+  background-color: rgba(16, 185, 129, 0.08); /* 薄い緑背景 */
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #10b981; /* 濃い緑の文字 */
+}
+.archive-status-btn[data-status="履修済"] .icon-watched {
+  display: block !important; /* 履修済のSVGだけを表示 */
+  fill: #10b981; /* SVGの塗りつぶし色 */
+}
+
+/* 2. 履修中 (watching) */
+.archive-status-btn[data-status="履修中"] {
+  background-color: rgba(59, 130, 246, 0.08); /* 薄い青背景 */
+  border-color: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+.archive-status-btn[data-status="履修中"] .icon-watching {
+  display: block !important;
+  fill: #3b82f6;
+}
+
+/* 3. 再履修 (rewatch) */
+.archive-status-btn[data-status="再履修"] {
+  background-color: rgba(168, 85, 247, 0.08); /* 薄い紫背景 */
+  border-color: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+}
+.archive-status-btn[data-status="再履修"] .icon-rewatch {
+  display: block !important;
+  stroke: #a855f7; /* 再履修アイコンは「線」なのでstrokeで色付け */
+}
+
+/* 4. 脱落 (dropped) */
+.archive-status-btn[data-status="脱落"] {
+  background-color: rgba(244, 63, 94, 0.08); /* 薄い赤（ローズ）背景 */
+  border-color: rgba(244, 63, 94, 0.2);
+  color: #f43f5e;
+}
+.archive-status-btn[data-status="脱落"] .icon-dropped {
+  display: block !important;
+  fill: #f43f5e;
+}
+
+/* 5. 未履修 / デフォルト (default) */
+.archive-status-btn[data-status="未履修"] {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+.archive-status-btn[data-status="未履修"] .icon-default {
+  display: block !important;
+  fill: #94a3b8;
+}
+
+/* --- 📝 ヘッダー＆上部用の文字ボタン --- */
+.btn-profile-text {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--c-text-gray);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-profile-text:hover {
+  border-color: var(--c-blue);
+  color: var(--c-blue);
+  background: rgba(81, 82, 245, 0.05);
+}
+/* --- アニメ追加--- */
+.btn-add-anime {
+  height: 54px;
+  padding: 0 25px;
+  background: var(--c-black);
+  color: var(--c-white);
+  border-radius: 99px;
+  border: 1px solid var(--c-border);
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+.btn-add-anime:hover {
+  border-color: var(--c-black);
+  transform: translateY(-2px);
+}
+.btn-pop-add {
+  background: var(--c-black);
+  color: var(--c-white);
+  border: none;
+  border-radius: 99px;
+  padding: 8px 20px;
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 11px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-pop-add:hover {
+  background: var(--c-blue);
+}
+
+/* --- 一覧並べ替え --- */
+.btn-sort-list {
+  background: transparent;
+  border: none;
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--c-text-gray);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 12px;
+  transition: 0.2s;
+}
+.btn-sort-list.active {
+  background: var(--c-black);
+  color: var(--c-white);
+}
+/* --- 解除してHOMEへボタン --- */
+.btn-clear {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 20px;
+  border-radius: 99px;
+  cursor: pointer;
+  color: var(--c-red);
+  transition: 0.2s;
+}
+.btn-clear:hover {
+  background: var(--c-red);
+  color: var(--c-white);
+}
+
+/* --- 🎨 アイコン型ボタン --- */
+.btn-clear-icon {
+  background: #fee2e2;
+  color: #e11d48;
+  border: none;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: var(--f-jp);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-clear-icon:hover {
+  background: #fecdd3;
+  transform: scale(1.05);
+}
+
+.btn-svg-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.btn-svg-icon:hover {
+  background: #f1f5f9;
+}
+
+/* --- 💾 保存・キャンセル・削除ボタン --- */
+.btn-save-archive {
+  background: var(--c-blue);
+  color: white;
+  font-family: var(--f-eng);
+  font-weight: 900;
+  font-size: 14px;
+  padding: 15px 30px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(81, 82, 245, 0.3);
+  transition: 0.2s;
+}
+.btn-save-archive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 25px rgba(81, 82, 245, 0.4);
+}
+
+/* CANCELボタン */
+.btn-cancel {
+  background: #ffffff;
+  color: #94a3b8;
+  font-family: var(--f-eng);
+  font-weight: 800;
+  font-size: 11px;
+  border: 1px solid #cbd5e1;
+  padding: 12px 24px;
+  border-radius: 99px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(100, 116, 139, 0.15) !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+.btn-cancel:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(100, 116, 139, 0.3) !important;
+  color: var(--c-black) !important;
+}
+
+/* DELETEボタン */
+.btn-delete {
+  background: #ffffff;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  font-family: var(--f-eng);
+  font-weight: 800;
+  font-size: 11px;
+  padding: 12px 24px;
+  border-radius: 99px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 31, 79, 0.2) !important;
+  transition: all 0.2s !important;
+}
+.btn-delete:hover {
+  box-shadow: 0 8px 25px rgba(255, 31, 79, 0.4) !important;
+  background: #fff1f2 !important;
+  color: var(--c-white);
+  animation: btnShake 0.4s ease-in-out !important;
+}
+
+.btn-cancel-save-box {
+  display: flex;
+  gap: 15px;
+}
+/* プロフィール保存ボタン */
+.btn-profile-save {
+  width: 200px;
+  background: var(--c-white);
+  color: var(--c-blue);
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 15px 30px;
+  border-radius: 99px;
+  border: 1px solid var(--c-blue);
+  cursor: pointer;
+  transition: 0.2s;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 15px; /* 下の余白 */
+}
+
+/* ログインボタン */
+.btn-login {
+  width: 200px;
+  background: var(--c-white);
+  color: var(--c-blue);
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 15px 30px;
+  border-radius: 99px;
+  border: 1px solid var(--c-blue);
+  cursor: pointer;
+  transition: 0.2s;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 15px; /* 下の余白 */
+}
+.btn-login:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 25px rgba(81, 82, 245, 0.4);
+}

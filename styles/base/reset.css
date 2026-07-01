@@ -1,0 +1,71 @@
+/* =========================================================
+   🧹 リセット＆ベース（Reset & Base）
+   ブラウザが最初から持っている余計なデザインを消して、
+   まっさらな状態にするための設定です。
+   ========================================================= */
+
+/* --- 📏 全ての要素の基本設定 --- */
+* {
+  /* 要素の幅や高さに、枠線や内側の余白を含めて計算する魔法 */
+  box-sizing: border-box;
+}
+
+/* --- 🌐 画面全体（body）の設定 --- */
+body.app-body {
+  height: 100dvh; /* 画面いっぱいの高さにする */
+  display: flex;
+  flex-direction: column; /* 中身を縦に並べる */
+  overflow: hidden; /* 画面全体がスクロールしないように固定 */
+  margin: 0;
+  padding: 0;
+  font-family: var(--f-jp); /* 基本のフォントを適用 */
+  background-color: var(--c-bg); /* 背景色を適用 */
+  color: var(--c-black); /* 基本の文字色を適用 */
+
+  /* IEやFirefoxでスクロールバーを隠す設定 */
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* --- 🖱️ 入力フォーム・ボタンの初期化 --- */
+button,
+select,
+input,
+textarea {
+  outline: none; /* クリックした時の青い枠線を消す */
+}
+
+/* --- 🙈 スクロールバーを完全に隠す魔法（Chrome / Safari用） --- */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* --- 🛠️ 便利な非表示・スクロール設定クラス --- */
+.hidden {
+  display: none !important; /* 強制的に非表示にする */
+}
+
+.no-scrollbar {
+  overflow-y: auto; /* 縦スクロールはできるようにする */
+  -ms-overflow-style: none; /* スクロールバー隠す（IE対応） */
+  scrollbar-width: none; /* スクロールバー隠す（Firefox対応） */
+}
+
+/* パンくず（絞り込み状態）エリアのベース装飾 */
+#breadcrumbArea {
+  padding: 15px 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+/* ▼ リストが空の時の汎用メッセージ ▼ */
+.list-empty-text {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 40px 0;
+  font-weight: bold;
+}

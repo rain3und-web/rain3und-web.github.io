@@ -1,0 +1,54 @@
+
+/* =========================================
+   1. Base (基礎・変数・リセット)
+   ========================================= */
+@import url("./base/variables.css");
+@import url("./base/reset.css");
+@import url("./base/animations.css");
+@import url("./base/typography.css"); /* 新規作成した場合 */
+
+/* =========================================
+   2. Layout (大枠のレイアウト・共通パネル)
+   ========================================= */
+@import url("./layout/app-layout.css");
+@import url("./layout/header.css");
+@import url("./layout/sidebar.css");
+@import url("./layout/panels.css");
+
+/* =========================================
+   3. Components (独立したUIパーツ)
+   ========================================= */
+@import url("./components/buttons.css");
+@import url("./components/forms.css");
+@import url("./components/tags.css");
+@import url("./components/cards.css");
+@import url("./components/dropdown.css");
+@import url("./components/modal.css");
+@import url("./components/oshi.css");
+@import url("./components/radar-chart.css");
+@import url("./components/archive.css");
+
+/* =========================================
+   4. Pages (各ページ固有のスタイル)
+   ========================================= */
+@import url("./pages/home.css");
+@import url("./pages/stats.css");
+@import url("./pages/login.css");
+@import url("./pages/profile.css");
+
+/* 一番下に追記：iPad用のレスポンシブ設定 */
+@import url("./responsive.css");
+/* 一番下に追記：スマホ縦画面用のレスポンシブ設定 */
+@import url("./mobile.css");
+
+/* 💡 フォント読み込み中はオープニングの文字だけを隠す */
+html.wf-loading .startup-content {
+    visibility: hidden;
+}
+
+/* 💡 読み込み完了（active）、Adobe側の諦め（inactive）、自作の強制表示（loading-delay）のどれかで表示 */
+html.wf-active .startup-content,
+html.wf-inactive .startup-content,
+html.loading-delay .startup-content {
+    visibility: visible;
+}

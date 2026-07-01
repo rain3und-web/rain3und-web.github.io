@@ -1,0 +1,562 @@
+/* =========================================================
+   🗃️ アーカイブ詳細画面（Archive）
+   作品の詳細を表示する大きなモーダル画面のデザインです。
+   ========================================================= */
+
+/* -----------------------------------------
+   アーカイブ画面の大枠（モーダル本体）
+   ----------------------------------------- */
+.archive-modal {
+  width: 95%;
+  max-width: 1300px; /* ★モーダル全体を少し広げる */
+  height: 90vh;
+  background: var(--c-white);
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+.archive-content {
+  display: flex;
+  height: 100%;
+}
+
+/* -----------------------------------------
+   ⬅️ 左カラム（画像とステータス）
+   ----------------------------------------- */
+.archive-left {
+  width: 400px;
+  background: #f8fafc;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px; /* 少し余裕を持たせる */
+  border-right: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  overflow-y: auto; /* ★ visible から auto に変更し、縦スクロールを有効化 */
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ★追加：左パネルの中身が縦に潰れて変形するのを「絶対に変えるな」という命令 */
+.archive-cover-wrapper,
+.archive-url-box,
+.archive-status-wrapper,
+.archive-evaluation-area,
+.archive-updated-at {
+  flex-shrink: 0 !important;
+}
+/* -------------------------
+   画像の修正 (archive.css)
+------------------------- */
+/* ① 親要素：hidden は消したままでOK！（これでボタンがはみ出せます） */
+.archive-cover-wrapper {
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 3 / 3.5;
+  border-radius: 12px; /* 枠自体の丸みは一応残しておく */
+  /* overflow: hidden; ← 消したまま！ */
+  background: #e2e8f0;
+  margin: 0 auto;
+  position: relative !important;
+}
+
+/* ② 中の画像：画像自体を直接丸く削る（これをCSSのどこかに追加！） */
+.archive-cover-wrapper img {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px; /* 💡 ここが最重要！画像自身を丸くする */
+  object-fit: cover;
+  object-position: center center;
+}
+
+/* ドラッグ対象となるプレビュー画像自体（元のサイズ指定を崩さない） */
+.crop-target-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* つかんでドラッグしている最中のカーソル */
+.crop-target-img:active {
+  cursor: grabbing;
+}
+
+/* 🎨 右下にはみ出す形でおしゃれに浮くクロップボタン */
+.crop-overlay-icon {
+  position: absolute;
+  bottom: -10px; /* 💡 マイナス指定で画像の下側にはみ出させる */
+  right: -10px; /* 💡 マイナス指定で画像の右側にはみ出させる */
+
+  /* 🍦 OTAKU LOGの雰囲気に合わせた可愛いパステルデザイン */
+  background: var(--c-white); /* 優しい白ベース */
+  border: 2px solid var(--c-blue); /* 💡 可愛いパステルピンク（淡いブルー等に変えてもOK！） */
+  color: var(--c-blue); /* アイコン自体の色 */
+
+  width: 35px;
+  height: 35px;
+  border-radius: 50%; /* 💡 完全な丸にしてポチッとした可愛さに */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(140, 114, 244, 0.25); /* 枠線と同系色のふんわりした影 */
+  z-index: 20;
+  cursor: pointer; /* 💡 追加：マウスを乗せた時に「指マーク」にする */
+  pointer-events: auto;
+}
+
+/* ホバー時にちょっと大きくする場合（クリックボタン化するとき用） */
+.crop-overlay-icon:hover {
+  transform: scale(1.1);
+}
+/* 💡 編集モードがONの時（JSで is-active が付いた時）のデザイン */
+.crop-overlay-icon.is-active {
+  background: var(--c-blue);
+  color: var(--c-white); /* アイコン自体の色 */
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(166, 154, 231, 0.5);
+}
+
+/* --- 画像URL入力エリア --- */
+.archive-url-box {
+  width: 100%;
+}
+.url-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--c-white);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 8px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.url-input-wrapper .custom-input {
+  border: none;
+  box-shadow: none;
+  padding: 10px 8px;
+  font-size: 12px;
+  flex: 1;
+}
+.url-input-wrapper .custom-input:focus {
+  box-shadow: none; /* 外枠で色を変えるためリセット */
+}
+.url-input-wrapper:focus-within {
+  border-color: var(--c-blue);
+}
+.btn-copy-link {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-copy-link:hover {
+  background: #e2e8f0;
+}
+
+/* 評価エリア全体：フレックスボックスで縦に綺麗に並べる */
+.archive-evaluation-area {
+  width: 100%;
+  border-radius: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  flex: none; /* ★ flex: 1 から none に変更（縦に縮まないようにする） */
+}
+
+/* 総合評価ボックス：絶対配置(absolute)を解除する */
+.overall-score-box {
+  position: relative !important; /* ★もしabsoluteがあればこれで打ち消す */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.overall-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.score-main {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--c-blue);
+  font-family: var(--f-eng);
+}
+.score-max {
+  font-size: 12px;
+  font-weight: bold;
+  color: #94a3b8;
+}
+/* -----------------------------------------
+   総合スコアの星の塗りつぶしコントロール
+   ----------------------------------------- */
+.overall-stars-outer {
+  position: relative;
+  display: inline-block;
+}
+
+.overall-stars-bg {
+  display: flex;
+  gap: 2px;
+}
+
+.overall-stars-fg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 2px;
+  overflow: hidden; /* 💡 魔法その1：はみ出た青い星をスパッと見えなくする */
+  width: 0%; /* 初期値。JSでパーセンテージが上書きされます */
+  white-space: nowrap;
+}
+
+/* 💡 魔法その2：幅が縮んだ時に、星の絵自体がペチャンコに潰れるのを防ぐ */
+.overall-stars-bg svg,
+.overall-stars-fg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.archive-status-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* 左下の更新日時表示 */
+.archive-updated-at {
+  margin-top: 10px; /* ★ scroll化に伴い auto から固定マージンに変更 */
+  width: 100%;
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  padding-top: 10px;
+}
+/* ▼ 作成・更新日時の区切り線 ▼ */
+.archive-time-divider {
+  color: #cbd5e1;
+  margin: 0 8px; /* 縦線の左右に少し余白を作る */
+}
+/* ステータスと周回カウンターの横並びコンテナ */
+.archive-status-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.archive-status-wrapper {
+  flex: 1; /* ステータス側を広く取る */
+}
+
+/* 周回カウンターのデザイン */
+.archive-rewatch-counter {
+  display: flex;
+  align-items: center;
+  background-color: var(--c-white);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px; /* ステータスボタンと統一 */
+  height: 45px; /* ステータスボタンの高さに合わせる */
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+/* ＋ ＆ － ボタン */
+.rewatch-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.rewatch-btn:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+.rewatch-btn:active {
+  transform: scale(0.95);
+}
+
+/* 真ん中の数字部分 */
+.rewatch-display {
+  min-width: 50px;
+  text-align: center;
+  font-weight: 900;
+  color: #1e293b;
+  font-family: var(--f-jp);
+  font-size: 14px;
+}
+
+.rewatch-label {
+  font-size: 11px;
+  color: #64748b;
+  margin-left: 2px;
+}
+/* -----------------------------------------
+   ➡️ 右カラム（詳細な情報・メモの入力エリア）
+   ----------------------------------------- */
+.archive-right {
+  flex: 1;
+  padding: 30px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  background: #f8fafc;
+  position: relative;
+  z-index: 10;
+}
+
+/* 右カラム内の入力枠などを白抜き＆ボーダーで統一 */
+.archive-right .custom-input,
+.archive-right .archive-textarea,
+.archive-right .archive-section,
+.archive-right .oshi-card .oshi-img,
+.archive-right .oshi-add-btn {
+  background: var(--c-white);
+  border: 1px solid #e2e8f0;
+}
+
+/* タイトル入力欄 */
+.archive-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.archive-title-input {
+  width: 100%;
+  flex: 1;
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 24px;
+  color: var(--c-black);
+  line-height: 1.2;
+  border: none;
+  background: transparent;
+  padding-bottom: 5px;
+  outline: none;
+  transition: 0.2s;
+}
+.archive-title-input:focus {
+  border-bottom-color: var(--c-blue);
+}
+
+/* 各セクション（放送年、メモなど）のレイアウト */
+.archive-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; /* 余白を少し広げて見やすく */
+}
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* タイトルと入力ボックスの間の隙間 */
+}
+/* 💡 プルダウンに合わせて他の入力欄も白背景・角丸・枠線ありに統一！ */
+.meta-input-box,
+.custom-select-format {
+  width: 100%;
+  height: 46px; /* 統一 */
+  border-radius: 12px; /* 統一 */
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--c-white);
+  border: 1px solid #e2e8f0; /* 統一 */
+  color: #1e293b;
+  outline: none;
+  box-sizing: border-box;
+  font-family: var(--f-jp);
+  transition: border-color 0.2s;
+}
+/* 入力中に枠線を可愛く光らせる（お好みで） */
+.meta-input-box:focus {
+  border-color: #f472b6; /* ピンク */
+}
+.meta-input-box::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+/* -----------------------------------------
+   セクションタイトル（アイコン＋文字の統一）
+   ----------------------------------------- */
+
+/* タイトル内のアイコン自体のサイズと線の太さ調整 */
+.archive-section-title svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor; /* これが親のcolorを継承する魔法の設定 */
+  stroke-width: 2.5; /* 少し太くして可愛く */
+}
+/* -----------------------------------------
+   キャラ以下共通
+   ----------------------------------------- */
+.archive-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+.archive-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.archive-section-title {
+  font-family: var(--f-jp);
+  font-weight: 800;
+  font-size: 11px;
+  color: var(--c-blue);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.archive-tags-row {
+  display: flex;
+  gap: 20px;
+}
+.archive-textarea {
+  width: 100%;
+  height: 100px;
+  border-radius: 16px;
+  padding: 15px;
+  font-family: var(--f-jp);
+  font-weight: 400;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+}
+.archive-textarea:focus {
+  box-shadow: inset 0 0 0 2px var(--c-blue);
+}
+/* -----------------------------------------
+   あらすじ ＆ MEMOの横並びレイアウト
+   ----------------------------------------- */
+.archive-textarea-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 綺麗に50%ずつ左右に分ける */
+  gap: 20px;
+}
+
+.archive-textarea-row .archive-textarea {
+  height: 200px; /* メモとあらすじの縦幅を少し広めに統一 */
+  font-size: 12px;
+  line-height: 1.8;
+}
+/* ジャンル選択パネル特有の配置設定 */
+.genre-section {
+  flex: 1;
+  position: relative;
+}
+/* 1. ジャンル選択ポップアップの全体枠 */
+.genre-popup-box {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 15px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.genre-popup-title {
+  font-weight: bold;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+/* チェックボックスを並べるレイアウト */
+.genre-checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* -----------------------------------------
+   選択済みリスト（声優など）
+   ----------------------------------------- */
+.voiceActor-currentList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 声優編集パネル特有の配置設定 */
+.voiceActor-section {
+  flex: 1.5;
+  position: relative;
+}
+
+/* 1. 声優編集ポップアップの全体枠 */
+.voiceActor-popup-box {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  width: 100%;
+  max-height: 350px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 15px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.voiceActor-popup-title {
+  font-weight: bold;
+  font-size: 13px;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+/* -----------------------------------------
+   下部固定のフッター（保存ボタンなど）
+   ----------------------------------------- */
+.archive-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 30px;
+  background: transparent;
+  border-top: none;
+  z-index: 10;
+}

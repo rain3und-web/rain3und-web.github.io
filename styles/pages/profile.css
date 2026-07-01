@@ -1,0 +1,60 @@
+/* =========================================================
+   👤 マイページ・プロフィール（Profile）
+   ユーザー情報やタグなどを編集する画面のデザインです。
+   ========================================================= */
+
+/* マイページを囲むコンテナ */
+.profile-edit-container { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+    max-width: 500px; 
+    margin: 0 auto; 
+}
+
+.mypage-title {
+    font-size: 24px;                  /* 文字の大きさ (元 text-2xl) */
+    font-weight: 900;                 /* 文字の太さ (元 font-black) */
+    font-family: var(--f-jp);         /* 日本語フォント (元 font-jp) */
+    color: #1F2937;                   /* 文字の色 (元 text-gray-800) */
+    border-bottom: 1px solid #E5E7EB; /* 下線の太さ・種類・色 (元 border-b, border-gray-200) */
+    padding-bottom: 12px;             /* 文字から下線までの隙間 (元 pb-3) */
+    margin-bottom: 24px;              /* 下線から下の要素までの余白 (元 mb-6) */
+}
+
+/* アイコン画像エリア */
+.profile-img-section { 
+    display: flex; 
+    align-items: center; 
+    gap: 25px; 
+}
+.profile-avatar-large { 
+    width: 90px; 
+    height: 90px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    flex-shrink: 0; 
+}
+
+/* 🌟 プロフィール＆アイコンの追加デザイン */
+.profile-avatar-wrapper { 
+    width: 90px; 
+    height: 90px; 
+    border-radius: 50%; 
+    background: var(--c-yellow); 
+    color: var(--c-black);
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-family: var(--f-eng); 
+    font-weight: 900; font-size: 32px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    flex-shrink: 0; 
+    overflow: hidden;
+}
+.profile-avatar-wrapper img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}

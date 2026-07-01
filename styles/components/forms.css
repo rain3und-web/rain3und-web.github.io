@@ -1,0 +1,202 @@
+/* =========================================================
+   📝 入力フォーム（Forms）
+   テキスト入力欄や検索バー、タグ入力などのデザインです。
+   ========================================================= */
+
+/* -----------------------------------------
+   基本の入力枠（Input & Textarea）
+----------------------------------------- */
+.custom-input, .custom-textarea {
+    background: var(--c-white); 
+    border: 1px solid #E2E8F0; 
+    border-radius: 12px; 
+    padding: 12px 16px;
+    font-family: var(--f-jp); 
+    font-weight: 500; 
+    font-size: 13px; 
+    color: var(--c-black); 
+    width: 100%; 
+    transition: 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+.custom-input:focus, .custom-textarea:focus { 
+   border-color: var(--c-blue); 
+   box-shadow: 0 0 0 3px rgba(81, 82, 245, 0.1); 
+}
+.custom-textarea { 
+   height: 80px; 
+   resize: none; 
+}
+
+/* -----------------------------------------
+   マイページ入力
+----------------------------------------- */
+/* プロフィール画面の入力グループ */
+.profile-input-group { 
+   flex: 1; 
+   display: flex; 
+   flex-direction: column; 
+   gap: 8px; 
+   width: 100%; 
+}
+.profile-input-group label { 
+   font-family: var(--f-jp); 
+   font-weight: 700; 
+   font-size: 11px; 
+   color: var(--c-text-gray); 
+}
+.profile-input-group-custom {
+   margin-top: 16px;
+}
+
+/* -----------------------------------------
+   アクションバー（メイン検索）
+   ----------------------------------------- */
+.action-top-row { 
+   display: flex; 
+   align-items: center; 
+   gap: 15px; 
+   margin-bottom: 25px; 
+   flex-shrink: 0; 
+   padding-top: 5px; 
+}
+.main-search-wrapper { 
+   flex: 1; 
+   position: relative; 
+}
+.main-search-bar { 
+   display: flex; 
+   align-items: center; 
+   border-radius: 99px; 
+   height: 54px; 
+   padding: 0 25px; 
+   gap: 15px; 
+}
+.search-icon { 
+   width: 18px; 
+   height: 18px; 
+   stroke-width: 2.5; 
+   color: var(--c-text-gray); 
+}
+.main-search-bar input { 
+   border: none; 
+   background: transparent; 
+   flex: 1; 
+   font-family: var(--f-jp); 
+   font-weight: 700; 
+   font-size: 13px; 
+   color: var(--c-black); 
+}
+
+/* -----------------------------------------
+   アーカイブ欄各種検索バーの土台（声優・キャラ）
+   ----------------------------------------- */
+.voiceActor-searchbar { 
+   position: relative; 
+}
+.voiceActor-searchbar-input { 
+   font-size: 12px; 
+   padding: 8px; 
+}
+.chara-search-box { 
+   position: relative; 
+   margin-top: 10px; 
+}
+
+/* -----------------------------------------
+   サジェストボックス（予測候補）共通・個別設定
+   ----------------------------------------- */
+/* メイン検索用サジェスト箱 */
+.suggest-box {
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    width: 100%; 
+    max-height: 150px;
+    background: white; 
+    border: 1px solid #E2E8F0; 
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+    overflow-y: auto; 
+    font-size: 11px; 
+    z-index: 999;
+}
+/* メイン検索用サジェスト項目 */
+.suggest-item {
+    padding: 12px 15px; 
+    font-family: var(--f-jp); 
+    font-weight: 700; 
+    font-size: 13px; 
+    color: var(--c-black);
+    cursor: pointer; 
+    border-radius: 12px; 
+    transition: 0.1s; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+}
+.suggest-item:hover { 
+   background: var(--c-bg); 
+   color: var(--c-blue); 
+}
+.suggest-badge { 
+   background: #E2E8F0; 
+   color: #475569; 
+   font-size: 10px; 
+   padding: 3px 8px; 
+   border-radius: 8px; 
+}
+/* ▼ 監督検索サジェスト用 ▼ */
+.suggest-message {
+    text-align: center;
+    padding: 6px;
+    color: #94A3B8; /* 検索中などの基本色 */
+}
+.suggest-message.error {
+    color: #EF4444; /* エラーや「なし」の時の赤色 */
+}
+
+/* サジェストに出てくる各監督の名前の枠 */
+.suggest-item-row {
+    padding: 6px 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background-color 0.2s;
+}
+.suggest-item-row:hover {
+    background-color: #F8FAFC; /* マウスを乗せたら少し色を変える */
+}
+/* キャラ検索用サジェスト箱 */
+.chara-suggest-list { 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    width: 100%; 
+    max-height: 200px; 
+    background: white; 
+    border: 1px solid #E2E8F0; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+    overflow-y: auto; 
+    z-index: 100; 
+    margin-top: 5px; 
+}
+/* ▼ キャラクター検索サジェスト用のアイコン画像 ▼ */
+.suggest-char-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+/* 声優検索用サジェスト項目 */
+.voiceActor-chara-suggest-item { 
+   padding: 8px 12px; 
+   font-size: 12px; 
+   font-weight: 700; 
+   color: #334155; 
+   background: #F8FAFC; 
+   border-radius: 8px; 
+   cursor: pointer; 
+}

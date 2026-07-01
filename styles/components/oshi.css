@@ -1,0 +1,330 @@
+/* =========================================================
+   💖 推しキャラUI（Oshi Features）
+   推しキャラを目立たせるキラキラエフェクトや、
+   声優リストなどのデザインをまとめたファイルです。
+   ========================================================= */
+
+/* -----------------------------------------
+   1. キャラクターの横並びリスト（全体枠）
+   ----------------------------------------- */
+.oshi-roster {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 15px 10px 10px 10px !important; /* 端が切れないようにたっぷり余白を取る */
+  margin: -10px -10px 0 -10px;
+}
+
+/* ▼ キャラクター画像のラッパー（推しバッジを重ねるための基準点） ▼ */
+.oshi-img-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+/* -----------------------------------------
+   2. キャラクターカードの基本デザイン
+   ----------------------------------------- */
+.oshi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 64px;
+  position: relative;
+  transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.oshi-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  object-fit: cover !important;
+  aspect-ratio: 1 / 1;
+}
+.oshi-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--c-black);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+/* 可愛い赤いSVGのバツボタン（ホバーで表示） */
+.oshi-remove-btn {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  background: white;
+  color: var(--c-red);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: 0.2s;
+  padding: 0;
+}
+.oshi-remove-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 3;
+}
+.oshi-remove-btn:hover {
+  transform: scale(1.15) rotate(90deg);
+  background: var(--c-red);
+  color: white;
+}
+.oshi-card:hover .oshi-remove-btn {
+  display: flex;
+}
+
+/* ドラッグ＆ドロップ時のスタイル */
+.oshi-card.dragging {
+  opacity: 0.4;
+  transform: scale(0.95);
+}
+.oshi-card.drag-over {
+  border-left: 3px solid var(--c-blue);
+  padding-left: 2px;
+}
+
+/* -----------------------------------------
+   3. 「推し」に選ばれた時のド派手な特別デザイン
+   ----------------------------------------- */
+.oshi-card.is-oshi {
+  transform: scale(1.15);
+  z-index: 10;
+  margin: 0 6px; /* 一回り大きくして目立たせる */
+}
+.oshi-card.is-oshi .oshi-img {
+  border: 5px solid #f9c106 !important;
+  box-shadow: 0 8px 24px rgba(249, 193, 6, 0.5) !important; /* 濃い黄色の枠と影 */
+}
+
+/* 画像下中央の「推し」テキストバッジ */
+.oshi-text-badge {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f9c106;
+  color: #1e293b;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 2px solid white;
+  z-index: 5;
+  letter-spacing: 1px;
+}
+
+/* 推しにした瞬間のキラキラアニメーション */
+.sparkle-effect {
+  animation: oshiSparkle 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* -----------------------------------------
+   4. 声優編集画面のデザイン
+   ----------------------------------------- */
+.actor-remove-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.actor-remove-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.actor-remove-btn {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.actor-remove-btn:hover {
+  color: var(--c-red) !important;
+  transform: scale(1.2);
+}
+
+/* -----------------------------------------
+   ★ 推しカードのサイズ設定（ここで一括調整できます！）
+   ----------------------------------------- */
+:root {
+  --card-width-normal: 130px; /* 通常の推しカードの幅 */
+  --card-width-gold: 150px; /* 神推し(お気に入り)カードの幅 */
+}
+/* -----------------------------------------
+   5. 全体推しリスト（ポラロイド風）
+   ----------------------------------------- */
+.oshiChara-title {
+  font-weight: 700;
+  font-size: 20px;
+  font-family: var(--f-jp);
+  color: #1f2937;
+}
+.oshi-title-heart {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 6px;
+  filter: drop-shadow(0 2px 4px rgba(249, 193, 6, 0.3));
+}
+
+#globalOshiContainer {
+  padding: 10px;
+}
+
+/* 💡 推しキャラ画面全体をリアルなコルクボード風にする */
+#oshiCharaArea {
+  /* 1. ベースカラー：左メニューと右タイムラインを繋ぐ、非常に淡いブルーグレー */
+  background-color: #f1f5f9;
+
+  /* 2. パターン：ノイズをやめて、クリーンな「ドット柄」を採用（アプリのログ感を演出） */
+  background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+
+  /* 3. 枠の装飾：モダンなUIに合わせて角を丸くし、薄い枠線を引く */
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+
+  /* 4. 奥行き：ほんの少しだけ内側に影を落として、ノートのくぼみを表現 */
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+/* 💡 ゾーンのレイアウトを統一（Flexboxで並べるだけ） */
+.oshi-gold-zone,
+.oshi-normal-zone {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* 中央揃え */
+  gap: 15px; /* カード同士の隙間 */
+  padding: 10px 0px 30px 0px;
+}
+.oshi-gold-zone:empty {
+  display: none;
+}
+
+/* 📷 チェキ（カード）の共通デザイン */
+.global-oshi-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  width: var(--card-width-normal);
+
+  /* 💡 修正：下の余白（26pxの部分）を長くして、文字とハートのスペースを確保 */
+  padding: 6px 6px 26px 6px;
+
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.15),
+    0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s,
+    width 0.3s;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+/* 👑 神推しカード（幅を上書きするだけ！上のpadding変更がここにも効きます） */
+.global-oshi-card.gold-card {
+  width: var(--card-width-gold);
+}
+
+.global-oshi-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  border-color: #94a3b8;
+}
+
+/* アイコン画像（幅はカードの100%になるので自動調整されます） */
+.global-oshi-avatar {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+/* テキストエリア */
+.akusuta-info {
+  margin-top: 8px;
+  text-align: center;
+  /* 💡 修正：左右の余白を16px → 4pxに減らし、文字が横いっぱいに広がるようにしました */
+  padding: 0 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.global-oshi-name,
+.global-oshi-anime {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+.global-oshi-name {
+  font-size: 12px;
+  font-weight: 800;
+}
+.global-oshi-anime {
+  font-size: 9px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+/* ハートボタン */
+.oshi-pin-btn {
+  position: absolute;
+  /* 💡 修正：長くした白い部分の右下にスッポリ収まるように、下からの距離を微調整 */
+  bottom: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  color: #cbd5e1;
+  cursor: pointer;
+  z-index: 10;
+  transition:
+    transform 0.2s,
+    color 0.2s;
+}
+
+.oshi-pin-btn:hover {
+  transform: scale(1.15);
+  color: var(--c-red);
+}
+
+.oshi-pin-btn.active {
+  color: var(--c-red);
+  filter: drop-shadow(0 2px 4px rgba(255, 108, 167, 0.4));
+}
+
+.oshi-pin-btn svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}

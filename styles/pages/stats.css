@@ -1,0 +1,1462 @@
+/* =========================================================
+   📊 統計・分析ダッシュボード（デザイン高密度・完全最適化版）
+   ========================================================= */
+
+/* 余白・レイアウト調整 */
+.mt-8 {
+  margin-top: 8px;
+}
+.mt-15 {
+  margin-top: 15px;
+}
+.mt-auto {
+  margin-top: auto;
+}
+.mb-15 {
+  margin-bottom: 15px;
+}
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+/* テキストカラー＆サイズ */
+.text-red {
+  color: var(--c-red);
+}
+.text-blue {
+  color: var(--c-blue);
+}
+.text-black {
+  color: var(--c-black);
+}
+.text-gray {
+  color: var(--c-text-gray);
+}
+.text-xs {
+  font-size: 10px;
+}
+.text-sm {
+  font-size: 12px;
+}
+.text-lg {
+  font-size: 16px;
+}
+.font-bold {
+  font-weight: 700;
+}
+
+/* 背景色ユーティリティ */
+.bg-blue {
+  background: var(--c-blue);
+}
+.bg-red {
+  background: var(--c-red);
+}
+
+#statsPageArea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin: 0;
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s;
+  padding: 15px 10px 30px 10px;
+  overflow-y: auto;
+}
+#statsPageArea.slide-down {
+  transform: translateY(calc(100% - 60px));
+}
+#statsPageArea.slide-down:hover {
+  transform: translateY(calc(100% - 70px));
+}
+#statsPageArea::after {
+  content: "▲ 統計ダッシュボードに戻る";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-jp);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--c-blue);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+#statsPageArea.slide-down::after {
+  display: flex;
+}
+
+.stats-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-auto-rows: minmax(110px, auto);
+  gap: 16px;
+  width: 100%;
+  padding-bottom: 30px;
+}
+
+/* ヘッダー＆汎用テキスト */
+.dashboard-label {
+  font-size: 10px;
+  color: var(--c-text-gray);
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+.dashboard-empty-text {
+  font-size: 10px;
+  color: #94a3b8;
+}
+.stats-header-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  grid-column: span 12;
+  margin-bottom: 20px;
+}
+.stats-header-title {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--f-jp);
+  color: var(--c-black);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- 🍱 パネルのベースデザイン --- */
+.bento-panel {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: 24px;
+  padding: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible !important;
+  height: auto !important;
+}
+/* 中段4パネルの親コンテナ（Gridの場合） */
+.stats-grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2列配置 */
+  grid-template-rows: auto auto; /* 1frからautoに変更して、縦の強制引き伸ばしを阻止！ */
+  gap: 16px; /* パネル同士の隙間を少しタイトに */
+}
+
+/* 各パネルの共通設定 */
+.panel {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px; /* 24pxなど広すぎる場合は16px〜20pxに縮小 */
+  height: auto; /* 固定高さをやめて、中身に合わせる */
+  min-height: 0; /* 予期せぬ引き伸ばしを防止 */
+  overflow: hidden; /* 💡 枠内スクロールを完全に無効化！ */
+  display: flex;
+  flex-direction: column;
+}
+.bento-title {
+  font-family: var(--f-jp);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c-black);
+  margin-bottom: 8px; /* 下部ブロックとの明確な階層化のため調整 */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bento-title svg {
+  stroke: var(--c-blue);
+}
+.panel-inner-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 各パネルのグリッド割り当て */
+.panel-report {
+  grid-column: span 20;
+  background: linear-gradient(135deg, #f8fafc 0%, var(--c-white) 100%);
+}
+.panel-master {
+  grid-column: span 6;
+  grid-row: span 2;
+}
+.panel-style {
+  grid-column: span 7;
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-donut {
+  grid-column: span 7;
+  grid-row: span 2;
+}
+.panel-tendency {
+  grid-column: span 6;
+  grid-row: span 3;
+}
+.panel-oshi {
+  grid-column: span 7;
+  grid-row: span 3;
+}
+.panel-decade {
+  grid-column: span 7;
+  grid-row: span 3;
+}
+.panel-staff {
+  grid-column: span 20;
+  grid-row: span 1;
+}
+
+/* --- 🧩 新UIコンポーネント（プログレスバー等） --- */
+.ui-progress-wrap {
+  width: 100%;
+  height: 12px;
+  background: var(--c-border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.ui-progress-wrap.slim {
+  height: 6px;
+}
+.ui-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s ease-out;
+}
+.ui-flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 12px;
+}
+.ui-label {
+  color: var(--c-text-gray, #64748b);
+  font-weight: bold;
+}
+.ui-value {
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* --- 📝 診断プロファイル --- */
+.report-text {
+  font-family: var(--f-jp);
+  font-size: 13px;
+  line-height: 2.5;
+  color: var(--c-black);
+  font-weight: 500;
+}
+.report-highlight,
+.report-username,
+.report-tendency {
+  font-family: var(--f-jp);
+  font-weight: 800;
+  color: var(--c-blue);
+  background: rgba(81, 82, 245, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+/* --- 📊 サマリー --- */
+.summary-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+}
+.summary-val-small {
+  font-family: var(--f-jp);
+  font-size: 18px;
+  color: var(--c-black);
+  line-height: 1;
+  margin-top: 4px;
+}
+.summary-val-medium {
+  font-family: var(--f-jp);
+  font-size: 18px;
+  color: var(--c-black);
+  line-height: 1;
+  margin-top: 4px;
+}
+.summary-val-large {
+  font-family: var(--f-jp);
+  color: var(--c-blue);
+  text-shadow: 0 0 15px rgba(81, 82, 245, 0.3);
+  font-size: 25px;
+  line-height: 1;
+  margin-top: 4px;
+  font-weight: 900;
+}
+.summary-unit {
+  font-size: 11px;
+  color: var(--c-text-gray);
+  margin-left: 4px;
+}
+.summary-unit-large {
+  font-size: 12px;
+  color: var(--c-text-gray);
+  margin-left: 4px;
+}
+.summary-unit-time {
+  font-size: 11px;
+  color: var(--c-text-gray);
+  margin-left: 2px;
+}
+.summary-unit-time.mr {
+  margin-right: 4px;
+}
+
+/* --- 🍩 ジャンル・ドーナツグラフ --- */
+.donut-chart-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 5px 0 0 0;
+  margin-top: -10px;
+}
+
+.donut-chart-container {
+  position: relative;
+  width: 250px; /* 下のリストのために少しサイズを最適化 */
+  aspect-ratio: 1 / 1;
+}
+
+.donut-svg {
+  width: 100%;
+  height: 100%;
+  /* 💡 削除: transform: rotate(-90deg); はJS側で処理するため消去 */
+  overflow: visible;
+}
+/* 1. リング自体の大きさをここで引き上げる */
+.cute-donut-svg {
+  width: 90% !important; /* 👈 枠いっぱいに広げる（小さければ95%などに調整） */
+  max-width: 360px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+/* 2. リングの太さをここで極太に設定！ */
+.donut-bg-ring {
+  stroke-width: 38px !important; /* 👈 グレーのベースリングの太さ */
+  opacity: 0.3;
+}
+/* 💡 リング自体の基本設定 */
+.donut-segment {
+  /* 👈 初期状態の太さ（あなたの調整した太さに合わせて適宜調整してください。ここでは例として38pxにします） */
+  stroke-width: 38px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 👈 ぬるっと動く、心地よいアニメーションを追加 */
+  filter: drop-shadow(0 0 6px var(--neon-color));
+
+  /* 👇 これがあるからこそ、今太くしてもバグりません（絶対消さないでください！） */
+  pointer-events: stroke !important;
+}
+
+/* 💡 ホバーした時の設定（太さとネオン感をアップ！） */
+.donut-segment:hover {
+  /* 👈 ホバーした時だけ、少し太く（+6px程度が可愛いです） */
+  stroke-width: 44px;
+
+  /* 👇 ネオンの光を少し強調＆透明度を少し下げる */
+  opacity: 1;
+  filter: drop-shadow(0 0 10px var(--neon-color));
+}
+
+.donut-center-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+.donut-side-text {
+  /* font-size: 15px !important; */ /* 👈 この行を削除、またはスラッシュで囲って無効化 */
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+.donut-center-number {
+  /* font-size: 44px !important; */ /* 👈 この行も削除、または無効化 */
+  font-family: sans-serif;
+  pointer-events: none;
+  transition: fill 0.2s;
+}
+
+#donutCenterText {
+  text-align: center;
+  font-family: var(--f-jp);
+}
+
+.donut-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--c-text-gray);
+  margin-bottom: 2px;
+  transition: color 0.2s;
+}
+
+.donut-count {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  color: #334155;
+}
+
+/* --- 🍩 コンボジャンルボタン（可愛いデザイン） --- */
+/* 5. リングゾーンと下のタグゾーンの「隙間」を徹底的に詰める */
+.combo-section-wrapper {
+  margin-top: -20px !important; /* 👈 マイナスマージンで隙間をグッと詰める */
+  text-align: center;
+}
+.combo-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: #94a3b8;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.combo-legend-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.combo-legend-item {
+  display: inline-flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.combo-legend-item:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  color: #334155;
+}
+
+.combo-count {
+  margin-left: 6px;
+  background: #f8fafc;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 900;
+}
+/* --- 🏆 高評価トップ5（激かわリニューアル版） --- */
+.masterpiece-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: none;
+  margin-top: 20px;
+  padding: 4px; /* 💡 カードの浮き出る影が切れないように内側余白を追加 */
+}
+.masterpiece-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* 💡 アイテム自体を最初から「神コンボ」とお揃いのコロンとしたカードに */
+.master-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* ぷるんとした動き */
+  padding: 7px 14px;
+  border-radius: 16px; /* 丸み強化 */
+  background: #ffffff;
+  border: 1px solid #f1f5f9; /* うっすら可愛い枠線 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02); /* 普段は控えめな影 */
+}
+
+/* 💡 ホバーした時にぷくっと浮き出てブランドカラーのネオン影をまとう */
+.master-item:hover {
+  transform: translateY(-3px) scale(1.01);
+  border-color: #e2e8f0;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+}
+
+.master-cover {
+  width: 50px; /* ほんの少しサイズアップ */
+  height: 50px;
+  border-radius: 10px; /* ぷるんとした丸角 */
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s;
+}
+
+/* ホバー時にジャケット写真もちょっとだけぷくっと拡大 */
+.master-item:hover .master-cover {
+  transform: scale(1.04);
+}
+
+.master-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px; /* タイトルとスコアの隙間 */
+}
+
+.master-title {
+  font-family: var(--f-jp);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #334155;
+}
+
+/* 💡 スコアを「ミニカプセルタグ」にドレスアップ */
+.master-score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.star-icon {
+  color: #fbbf24;
+  font-size: 11px;
+}
+
+.rank-score-num {
+  color: var(--c-black); /* 読みやすい濃いめのゴールドブラウン */
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* 💡 順位バッジを「金銀銅」から「ゆめかわネオン」へ完全リニューアル！ */
+.master-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 10%;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--c-white);
+
+  flex-shrink: 0;
+  background: var(--c-blue);
+  border: 1px solid var(--c-blue);
+}
+
+/* --- 🎬 最高のクリエイター陣 --- */
+.staff-rank-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.staff-note {
+  font-size: 10px;
+  color: var(--c-text-gray);
+  margin-top: 0px;
+  margin-bottom: 15px;
+}
+.staff-rank-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+.staff-rank-item:hover {
+  background: #f1f5f9;
+}
+.staff-tag {
+  font-family: var(--f-jp);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-black);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 99px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+.staff-tag::before {
+  content: "#";
+  font-size: 15px;
+  color: var(--c-red);
+  margin-right: 5px;
+  font-family: var(--f-jp);
+  opacity: 0.7;
+  font-weight: 900;
+}
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.staff-col-header {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--c-text-gray);
+  margin-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  letter-spacing: 0.15em;
+  padding-bottom: 6px;
+}
+.staff-score {
+  font-family: var(--f-jp);
+  color: var(--c-blue);
+  font-size: 17px;
+  font-weight: 900;
+}
+.staff-empty {
+  font-size: 11px;
+}
+.staff-arts {
+  font-size: 11px;
+  font-family: var(--f-jp);
+  margin-left: 2px;
+  color: var(--c-text-gray);
+}
+
+/* フッター */
+.action-footer {
+  grid-column: span 12;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+.btn-recommend {
+  background: var(--c-blue);
+  color: var(--c-white);
+  font-family: var(--f-jp);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  padding: 16px 40px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(81, 82, 245, 0.4);
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-recommend:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(81, 82, 245, 0.5);
+}
+.btn-share-small {
+  background: var(--c-white);
+  color: var(--c-text-gray);
+  border: 1px solid var(--c-border);
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 14px 24px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-share-small:hover {
+  background: #f8fafc;
+  color: var(--c-black);
+}
+
+/* =========================================================
+   💡 修正・最適化：中段4パネル「内部」専用デザイン（完全合体版）
+   ========================================================= */
+
+/* パネルの内側コンテナ */
+.p-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 中のパーツ同士の隙間をキュッと詰める */
+  height: 100%;
+  overflow: hidden; /* ここも念のためスクロール禁止 */
+}
+.p-inner * {
+  font-family: var(--f-jp), sans-serif;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+/* --- ① 運命のキャラクター（推し）：物理エンジン版 --- */
+.o-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.o-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #334155;
+}
+.o-total-count {
+  font-size: 18px;
+  color: var(--c-blue);
+  margin-left: 4px;
+}
+.o-shuffle-btn {
+  background: #eef2ff;
+  color: var(--c-blue);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.1);
+}
+.o-shuffle-btn:hover {
+  background: #e0e7ff;
+  transform: translateY(-1px);
+}
+.o-shuffle-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* 物理エンジンが動く空間（水槽のような箱） */
+.oshi-physics-box {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+/* 推しボール */
+.oshi-physics-ball {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid #ffffff; /* チェキや缶バッジのような白いフチ */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  object-fit: cover;
+  user-select: none;
+  cursor: pointer;
+  /* 位置(left/top)はJSで動かすので、transformとbox-shadowだけアニメーション */
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s;
+  will-change: left, top;
+}
+
+/* ホバー時は少し大きくして浮かせる（顔をよく見れるように） */
+.oshi-physics-ball:hover {
+  transform: scale(1.2) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  z-index: 100;
+  border-color: var(--c-blue); /* ホバー時はフチをブランドカラーに */
+}
+/* --- ② 新・視聴年代ヒストリー（カラー完全分離・統合決定版） --- */
+:root {
+  --graph-line-color: #ff2e63; /* 📈 グラフのメイン線（赤ピンクネオン） */
+  --graph-text-color: #64748b; /* 🕰️ グラフの軸・年数の文字色（グレー） */
+  --badge-btn-color: var(
+    --c-blue
+  ); /* 🏷️ 年号ボタン・元号バッジのメインカラー */
+  --badge-btn-hover-bg: #fff1f2; /* 🖱️ 年号ボタンをホバーした時の背景色 */
+}
+
+.decade-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+/* 💡 グラフエリア：上部を詰めて縦長にするマージン設定 */
+.decade-graph-section {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  margin-top: -5px;
+  margin-bottom: 8px;
+}
+
+.neon-line-chart {
+  width: 95%;
+  height: 200px; /* 💡 viewBoxの縦200pxに合わせて最適化。しっかり引き伸ばします */
+  overflow: visible;
+  margin-top: 10px;
+}
+
+/* 💡 グラフのネオンラインのスタイル */
+.neon-main-line {
+  stroke: var(--graph-line-color);
+}
+
+/* 💡 SVG内の目盛り文字（年数・本数）の完全固定用スタイル */
+.graph-axis-text {
+  font-family: var(--f-jp);
+  fill: var(--graph-text-color) !important;
+  color: var(--graph-text-color) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* 📋 スタッツエリア：3段構造 */
+.decade-stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 2段目を綺麗に2等分するグリッド */
+.stats-row.row-twin {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stats-row.row-honor {
+  justify-content: center;
+}
+
+/* 💡 カプセルバッジ：スマートなホワイトデザイン */
+.capsule-badge {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 1段目：最古・最新用のすっきりした横並びレイアウト */
+.stats-row.row-timeline .capsule-badge {
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* カプセル間を繋ぐシンプルな線 */
+.timeline-arrow {
+  width: 12px;
+  height: 1px;
+  background: #cbd5e1;
+  position: relative;
+  flex-shrink: 0;
+}
+.timeline-arrow::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-top: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1;
+  transform: rotate(45deg);
+}
+
+/* テキストコンポーネント */
+.badge-label {
+  font-family: var(--f-jp);
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.badge-value {
+  font-family: var(--f-jp);
+  font-size: 13px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.badge-sub {
+  font-family: var(--f-jp);
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+/* 💡 年号ボタンのスタイル */
+.multi-year-display {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin: 4px 0;
+  min-height: 28px;
+}
+
+.year-unit-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 6px;
+  margin: 0;
+  cursor: pointer;
+  font-weight: 800;
+  color: var(--badge-btn-color);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--f-jp);
+}
+.year-unit-btn:hover {
+  background: var(--badge-btn-hover-bg);
+  color: var(--badge-btn-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.year-unit-btn:active {
+  transform: translateY(0);
+}
+
+.year-suffix {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #8899ac;
+  margin-left: 1px;
+}
+.year-splitter {
+  color: #e2e8f0;
+  font-weight: 300;
+  font-size: 0.9rem;
+  margin: 0 4px;
+}
+.clickable-badge-value {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.clickable-badge-value:hover {
+  color: var(--badge-btn-color);
+  text-decoration: underline;
+}
+
+/* 3段目：元号マニアバッジ（枠と文字色をカスタムカラーに連動） */
+.badge-honor {
+  border-color: var(--badge-btn-color);
+  padding: 8px 32px;
+  border-radius: 20px;
+  background: #ffffff;
+  margin-bottom: 0;
+}
+.honor-text {
+  font-family: var(--f-jp);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--badge-btn-color);
+  letter-spacing: 0.05em;
+}
+
+/* --- ③ 評価分析パネル（リニューアル版） --- */
+
+/* 1. 平均スコア（据え置き・微調整） */
+.t-avg-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  margin-top: 10px;
+}
+.t-avg-l {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.t-avg-txt {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.t-avg-badge {
+  padding: 4px 12px;
+  background: #eef2ff;
+  color: var(--c-blue, #6366f1);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 99px;
+  display: inline-flex;
+}
+.t-avg-r {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.t-avg-val {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+.t-avg-num {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--c-blue, #6366f1);
+  line-height: 1;
+}
+.t-avg-max {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-left: 2px;
+}
+.t-stars {
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+}
+.t-star-on {
+  color: #fcd34d;
+}
+.t-star-off {
+  color: #e2e8f0;
+}
+
+/* 2. 3連カプセル（最高・中央値・最低） */
+.t-capsules {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 3px 0;
+}
+.t-cap {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 99px; /* 可愛い丸みを持たせるカプセル形状 */
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+}
+.t-cap-center {
+  background: #ffffff;
+  border: 1px solid #e0e7ff; /* 中央値だけ少しブランドカラーに寄せて目立たせる */
+}
+.t-cap-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+.t-cap-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--c-blue, #6366f1);
+}
+
+/* 3. スコア分布ヒストグラム（縦グラフ） */
+.t-hist-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 12px 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+.t-hist-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.t-hist-val {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--c-blue, #6366f1);
+  height: 12px; /* 0の時にレイアウトが崩れないよう固定高 */
+}
+.t-hist-bar-wrap {
+  width: 100%;
+  height: 80px; /* グラフの最大高さ */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.t-hist-bar {
+  width: 18px; /* 棒の太さ */
+  background: linear-gradient(
+    to top,
+    #a5b4fc,
+    #6366f1
+  ); /* 下から上への綺麗なグラデーション */
+  border-radius: 6px 6px 0 0; /* 上だけ角丸 */
+  transition: height 0.5s ease-out; /* アニメーションで伸びるように */
+}
+.t-hist-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* 4. 一言分析コメント（吹き出し風） */
+.t-analysis-comment {
+  background: #eef2ff; /* 薄いブランドカラー */
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 12px 16px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+  margin-top: -10px;
+  margin-bottom: 0;
+}
+/* ヒストグラムに向けて吹き出しの尻尾をつける */
+.t-analysis-comment::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 6px 6px 6px;
+  border-style: solid;
+  border-color: transparent transparent #eef2ff transparent;
+}
+
+/* --- 視聴スタイルのトップヘッダー周り --- */
+.s-comp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline; /* 💡 大きい数字と小さい文字の下端を揃える */
+  margin-bottom: 10px;
+}
+.s-comp-l {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+/* 💡 視聴済みの数字を25pxで目立たせる */
+.s-comp-hl {
+  font-size: 25px;
+  font-weight: 800;
+  color: #6366f1;
+  line-height: 1; /* 余計な上下の余白を消す */
+}
+.s-comp-base {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+/* 右側の%とチェックマーク */
+.s-comp-r {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.s-comp-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+/* --- 新設：可愛くした総視聴時間 --- */
+.s-total-time-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1; /* 点線で少しノートや手帳のような可愛さを演出 */
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+.s-time-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #64748b;
+}
+.s-time-badges {
+  display: flex;
+  gap: 8px;
+}
+.s-time-badge {
+  display: flex;
+  align-items: baseline;
+  padding: 4px 12px;
+  border-radius: 99px; /* コロンとした丸み */
+}
+.s-time-num {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.s-time-unit {
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+
+/* --- 新設：積みアニメ（未視聴）ボタン --- */
+.s-backlog-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(
+    135deg,
+    #eef2ff 0%,
+    #e0e7ff 100%
+  ); /* 薄い藤色〜水色のグラデ */
+  border: none;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08); /* ふんわりした影 */
+  transition: all 0.2s ease;
+}
+.s-backlog-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.15); /* 押せそうな浮遊感 */
+}
+.s-backlog-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6366f1; /* ブランドカラー */
+}
+.s-backlog-left svg {
+  width: 16px;
+  height: 16px;
+}
+.s-backlog-title {
+  font-size: 13px;
+  font-weight: 800;
+}
+.s-backlog-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6366f1;
+}
+.s-backlog-count {
+  font-size: 18px;
+  font-weight: 900;
+  display: flex;
+  align-items: baseline;
+}
+.s-backlog-unit {
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 2px;
+}
+.s-backlog-arrow {
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+}
+.s-comp-chk {
+  width: 32px;
+  height: 32px;
+  background: #eef2ff; /* 背景をかなり薄い紫の丸背景化 */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+.s-comp-chk svg {
+  stroke: var(--c-blue);
+  width: 16px;
+  height: 16px;
+  stroke-width: 3px;
+}
+
+/* 達成バーの肉厚化 */
+.s-comp-bar {
+  height: 6px;
+  background: #eef2ff;
+  border-radius: 999px;
+  margin-bottom: 12px; /* バーの下の余白を詰める */
+}
+.s-comp-fill {
+  height: 100%;
+  background: var(--c-yellow);
+  border-radius: 999px;
+}
+
+/* 一番下のフォーマットグラフ（下余白をなくす） */
+.s-media-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-bottom: 0; /* 💡 パネルの一番下になるので余白を削除 */
+}
+.s-media-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px; /* 項目間の余白 */
+  width: 100%;
+}
+.s-media-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 70px; /* 左側のアイコンとタイトル幅を一定に固定 */
+  flex-shrink: 0;
+}
+.s-media-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+.s-media-name svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--c-blue);
+  stroke-width: 2.5;
+}
+.s-media-bar {
+  flex: 1; /* プログレスバーは中央の余白をいっぱい使う */
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.s-media-fill {
+  height: 100%;
+  background: var(--c-blue);
+  border-radius: 999px;
+}
+.s-media-pct {
+  font-size: 12px;
+  font-weight: bold;
+  color: #334155;
+  width: 35px;
+  text-align: right; /* 右端に%を配置 */
+  flex-shrink: 0;
+}
+
+/* 平均視聴時間：独立した情報カード化 */
+.s-time-box {
+  margin-top: auto;
+  border: 1px solid #e2e8f0; /* 背景なし・薄い枠線のみのミニカード */
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.s-time-lbl {
+  font-size: 11px; /* ラベル小 */
+  color: #94a3b8;
+  margin-bottom: 0;
+}
+.s-time-val {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.s-time-pre {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+.s-time-num {
+  font-size: 25px; /* 数字「47」だけをかなり巨大化 */
+  font-weight: 900;
+  color: var(--c-blue);
+  line-height: 1;
+}
+.s-time-suf {
+  font-size: 12px; /* 「分」だけを小さく表記 */
+  color: #64748b;
+  font-weight: 700;
+}

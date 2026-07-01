@@ -1,0 +1,79 @@
+/* =========================================================
+   🎩 ヘッダー（Header）
+   画面上部のロゴ、MENUボタン、検索バーなどのデザインです。
+   ========================================================= */
+
+/* -----------------------------------------
+   ヘッダー全体の枠組み
+   ----------------------------------------- */
+.global-header { 
+   flex-shrink: 0; 
+   justify-content: center; 
+   align-items: center; 
+   z-index: 50; 
+   position: relative; 
+   display: flex; 
+   padding: 10px 20px; 
+   flex-wrap: nowrap; 
+}
+
+
+/* --- 左上のMENU開閉ボタン --- */
+.icon-menu-btn {
+    background: var(--c-white);
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: all 0.2s ease;
+}
+.icon-menu-btn:hover { 
+   background: var(--c-bg); 
+   transform: scale(0.95); 
+}
+
+/* ヘッダー内のメニューボタン配置用 */
+.header-menu-wrapper {
+    position: absolute;
+    left: 40px;
+    top: 20px;
+}
+
+/* -----------------------------------------
+   中央のロゴエリア
+   ----------------------------------------- */
+.header-center { 
+   text-align: center; 
+   transition: 0.2s; 
+   padding-top: 5px; 
+} 
+.header-center:hover { 
+   opacity: 0.7; 
+}
+.logo-text { 
+   font-family: var(--f-logo); 
+   font-size: 40px; 
+   font-weight: 900; 
+   margin: 0; 
+   line-height: 1; 
+   letter-spacing: 2px; 
+}
+.logo-sub { 
+   margin: 0; 
+   font-family: var(--f-jp); 
+   font-weight: 700; 
+   font-size: 10px; 
+   letter-spacing: 2px; 
+   margin-top: 5px; 
+   color: var(--c-text-gray); 
+}
+
+/* ロゴを必ず真ん中に固定するための魔法（見えない右側の余白） */
+.header-right { 
+   display: none;
+} 

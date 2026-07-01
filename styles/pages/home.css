@@ -1,0 +1,128 @@
+/* =========================================================
+   🏠 ホーム画面（Home）
+   ランキングやグラフ、フィルター、オープニング画面など
+   ホーム専用のデザインです。
+   ========================================================= */
+
+/* -----------------------------------------
+中央パネル：絞り込み（フィルター）タブ
+----------------------------------------- */
+.filter-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-shrink: 0;
+    padding-bottom: 0px;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    width: 92px;              /* 全部同じ幅 */
+    height: 46px;             /* 少し大きめ */
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.15em;  /* 文字間隔広げる */
+    background: var(--c-white);
+    color: var(--c-text-gray);
+    border: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+}
+
+.filter-tab:hover {
+    transform: translateY(-2px);
+    color: var(--c-black);
+    border-color: rgba(30,41,59,0.2);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+.filter-tab.active {
+    background: var(--c-yellow);
+    color: var(--c-black);
+    border-color: var(--c-yellow);
+    font-weight: 900;
+    transform: translateY(-2px);
+    box-shadow:0 8px 20px rgba(249,193,6,0.28);
+}
+
+/* -----------------------------------------
+📺 レトロなオープニング/ローディング画面
+   ----------------------------------------- */
+.startup-overlay {
+    position: fixed; 
+    inset: 0; 
+    background: var(--c-bg);
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    z-index: 9999; 
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+/* 薄く走査線（ブラウン管モニター風の横線）を重ねてレトロ感を演出 */
+.startup-overlay::after {
+    content: ""; 
+    position: absolute; 
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.03), rgba(0,0,0,0.03) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+}
+
+.startup-content { 
+    text-align: center; 
+    color: var(--c-blue); 
+    animation: fadeInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
+}
+.startup-logo { 
+    font-family: var(--f-logo); 
+    font-size: 72px; 
+    font-weight: 900; 
+    margin: 0; 
+    letter-spacing: 4px; 
+    text-shadow: 0 4px 10px rgba(81, 82, 245, 0.2); 
+}
+.startup-loading-text { 
+    font-family: var(--f-eng); 
+    font-weight: 800; 
+    font-size: 14px; 
+    letter-spacing: 6px; 
+    margin-top: 15px; 
+    animation:  step-start infinite; 
+}
+
+/* データ読み込み完了後に画面を消すためのクラス */
+.startup-overlay.fade-out { 
+    opacity: 0; 
+    visibility: hidden; 
+    pointer-events: none; 
+}
+
+/* ▼ リスト画面：グループ全体を囲む枠 ▼ */
+.list-group-wrap {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+/* ▼ リスト画面：タグを並べるコンテナ ▼ */
+.list-group-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+}

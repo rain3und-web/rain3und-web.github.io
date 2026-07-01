@@ -1,0 +1,124 @@
+/* =========================================================
+   🏷️ 一覧ページ＆ジャンル（Tags & Genres）
+   作品の属性を示すタグや、選択用のチップデザインです。
+   ========================================================= */
+
+/* -----------------------------------------
+   1. 大きな一覧（声優一覧など）
+   ----------------------------------------- */
+/* 🌟 最後の空白撃退用：タグクラウドの無駄な高さを完全除去 */
+.tag-cloud-container {
+    display: flex;
+    flex-direction: column;
+    height: auto !important; /* ★固定の高さ指定を解除 */
+    max-height: none !important; /* ★高さ制限を解除 */
+    overflow-y: visible !important; /* ★親要素のスクロールに任せる */
+    padding-bottom: 0px !important; /* ★無駄な底余白を強制消去 */
+    margin-bottom: 0px !important;
+}
+/* リスト表示画面（声優一覧など）のヘッダー枠 */
+.tag-view-header {
+    width: 100%;
+    margin-bottom: 12px;
+}
+.tag-view-title {
+    font-size: 20px;
+    font-weight: 900;
+    font-family: var(--f-jp);
+    color: #1E293B;
+}
+/* タグ本体 */
+.tag-item-container {
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 12px; 
+    width: 100%;
+}
+.tag-item { 
+    background: var(--c-white); 
+    border: 1px solid var(--c-border); 
+    padding: 10px 20px; 
+    border-radius: 99px;
+    font-family: var(--f-jp); 
+    font-weight: 700; 
+    font-size: 14px; 
+    color: var(--c-black); 
+    cursor: pointer; 
+    transition: 0.2s;
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+.tag-item:hover { 
+    border-color: var(--c-blue); 
+    color: var(--c-blue); 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 12px rgba(81, 82, 245, 0.15); 
+}
+/* タグの横にある「（件数）」のバッジ */
+.tag-count { 
+    background: var(--c-bg); 
+    color: var(--c-text-gray); 
+    font-size: 14px; 
+    padding: 3px 10px; 
+    border-radius: 99px; 
+    font-family: var(--f-eng); 
+    font-weight: 900;
+} 
+
+/* -----------------------------------------
+   2. 小さなタグチップ（入力欄の中などに入るもの）
+   ----------------------------------------- */
+/* 可愛いチップ表示用のコンテナ */
+.cute-tags-display { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 8px; 
+    min-height: 28px; 
+}
+
+/* 白くて丸い可愛いチップ */
+.cute-chip { 
+    display: inline-flex; 
+    align-items: center; 
+    background: white; 
+    border-radius: 20px; 
+    padding: 6px 14px; 
+    font-size: 11px; 
+    font-weight: 800; 
+    color: #334155; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04); 
+    border: 1px solid #F1F5F9; 
+    transition: all 0.2s; 
+}
+
+/* -----------------------------------------
+ジャンル追加画面で選択するボタン
+   ----------------------------------------- */
+.genre-checkbox-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
+    gap: 8px; 
+}
+
+/* 選択されていない時（グレー） */
+.genre-check-label { 
+    padding: 8px 16px; 
+    border-radius: 99px; 
+    font-size: 12px; 
+    font-weight: 700; 
+    color: #64748B; 
+    background: #F1F5F9; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    border: 2px solid transparent; 
+    text-align: center; 
+}
+
+/* 選択された時（青色になって光る！） */
+.genre-check-label.is-active { 
+    background: var(--c-blue); 
+    color: var(--c-white); 
+    box-shadow: 0 4px 10px rgba(81, 82, 245, 0.3); 
+}
