@@ -151,45 +151,26 @@ async function onLoginSuccess() {
     // 1. スプシの自動検索 ＆ 自動生成
     await setupUserSpreadsheet();
 
-    // 💡 修正：Googleログイン情報（gapi.auth2）から本物のユーザー情報を安全に取得
-    let googleUser = null;
-    if (typeof gapi !== "undefined" && gapi.auth2) {
-      const authInstance = gapi.auth2.getAuthInstance();
-      if (authInstance && authInstance.isSignedIn.get()) {
-        googleUser = authInstance.currentUser.get().getBasicProfile();
-      }
-    }
-
-    // 💡 修正：「雨音」や「usukidesu」の直書きを廃止し、Googleデータ ➔ なければ初期値へ
+    // 💡 修正：廃止された gapi.auth2 は使わず、安全に初期値をセット
+    // ※ 新しいGoogleログイン（GIS）ではトークンから直接プロフィールを取るか、
+    //   またはログイン時に別途保存したデータを使用します。
+    //   ここではクラッシュを防ぐため、安全にキャッシュか初期値から取得します。
     let profile = {
-      // 名前：Google名 ➔ なければ localStorage ➔ なければ「新規ユーザー」
-      display_name: googleUser
-        ? googleUser.getName()
-        : localStorage.getItem("otaku_log_display_name") || "新規ユーザー",
-      // ID：Googleのメールアドレス ➔ なければ localStorage ➔ なければ空
-      account_id: googleUser
-        ? googleUser.getEmail()
-        : localStorage.getItem("otaku_log_account_id") || "",
-      // アイコン：Googleの画像URL ➔ なければ localStorage ➔ なければ空
-      avatar_url: googleUser
-        ? googleUser.getImageUrl()
-        : localStorage.getItem("otaku_log_avatar_url") || "",
+      display_name:
+        localStorage.getItem("otaku_log_display_name") || "アニメオタク",
+      account_id: localStorage.getItem("otaku_log_account_id") || "user",
+      avatar_url: localStorage.getItem("otaku_log_avatar_url") || "",
     };
 
-    // 次回以降のために最新情報を localStorage に同期
-    localStorage.setItem("otaku_log_display_name", profile.display_name);
-    localStorage.setItem("otaku_log_account_id", profile.account_id);
-    localStorage.setItem("otaku_log_avatar_url", profile.avatar_url);
-
-    // グローバルに保持（これまでの user.uid の代わりにメールアドレスなどをセット）
+    // グローバルに保持
     window.currentUserId = profile.account_id;
 
-    // 💡 追記：さっき作った2枚目のスプシ（user_profileタブ）にログイン時の最新情報を自動保存・更新！
+    // 2. スプシ（user_profileタブ）にログイン時の最新情報を自動保存・更新！
     if (typeof saveUserProfileToDB === "function" && profile.account_id) {
       await saveUserProfileToDB(profile.account_id, profile);
     }
 
-    // 3. UIへの反映（元のコードそのまま）
+    // 3. UIへの反映
     if (document.getElementById("headerName"))
       document.getElementById("headerName").innerText = profile.display_name;
     if (document.getElementById("headerId"))
