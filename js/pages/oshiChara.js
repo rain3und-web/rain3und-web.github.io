@@ -279,20 +279,10 @@ window.renderGlobalOshiView = function () {
             const updatedCharactersText = JSON.stringify(charList);
             targetAnime.characters = updatedCharactersText;
 
-            // 💡 修正：Firebaseエラーを絶対に起こさない安全なID取得に変更
-            let uid = null;
-            if (
-              typeof firebase !== "undefined" &&
-              firebase.apps &&
-              firebase.apps.length > 0 &&
-              firebase.auth
-            ) {
-              try {
-                uid = firebase.auth().currentUser?.uid;
-              } catch (err) {
-                uid = null;
-              }
-            }
+            let uid =
+              window.currentUserId ||
+              localStorage.getItem("otaku_log_account_id") ||
+              "user";
             if (!uid) {
               uid =
                 localStorage.getItem("otaku_log_uid") || window.currentUserId;

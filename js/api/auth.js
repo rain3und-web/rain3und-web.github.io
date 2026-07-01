@@ -151,18 +151,51 @@ async function onLoginSuccess() {
     // 1. スプシの自動検索 ＆ 自動生成
     await setupUserSpreadsheet();
 
-    // 💡 修正：廃止された gapi.auth2 は使わず、安全に初期値をセット
-    // ※ 新しいGoogleログイン（GIS）ではトークンから直接プロフィールを取るか、
-    //   またはログイン時に別途保存したデータを使用します。
-    //   ここではクラッシュを防ぐため、安全にキャッシュか初期値から取得します。
+    // ✨ 変更：Googleから最新のユーザープロフィールを取得してみる
+    let googleProfile = null;
+    try {
+      const token = gapi.client.getToken();
+      if (token && token.access_token) {
+        // GoogleのuserInfoエンドポイントから名前、メアド、画像を取得
+        const userInfoRes = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: { Authorization: `Bearer ${token.access_token}` },
+          },
+        );
+        if (userInfoRes.ok) {
+          googleProfile = await userInfoRes.json();
+        }
+      }
+    } catch (e) {
+      console.warn(
+        "Googleプロフィール取得スキップ (キャッシュを使用します):",
+        e,
+      );
+    }
+
+    // 💡 修正：Googleから取れたらそれを使う、なければキャッシュ
     let profile = {
       display_name:
-        localStorage.getItem("otaku_log_display_name") || "アニメオタク",
-      account_id: localStorage.getItem("otaku_log_account_id") || "user",
-      avatar_url: localStorage.getItem("otaku_log_avatar_url") || "",
+        googleProfile?.name ||
+        localStorage.getItem("otaku_log_display_name") ||
+        "アニメオタク",
+      account_id:
+        googleProfile?.email ||
+        localStorage.getItem("otaku_log_account_id") ||
+        "user",
+      avatar_url:
+        googleProfile?.picture ||
+        localStorage.getItem("otaku_log_avatar_url") ||
+        "",
     };
 
-    // グローバルに保持
+    // 次回以降（オフライン復元時など）のために最新情報を localStorage に同期
+    localStorage.setItem("otaku_log_display_name", profile.display_name);
+    localStorage.setItem("otaku_log_account_id", profile.account_id);
+    localStorage.setItem("otaku_log_avatar_url", profile.avatar_url);
+
+    // グローバルに保持（これまでの user.uid の代わりにメールアドレスなどをセット）
     window.currentUserId = profile.account_id;
 
     // 2. スプシ（user_profileタブ）にログイン時の最新情報を自動保存・更新！
@@ -174,7 +207,8 @@ async function onLoginSuccess() {
     if (document.getElementById("headerName"))
       document.getElementById("headerName").innerText = profile.display_name;
     if (document.getElementById("headerId"))
-      document.getElementById("headerId").innerText = "@" + profile.account_id;
+      document.getElementById("headerId").innerText =
+        "@" + profile.account_id.split("@")[0]; // メアドの前半をIDっぽく見せる
 
     const headerAvatar = document.getElementById("headerAvatar");
     if (headerAvatar) {

@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // -----------------------------------------
-  // ⑥ モーダル保存・削除（Firebase連携）
+  // ⑥ モーダル保存・削除（スプレッドシート連携）
   // -----------------------------------------
   document.getElementById("saveBtn")?.addEventListener("click", async () => {
     if (!window.currentUserId) {
