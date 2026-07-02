@@ -53,7 +53,6 @@ function gisLoaded() {
 
       // タイマーをセット (55分 = 3300000ミリ秒)
       startTokenTimer(55 * 60 * 1000);
-
       await onLoginSuccess();
     },
   });
