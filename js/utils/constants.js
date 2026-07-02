@@ -204,3 +204,16 @@ window.translateStudio = function (studioStr) {
   let trimmed = studioStr.trim();
   return studioMap[trimmed] ? studioMap[trimmed] : trimmed;
 };
+
+const seasonMap = {
+  WINTER: "冬",
+  SPRING: "春",
+  SUMMER: "夏",
+  FALL: "秋",
+};
+
+window.translateSeason = function (seasonStr) {
+  if (!seasonStr) return "";
+  let trimmed = seasonStr.trim().toUpperCase(); // 大文字に統一して判定
+  return seasonMap[trimmed] ? seasonMap[trimmed] : trimmed;
+};

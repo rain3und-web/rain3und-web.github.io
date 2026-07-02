@@ -45,12 +45,14 @@ window.renderGrid = function () {
     // ★ 統計から来た場合(fromStats = true)は「一覧へ戻る」ボタンを作らない！
     if (!window.filterQuery.fromStats) {
       // 💡 修正ポイント1: character（推しキャラ）をマップに追加
+      // 💡 修正ポイント1: character（推しキャラ）と year_season（シーズン）をマップに追加
       const typeMap = {
         genre: "ジャンル",
         voiceActor: "声優",
         director: "監督",
         studio: "制作会社",
-        year: "放送年",
+        year: "放送シーズン",
+        year_season: "放送シーズン", // 🌟 シーズン別から戻るときも「放送年一覧へ戻る」にする
         character: "推しキャラ",
       };
       if (typeMap[window.filterQuery.type]) {
@@ -72,10 +74,12 @@ window.renderGrid = function () {
           returnBtn.style.background = "white";
         };
 
-        // 💡 修正ポイント2: ボタンを押したとき、推しキャラの場合は "oshiChara" 画面に戻す
+        // 💡 修正ポイント2: 戻り先のビュー判定に year_season と character を考慮
         returnBtn.onclick = () => {
           if (window.filterQuery.type === "character") {
             window.switchView("oshiChara");
+          } else if (window.filterQuery.type === "year_season") {
+            window.switchView("year"); // 🌟 year_season の場合は 放送年(year) の一覧に戻す！
           } else {
             window.switchView(window.filterQuery.type);
           }
@@ -105,6 +109,10 @@ window.renderGrid = function () {
         return a.studio === window.filterQuery.value;
       if (window.filterQuery.type === "year")
         return a.year == window.filterQuery.value;
+      if (window.filterQuery.type === "year_season") {
+        const [targetYear, targetSeason] = window.filterQuery.value.split("-");
+        return a.year == targetYear && a.season === targetSeason;
+      }
       if (window.filterQuery.type === "character") {
         if (!a.characters) return false;
         try {
@@ -204,7 +212,7 @@ window.renderListView = function (type) {
       if (window.listSortMode === "name") window.listSortMode = "count";
     } else if (type === "year") {
       btnName.style.display = "inline-block";
-      btnName.innerText = "古い順";
+      btnName.innerText = "シーズン別";
     } else {
       btnName.style.display = "inline-block";
       btnName.innerText = "名前順";
@@ -229,7 +237,7 @@ window.renderListView = function (type) {
     voiceActor: "声優一覧",
     director: "監督一覧",
     studio: "制作会社一覧",
-    year: "放送年別アーカイブ",
+    year: "放送シーズン",
   };
   let counts = {};
   window.animeDB.forEach((a) => {
@@ -253,7 +261,29 @@ window.renderListView = function (type) {
       counts[a.studio] = (counts[a.studio] || 0) + 1;
     }
     if (type === "year" && a.year) {
-      counts[a.year] = (counts[a.year] || 0) + 1;
+      // 4桁の数字（年）だけを綺麗に抽出する（例: "2026春" や "2026年" から "2026" を取る）
+      const match = String(a.year).match(/\d{4}/);
+      const y = match ? match[0] : null;
+
+      if (y) {
+        if (window.listSortMode === "count") {
+          // ①「作品数順」のときは、今まで通りシンプルに年ごとの合計をカウント
+          counts[y] = (counts[y] || 0) + 1;
+        } else {
+          // ②「シーズン別」のときは、年の中にさらに春夏秋冬の部屋を作ってカウント
+          if (!counts[y]) {
+            counts[y] = { total: 0, 春: 0, 夏: 0, 秋: 0, 冬: 0 };
+          }
+          counts[y].total++;
+
+          // アニメに登録されている季節（漢字）をチェックして、該当する季節のカウントを増やす
+          const s = a.season || "";
+          if (s.includes("春")) counts[y]["春"]++;
+          else if (s.includes("夏")) counts[y]["夏"]++;
+          else if (s.includes("秋")) counts[y]["秋"]++;
+          else if (s.includes("冬")) counts[y]["冬"]++;
+        }
+      }
     }
   });
 
@@ -268,16 +298,133 @@ window.renderListView = function (type) {
     items.forEach((item) => {
       let groupName, groupOrder, sortKey;
       if (type === "year") {
-        const y = parseInt(item.name);
-        if (isNaN(y)) {
-          groupName = "不明";
-          groupOrder = 9999;
-          sortKey = 9999;
+        // -------------------------------------------------------------
+        // 【ルートA】右上のボタンが「シーズン別」のとき
+        // -------------------------------------------------------------
+        if (window.listSortMode === "name") {
+          // 1. まずデータを「年代（10年ごと）」にグループ分けする
+          let decadeGroups = {};
+
+          items.forEach((it) => {
+            const y = parseInt(it.name);
+            if (!isNaN(y)) {
+              const decade = Math.floor(y / 10) * 10;
+              if (!decadeGroups[decade]) {
+                decadeGroups[decade] = { total: 0, years: [] };
+              }
+
+              const totalCount =
+                it.count && typeof it.count === "object"
+                  ? it.count.total || 0
+                  : it.count || 0;
+
+              if (
+                !decadeGroups[decade].years.some(
+                  (existing) => existing.name === it.name,
+                )
+              ) {
+                decadeGroups[decade].total += totalCount;
+                decadeGroups[decade].years.push(it);
+              }
+            }
+          });
+
+          // 2. 年代を「新しい順（2020年代が一番上）」に並び替える
+          const sortedDecades = Object.keys(decadeGroups).sort((a, b) => b - a);
+
+          htmlContent = `<div class="tag-view-header"><h2 class="tag-view-title">${titleMap[type]}</h2></div>`;
+          htmlContent += `<div class="decade-accordion-container">`;
+
+          sortedDecades.forEach((decade) => {
+            const group = decadeGroups[decade];
+            group.years.sort((a, b) => parseInt(b.name) - parseInt(a.name));
+
+            htmlContent += `
+              <div class="decade-section" id="decade-section-${decade}">
+                <button class="decade-toggle-btn" onclick="window.toggleDecadeAccordion(${decade})">
+                  <span>${decade} 年代 <span class="tag-count">${group.total} 作品</span></span>
+                  <svg class="arrow-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                
+                <div class="decade-content" id="decade-content-${decade}">
+                  ${group.years
+                    .map((it) => {
+                      const yearNum = it.name;
+                      const data =
+                        it.count && typeof it.count === "object"
+                          ? it.count
+                          : {
+                              total: it.count || 0,
+                              春: 0,
+                              夏: 0,
+                              秋: 0,
+                              冬: 0,
+                            };
+
+                      return `
+                      <div class="season-row">
+                        <button class="tag-item pop-up-animation" onclick="window.applyFilter('year', '${yearNum}')" style="min-width: 120px; justify-content: center;">${yearNum}年 <span class="tag-count">${data.total}</span>
+                        </button>
+                        <div class="season-sub-items">
+                          ${["春", "夏", "秋", "冬"]
+                            .map((season) => {
+                              const count = data[season] || 0;
+                              const isDisabled = count === 0;
+
+                              // 🌟 季節に応じたCSSクラスの出し分けマッピング
+                              const seasonClassMap = {
+                                春: "spring",
+                                夏: "summer",
+                                秋: "autumn",
+                                冬: "winter",
+                              };
+                              const seasonClass = `btn-season-${seasonClassMap[season]}`;
+
+                              // 無効化時と有効化時でクラスとクリックイベントを切り替え
+                              const statusClass = isDisabled ? "disabled" : "";
+                              const clickAction = isDisabled
+                                ? ""
+                                : `onclick="window.applyFilter('year_season', '${yearNum}-${season}')"`;
+
+                              return `<button class="tag-item btn-season ${seasonClass} ${statusClass} pop-up-animation" ${clickAction}>${season} <span class="tag-count">${count}</span></button>`;
+                            })
+                            .join("")}
+                        </div>
+                      </div>
+                    `;
+                    })
+                    .join("")}
+                </div>
+              </div>
+            `;
+          });
+
+          htmlContent += `</div>`;
+
+          document.getElementById("tagCloudContainer").innerHTML = htmlContent;
+          return;
+
+          // -------------------------------------------------------------
+          // 【ルートB】右上のボタンが「作品数順」のとき
+          // -------------------------------------------------------------
         } else {
-          const decade = Math.floor(y / 10) * 10;
-          groupName = decade + "年代";
-          groupOrder = decade;
-          sortKey = y;
+          items.sort((a, b) => b.count - a.count);
+
+          htmlContent +=
+            `<div class="tag-item-container">` +
+            items
+              .map((it) => {
+                const displayName = it.name.replace(/\[[^\]]*\]/g, "").trim();
+                const safeName = it.name
+                  .replace(/'/g, "\\'")
+                  .replace(/[\r\n]/g, "");
+                return `<button class="tag-item pop-up-animation" onclick="window.applyFilter('${type}', '${safeName}')">${displayName} <span class="tag-count">${it.count}</span></button>`;
+              })
+              .join("") +
+            `</div>`;
+
+          document.getElementById("tagCloudContainer").innerHTML = htmlContent;
+          return;
         }
       } else if (type === "voiceActor" || type === "director") {
         const info = window.getActorGroupInfo(item.name);
@@ -409,3 +556,44 @@ document.getElementById("clearFilterBtn")?.addEventListener("click", () => {
   document.getElementById("breadcrumbArea").classList.add("hidden");
   window.renderGrid();
 });
+
+// 🌟【新機能】年代別アコーディオンをパカパカ開閉する関数
+window.toggleDecadeAccordion = function (targetDecade) {
+  // 🌟 画面内にあるすべてのアコーディオンコンテンツとセクションを取得
+  const allContents = document.querySelectorAll(".decade-content");
+  const allSections = document.querySelectorAll(".decade-section");
+
+  const targetContent = document.getElementById(
+    `decade-content-${targetDecade}`,
+  );
+  const targetSection = document.getElementById(
+    `decade-section-${targetDecade}`,
+  );
+  const targetArrow = targetSection
+    ? targetSection.querySelector(".arrow-icon")
+    : null;
+
+  if (!targetContent) return;
+
+  // 現在の状態を退避
+  const isClosed =
+    targetContent.style.display === "none" ||
+    targetContent.style.display === "";
+
+  // 🌟 【新規】ターゲット以外をすべて閉じるループ
+  allContents.forEach((content) => {
+    content.style.display = "none";
+  });
+  allSections.forEach((section) => {
+    section.style.background = "var(--c-white)";
+    const arrow = section.querySelector(".arrow-icon");
+    if (arrow) arrow.style.transform = "rotate(0deg)";
+  });
+
+  // もしクリックしたものが閉じていたなら、それだけを開く
+  if (isClosed) {
+    targetContent.style.display = "flex";
+    if (targetArrow) targetArrow.style.transform = "rotate(180deg)";
+    if (targetSection) targetSection.style.background = "#F8FAFC"; // ほんのり選択色
+  }
+};

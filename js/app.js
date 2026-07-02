@@ -180,8 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------------------------
   document.getElementById("saveBtn")?.addEventListener("click", async () => {
     if (!window.currentUserId) {
-      alert("データの保存にはログインが必要です！");
-      return;
+      return; // 💡 ログインなし時は静かに中断
     }
     const btn = document.getElementById("saveBtn");
     btn.innerText = "Saving...";
@@ -196,9 +195,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const val = parseInt(sel.value);
       scores[sel.dataset.type] = val;
       if (sel.dataset.type === "resonance") {
-        resonanceScore = val; // 刺さり度だけ分ける
+        resonanceScore = val;
       } else {
-        totalScore += val; // それ以外を足す
+        totalScore += val;
       }
     });
     // (4項目 + 刺さり度×1.5) ÷ 5.5 で計算
@@ -206,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ((totalScore + resonanceScore * 1.5) / 5.5).toFixed(1),
     );
 
-    // 既存のデータがあるかチェック（作成日時や、アニリストから取得済みの裏データを維持するため）
+    // 既存のデータがあるかチェック
     const existingIndex = window.animeDB.findIndex(
       (a) => String(a.anilist_id) === anilist_id,
     );
@@ -215,7 +214,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const nowTimestamp = Date.now();
 
-    // 💡 api.jsの受け取り口に完全適合させたオブジェクト
+    // 🌟【ここから追加！】画面に入力された「2026春」などの文字を自動で分解するロジック
+    const rawYearInput = document.getElementById("editYear").value.trim(); // 例: "2026春"
+
+    // 1. 数字の4桁を抽出して「年」にする
+    const yearMatch = rawYearInput.match(/\d{4}/);
+    const parsedYear = yearMatch ? yearMatch[0] : rawYearInput; // 4桁の数字が取れればそれ、取れなければ入力文字をそのまま
+
+    // 2. 文字列の中に「春・夏・秋・冬」が含まれているか探して「季節」を抜き出す
+    let parsedSeason = "";
+    if (rawYearInput.includes("春")) parsedSeason = "春";
+    else if (rawYearInput.includes("夏")) parsedSeason = "夏";
+    else if (rawYearInput.includes("秋")) parsedSeason = "秋";
+    else if (rawYearInput.includes("冬")) parsedSeason = "冬";
+    else {
+      // もし画面の入力欄に季節が書かれていなかった場合（例: 長寿アニメで「1999」とだけ書いた時）
+      // 既存のデータがあればその漢字の季節を引き継ぎ、なければ空文字にする
+      parsedSeason =
+        existingData && existingData.season ? existingData.season : "";
+    }
+
     const animeData = {
       anilist_id: anilist_id,
       title: document.getElementById("editTitle").value,
@@ -227,10 +245,10 @@ document.addEventListener("DOMContentLoaded", () => {
       score_music: scores.music,
       score_resonance: scores.resonance,
       format: document.getElementById("editFormat").value,
-      year: document.getElementById("editYear").value,
 
-      // 🌟 ここがポイント：画面（UI）からは取らず、アニリストから取得して保持していた既存のseasonデータ（あれば）をそのまま裏側で引き継ぎます
-      season: existingData && existingData.season ? existingData.season : "",
+      // 🌟【ここを書き換え！】自動分解したデータをそれぞれ格納します
+      year: parsedYear,
+      season: parsedSeason,
 
       episodes: document.getElementById("editEps").value,
       duration: document.getElementById("editDuration")
@@ -258,7 +276,6 @@ document.addEventListener("DOMContentLoaded", () => {
         : "50% 50%",
       memo: document.getElementById("editMemo").value,
 
-      // api.jsの判定をバグらせないための安全ガード
       characters: (() => {
         const raw = document.getElementById("editCharacters")?.value || "[]";
         try {
@@ -272,13 +289,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      // 1. api.js側の関数を呼び出し（自動で列をマッピングしてスプシを更新）
+      // 1. api.js側のスマート保存を呼び出し
       await saveAnimeToDB(window.currentUserId, anilist_id, animeData);
 
-      // モーダルを閉じる
+      // モーダルを静かに閉じる
       document.getElementById("editModal").classList.add("hidden");
 
-      // 2. ローカル表示用の日本語翻訳プロパティなどをトッピング
+      // 2. ローカル表示用の日本語翻訳などをトッピング
       animeData.genres_jp = window.translateGenres(animeData.genres);
       animeData.studio = window.translateStudio(animeData.studio);
       if (animeData.cast)
@@ -291,14 +308,14 @@ document.addEventListener("DOMContentLoaded", () => {
         window.animeDB.push(animeData);
       }
 
-      // 4. 最新の updated_at に基づいて綺麗に降順ソートして画面をリフレッシュ
+      // 4. 並び替えて画面をパッと静かにリフレッシュ
       window.animeDB.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
       window.updateAllViews();
 
-      alert("保存が完了しました！");
+      // 💡 alert("保存が完了しました！") は綺麗さっぱり消去しました
     } catch (e) {
-      alert("保存エラーが発生しました: " + e.message);
-      console.error(e);
+      // 💡 画面上の不快なエラーポップアップも廃止し、デベロッパーツール（コンソール）にだけログを出すように変更
+      console.error("スプレッドシートへの保存に失敗しました:", e);
     } finally {
       btn.innerText = "SAVE";
     }

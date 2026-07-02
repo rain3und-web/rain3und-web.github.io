@@ -137,6 +137,10 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
           // 1. クリックされたボタンを取得
           const btn = e.currentTarget;
 
+          // 🌟【大復活！】アニリストの生データを丸ごと一時保管庫に叩き込む！
+          // これにより、画面（UI）を汚すことなく裏で anime.season が app.js へ引き継がれます
+          window.currentActiveAnime = anime;
+
           // 2. ボタンをローディング状態にする（CSSクラスで制御）
           btn.classList.add("is-loading");
           const originalText = btn.innerText;
@@ -172,7 +176,7 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
               year:
                 existingData && existingData.year
                   ? existingData.year
-                  : anime.seasonYear || "",
+                  : `${anime.seasonYear || ""}${window.translateSeason ? window.translateSeason(anime.season) : ""}`,
               format: anime.format,
               eps: anime.episodes ? "全" + anime.episodes + "話" : "",
               duration:

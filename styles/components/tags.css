@@ -8,117 +8,262 @@
    ----------------------------------------- */
 /* 🌟 最後の空白撃退用：タグクラウドの無駄な高さを完全除去 */
 .tag-cloud-container {
-    display: flex;
-    flex-direction: column;
-    height: auto !important; /* ★固定の高さ指定を解除 */
-    max-height: none !important; /* ★高さ制限を解除 */
-    overflow-y: visible !important; /* ★親要素のスクロールに任せる */
-    padding-bottom: 0px !important; /* ★無駄な底余白を強制消去 */
-    margin-bottom: 0px !important;
+  display: flex;
+  flex-direction: column;
+  height: auto !important; /* ★固定の高さ指定を解除 */
+  max-height: none !important; /* ★高さ制限を解除 */
+  overflow-y: visible !important; /* ★親要素のスクロールに任せる */
+  padding-bottom: 0px !important; /* ★無駄な底余白を強制消去 */
+  margin-bottom: 0px !important;
 }
 /* リスト表示画面（声優一覧など）のヘッダー枠 */
 .tag-view-header {
-    width: 100%;
-    margin-bottom: 12px;
+  width: 100%;
+  margin-bottom: 12px;
 }
 .tag-view-title {
-    font-size: 20px;
-    font-weight: 900;
-    font-family: var(--f-jp);
-    color: #1E293B;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: var(--f-jp);
+  color: #1e293b;
 }
 /* タグ本体 */
 .tag-item-container {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 12px; 
-    width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
 }
-.tag-item { 
-    background: var(--c-white); 
-    border: 1px solid var(--c-border); 
-    padding: 10px 20px; 
-    border-radius: 99px;
-    font-family: var(--f-jp); 
-    font-weight: 700; 
-    font-size: 14px; 
-    color: var(--c-black); 
-    cursor: pointer; 
-    transition: 0.2s;
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+.tag-item {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  padding: 10px 20px;
+  border-radius: 99px;
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--c-black);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
 }
-.tag-item:hover { 
-    border-color: var(--c-blue); 
-    color: var(--c-blue); 
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 12px rgba(81, 82, 245, 0.15); 
+.tag-item:hover {
+  border-color: var(--c-blue);
+  color: var(--c-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(81, 82, 245, 0.15);
 }
 /* タグの横にある「（件数）」のバッジ */
-.tag-count { 
-    background: var(--c-bg); 
-    color: var(--c-text-gray); 
-    font-size: 14px; 
-    padding: 3px 10px; 
-    border-radius: 99px; 
-    font-family: var(--f-eng); 
-    font-weight: 900;
-} 
+.tag-count {
+  background: var(--c-bg);
+  color: var(--c-blue);
+  font-size: 14px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-family: var(--f-eng);
+  font-weight: 700;
+}
+
+/* 年代アコーディオン全体のコンテナ */
+.decade-accordion-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* 各年代のセクション枠 */
+.decade-section {
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  background: var(--c-white);
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+}
+
+/* アコーディオンの開閉ボタン */
+.decade-toggle-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  font-family: var(--f-jp);
+  font-weight: 900;
+  font-size: 16px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* アコーディオンの中身のコンテナ */
+.decade-content {
+  display: none; /* JSでflexに切り替える */
+  padding: 0 24px 20px 24px;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid transparent;
+  transition: 0.2s;
+}
+
+/* 年ボタンと季節ボタンが並ぶ1行 */
+.season-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+/* 季節ボタンたちを包むコンテナ */
+.season-sub-items {
+  display: flex;
+  gap: 8px;
+}
+
+/* --- ボタンサイズとデザインの統一 --- */
+
+/* 季節ボタン共通（サイズを.tag-itemと揃えつつ、文字とバッジを調整） */
+.btn-season {
+  font-size: 14px;
+}
+
+/* 🌸 春：ピンク系 */
+.btn-season-spring {
+  background: #fff1f2;
+  border-color: #fda4af;
+  color: #9f1239;
+}
+.btn-season-spring:hover {
+  background: #ffe4e6;
+  border-color: #f43f5e;
+  color: #9f1239;
+}
+.btn-season-spring .tag-count {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+
+/* 🌊 夏：ブルー系 */
+.btn-season-summer {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+.btn-season-summer:hover {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+  color: #0369a1;
+}
+.btn-season-summer .tag-count {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* 🍁 秋：オレンジ・ブラウン系 */
+.btn-season-autumn {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #c2410c;
+}
+.btn-season-autumn:hover {
+  background: #ffedd5;
+  border-color: #fb923c;
+  color: #c2410c;
+}
+.btn-season-autumn .tag-count {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+/* ❄️ 冬：パープル・インディゴ系 */
+.btn-season-winter {
+  background: #eef2ff;
+  border-color: #a5b4fc;
+  color: #4338ca;
+}
+.btn-season-winter:hover {
+  background: #e0e7ff;
+  border-color: #818cf8;
+  color: #4338ca;
+}
+.btn-season-winter .tag-count {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+/* 🚫 データゼロの時の無効化表示 */
+.btn-season.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  background: var(--c-bg) !important;
+  border-color: var(--c-border) !important;
+  color: var(--c-text-gray) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.btn-season.disabled .tag-count {
+  background: transparent !important;
+  color: var(--c-text-gray) !important;
+}
 
 /* -----------------------------------------
    2. 小さなタグチップ（入力欄の中などに入るもの）
    ----------------------------------------- */
 /* 可愛いチップ表示用のコンテナ */
-.cute-tags-display { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 8px; 
-    min-height: 28px; 
+.cute-tags-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
 }
 
 /* 白くて丸い可愛いチップ */
-.cute-chip { 
-    display: inline-flex; 
-    align-items: center; 
-    background: white; 
-    border-radius: 20px; 
-    padding: 6px 14px; 
-    font-size: 11px; 
-    font-weight: 800; 
-    color: #334155; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04); 
-    border: 1px solid #F1F5F9; 
-    transition: all 0.2s; 
+.cute-chip {
+  display: inline-flex;
+  align-items: center;
+  background: white;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #334155;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s;
 }
 
 /* -----------------------------------------
 ジャンル追加画面で選択するボタン
    ----------------------------------------- */
-.genre-checkbox-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
-    gap: 8px; 
+.genre-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
 }
 
 /* 選択されていない時（グレー） */
-.genre-check-label { 
-    padding: 8px 16px; 
-    border-radius: 99px; 
-    font-size: 12px; 
-    font-weight: 700; 
-    color: #64748B; 
-    background: #F1F5F9; 
-    cursor: pointer; 
-    transition: 0.2s; 
-    border: 2px solid transparent; 
-    text-align: center; 
+.genre-check-label {
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 2px solid transparent;
+  text-align: center;
 }
 
 /* 選択された時（青色になって光る！） */
-.genre-check-label.is-active { 
-    background: var(--c-blue); 
-    color: var(--c-white); 
-    box-shadow: 0 4px 10px rgba(81, 82, 245, 0.3); 
+.genre-check-label.is-active {
+  background: var(--c-blue);
+  color: var(--c-white);
+  box-shadow: 0 4px 10px rgba(81, 82, 245, 0.3);
 }

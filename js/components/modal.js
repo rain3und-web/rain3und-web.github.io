@@ -181,7 +181,34 @@ window.openEditModal = async function (anilist_id, presetData = null) {
     setVal("editImgUrl", defaultImgUrl);
 
     setVal("editTitle", presetData.title);
-    setVal("editYear", presetData.year);
+    // 🌟【ここを差し替え！】既存のDBデータを最優先し、空っぽなら裏のアニリストデータを見る
+    const presetYear = presetData.year || "";
+    const presetSeason = presetData.season || "";
+
+    if (presetYear && !/[春夏秋冬]/.test(presetYear)) {
+      // 1. まずDBにシーズン（英語か漢字）が入っていればそれを翻訳して合体
+      if (presetSeason) {
+        const translatedSeason = window.translateSeason
+          ? window.translateSeason(presetSeason)
+          : presetSeason;
+        setVal("editYear", `${presetYear}${translatedSeason}`);
+        // 2. DBが空っぽで、裏にアニリストのデータがあればそこから合体
+      } else if (
+        window.currentActiveAnime &&
+        window.currentActiveAnime.season
+      ) {
+        const aniSeason = window.translateSeason
+          ? window.translateSeason(window.currentActiveAnime.season)
+          : "";
+        setVal("editYear", `${presetYear}${aniSeason}`);
+      } else {
+        setVal("editYear", presetYear);
+      }
+    } else {
+      setVal("editYear", presetYear);
+    }
+
+    setVal("editFormat", presetData.format);
     setVal("editFormat", presetData.format);
     setVal("editEps", presetData.eps);
     setVal("editDuration", presetData.duration);
@@ -245,7 +272,32 @@ window.openEditModal = async function (anilist_id, presetData = null) {
     setVal("editImgUrl", defaultImgUrl);
 
     setVal("editTitle", anime.title);
-    setVal("editYear", anime.year);
+    // 🌟【ここを差し替え！】マイリストから開くときも同様に、DB優先 ➔ なければアニリスト
+    const animeYear = anime.year || "";
+    const animeSeason = anime.season || "";
+
+    if (animeYear && !/[春夏秋冬]/.test(animeYear)) {
+      // 1. まずDBにシーズンが入っていればそれを合体
+      if (animeSeason) {
+        const translatedSeason = window.translateSeason
+          ? window.translateSeason(animeSeason)
+          : animeSeason;
+        setVal("editYear", `${animeYear}${translatedSeason}`);
+        // 2. なければ裏のアニリストデータから合体
+      } else if (
+        window.currentActiveAnime &&
+        window.currentActiveAnime.season
+      ) {
+        const aniSeason = window.translateSeason
+          ? window.translateSeason(window.currentActiveAnime.season)
+          : "";
+        setVal("editYear", `${animeYear}${aniSeason}`);
+      } else {
+        setVal("editYear", animeYear);
+      }
+    } else {
+      setVal("editYear", animeYear);
+    }
     setVal("editFormat", anime.format);
     setVal("editEps", anime.episodes);
     setVal("editDuration", anime.duration);
