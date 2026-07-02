@@ -46,12 +46,26 @@ window.updateModalScore = function () {
   let total = 0;
   let res = 0;
   const scores = {};
+
   document.querySelectorAll(".score-val").forEach((inp) => {
     const val = parseInt(inp.value, 10) || 0;
     scores[inp.dataset.type] = val;
     if (inp.dataset.type === "resonance") res = val;
     else total += val;
+
+    // ==========================================
+    // ✨ 【ここをあなたのファイルに永続追加！】
+    // ==========================================
+    const type = inp.dataset.type;
+    const display =
+      document.getElementById(`${type}ScoreDisplay`) ||
+      inp.parentElement.querySelector(".score-num, span, div");
+    if (display) {
+      display.innerText = val;
+    }
+    // ==========================================
   });
+
   const scoreElement = document.getElementById("myScoreValue");
   const overallScore = (total + res * 1.5) / 5.5;
   if (scoreElement)
