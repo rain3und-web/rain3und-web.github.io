@@ -7,7 +7,7 @@ const CLIENT_ID =
 
 // 修正：メールアドレスとプロフィールを取得する権限を追加
 const SCOPES =
-  "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+  "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
 let tokenClient;
 let gapiInited = false;
