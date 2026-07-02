@@ -1,8 +1,7 @@
 // =================================================================
-// 📊 スプレッドシート データの読み書き管理 (api.js) - 全31項目・完全同期版
+// 📊 スプレッドシート データの読み書き管理 (api.js) - 完全クリーン版
 // =================================================================
 
-// 💡 認証エラー(401)を徹底防止するための安全装置
 function ensureGoogleToken() {
   if (typeof gapi !== "undefined" && gapi.client) {
     const token = gapi.client.getToken ? gapi.client.getToken() : null;
@@ -13,7 +12,7 @@ function ensureGoogleToken() {
 }
 
 // -----------------------------------------
-// ① アニメデータを取得する（A2:AE列 対応版）
+// ① アニメデータを取得する（A2:AA列・無駄なし版）
 // -----------------------------------------
 async function getAnimeDataFromDB(uid) {
   if (!window.userSpreadsheetId) {
@@ -24,12 +23,12 @@ async function getAnimeDataFromDB(uid) {
   ensureGoogleToken();
 
   try {
-    console.log("📥 スプレッドシートからアニメデータを取得中（A2:AE）...");
+    console.log("📥 スプレッドシートからアニメデータを取得中（A2:AA）...");
 
-    // 💡 修正：不要な項目を削ったため、取得範囲を「AC列」までに縮小
+    // 💡 決定：後ろの重複する更新時間とIDを完全にカット。AA列（characters）までに縮小
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
-      range: "anime_log!A2:AC",
+      range: "anime_log!A2:AA",
     });
 
     const rows = response.result.values;
@@ -58,7 +57,7 @@ async function getAnimeDataFromDB(uid) {
         }
       }
 
-      // 💡 修正：スプシのA列〜AE列（全31項目）に完全1対1でマッピング
+      // 💡 決定：重複していたlast_updatedは排除し、元からある updated_at (row[23]) を基準にする
       return {
         anilist_id: row[0] || "", // A
         title: row[1] || "", // B
@@ -87,11 +86,10 @@ async function getAnimeDataFromDB(uid) {
         img_position: row[24] || "50% 50%", // Y
         memo: row[25] || "", // Z
         characters: parsedCharacters, // AA
-        account_id: row[27] || "", // AB
-        last_updated: row[28] ? Number(row[28]) : Date.now(), // AC
       };
     });
 
+    // 元からある X列の updated_at を使って綺麗にソート
     return animeList.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
   } catch (err) {
     console.error("❌ スプシからのデータ取得に失敗しました:", err);
@@ -100,7 +98,7 @@ async function getAnimeDataFromDB(uid) {
 }
 
 // -----------------------------------------
-// ② アニメデータを保存・更新する（A:AE列 対応版）
+// ② アニメデータを保存・更新する（A:AA列・無駄なし版）
 // -----------------------------------------
 async function saveAnimeToDB(uid, anilist_id, animeData) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
@@ -108,7 +106,7 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
   ensureGoogleToken();
 
   const now = Date.now();
-  animeData.updated_at = now;
+  animeData.updated_at = now; // X列のタイムスタンプを更新
 
   const response = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: window.userSpreadsheetId,
@@ -130,7 +128,7 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
       ? JSON.stringify(animeData.characters)
       : animeData.characters || "[]";
 
-  // 💡 修正：保存する配列からも avatar_url と display_name を削除（全29項目）
+  // 💡 決定：無駄なデータを一切持たせない、純粋な27列の配列
   const rowValue = [
     String(animeData.anilist_id || ""), // A
     String(animeData.title || ""), // B
@@ -155,16 +153,13 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
     String(animeData.cover_url || ""), // U
     String(animeData.official_site || ""), // V
     Number(animeData.created_at || now), // W
-    Number(animeData.updated_at || now), // X
+    Number(animeData.updated_at || now), // X (これが最終更新となる)
     String(animeData.img_position || "50% 50%"), // Y
     String(animeData.memo || ""), // Z
     charactersStr, // AA
-    String(animeData.account_id || window.currentUserId || ""), // AB
-    Number(animeData.last_updated || now), // AC
   ];
 
   if (targetRowIndex !== -1) {
-    // 上書き更新（A列からAE列まで一気に更新）
     await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId: window.userSpreadsheetId,
       range: `anime_log!A${targetRowIndex}`,
@@ -172,7 +167,6 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
       resource: { values: [rowValue] },
     });
   } else {
-    // 新規追加
     await gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: window.userSpreadsheetId,
       range: "anime_log!A1",
@@ -232,21 +226,19 @@ async function deleteAnimeFromDB(uid, anilist_id) {
 }
 
 // -----------------------------------------
-// ④ ユーザープロファイルを取得する（別タブ user_profile から）
+// ④ ユーザープロファイルを取得する
 // -----------------------------------------
 async function getUserProfileFromDB(uid) {
   if (!window.userSpreadsheetId) return null;
   ensureGoogleToken();
 
   try {
-    // 💡 「user_profile」シートのA列〜D列を取得
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
-      range: "user_profile!A2:D",
+      range: "user_profile!A2:E",
     });
 
     const rows = response.result.values || [];
-    // ログイン中のユーザーID（uid）に一致する行を探す
     const userRow = rows.find((row) => String(row[0]) === String(uid));
 
     if (!userRow) return null;
@@ -255,7 +247,8 @@ async function getUserProfileFromDB(uid) {
       account_id: userRow[0] || "",
       display_name: userRow[1] || "",
       avatar_url: userRow[2] || "",
-      last_updated: userRow[3] ? Number(userRow[3]) : Date.now(),
+      dummy_id: userRow[3] || "",
+      last_updated: userRow[4] ? Number(userRow[4]) : Date.now(),
     };
   } catch (err) {
     console.error("❌ ユーザープロファイルの取得に失敗:", err);
@@ -264,14 +257,14 @@ async function getUserProfileFromDB(uid) {
 }
 
 // -----------------------------------------
-// ⑤ ユーザープロファイルを保存・更新する（別タブ user_profile へ）
+// ⑤ ユーザープロファイルを保存・更新する
 // -----------------------------------------
 async function saveUserProfileToDB(uid, profileData) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
   ensureGoogleToken();
 
   const now = Date.now();
-  const targetUid = uid || profileData.account_id || window.currentUserId;
+  const targetUid = uid || window.currentUserId;
 
   if (!targetUid) {
     console.warn(
@@ -281,7 +274,6 @@ async function saveUserProfileToDB(uid, profileData) {
   }
 
   try {
-    // 既存のユーザー行があるか確認するためにA列（ID列）を取得
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
       range: "user_profile!A1:A",
@@ -292,21 +284,20 @@ async function saveUserProfileToDB(uid, profileData) {
 
     for (let i = 0; i < rows.length; i++) {
       if (String(rows[i][0]) === String(targetUid)) {
-        targetRowIndex = i + 1; // スプシの行番号（1始まり）
+        targetRowIndex = i + 1;
         break;
       }
     }
 
-    // 書き込むデータ配列を作成
     const rowValue = [
       String(targetUid),
       String(profileData.display_name || ""),
       String(profileData.avatar_url || ""),
+      String(profileData.dummy_id || ""),
       Number(now),
     ];
 
     if (targetRowIndex !== -1) {
-      // 既存ユーザーがいれば「user_profile」シートの該当行を上書き
       await gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: window.userSpreadsheetId,
         range: `user_profile!A${targetRowIndex}`,
@@ -315,7 +306,6 @@ async function saveUserProfileToDB(uid, profileData) {
       });
       console.log("👤 ユーザープロファイルを更新しました。");
     } else {
-      // 新規ユーザーなら「user_profile」シートの末尾に追加
       await gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: window.userSpreadsheetId,
         range: "user_profile!A1",

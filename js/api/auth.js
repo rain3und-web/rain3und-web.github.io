@@ -2,7 +2,7 @@
 // 🔑 Google API & OAuth 2.0 認証管理設定
 // ==========================================
 
-// 🚨 【ここにあなたのクライアントIDを貼り付けてください】
+// 🚨 クライアントID
 const CLIENT_ID =
   "494923453363-fqgccmebini73aia6bk0t9jjk9dg96jt.apps.googleusercontent.com";
 
@@ -69,17 +69,15 @@ async function checkExistingToken() {
       console.log("⚡ ログイン状態を復元しました。");
       await onLoginSuccess();
     } else {
-      // トークンがなければログアウト状態のUIにする
       onLogoutSuccess();
     }
   }
 }
 
 // ==========================================
-// 🕹️ UIイベントの紐づけ（元のコードを移植）
+// 🕹️ UIイベントの紐づけ
 // ==========================================
 function setupAuthUIEvents() {
-  // Googleログインボタンのコンテナ生成とクリック処理
   const btnContainer = document.getElementById("googleLoginBtnContainer");
   if (btnContainer) {
     btnContainer.innerHTML = `
@@ -93,13 +91,11 @@ function setupAuthUIEvents() {
     });
   }
 
-  // ヘッダーのログアウトボタン
   const headerLogoutBtn = document.getElementById("headerLogoutBtn");
   if (headerLogoutBtn) {
     headerLogoutBtn.addEventListener("click", () => handleGoogleLogout());
   }
 
-  // ヘッダーのログインボタン（オーバーレイを表示）
   const headerLoginBtn = document.getElementById("headerLoginBtn");
   if (headerLoginBtn) {
     headerLoginBtn.addEventListener("click", () => {
@@ -108,7 +104,6 @@ function setupAuthUIEvents() {
     });
   }
 
-  // ログインモーダルの外側をクリックしたら閉じる処理
   const loginOverlay = document.getElementById("loginOverlay");
   if (loginOverlay) {
     loginOverlay.addEventListener("click", (e) => {
@@ -117,14 +112,11 @@ function setupAuthUIEvents() {
   }
 }
 
-// ログイン処理のトリガー
 function handleGoogleLogin() {
   if (!tokenClient) return;
-  // ポップアップを強制表示して同意を得る
   tokenClient.requestAccessToken({ prompt: "consent" });
 }
 
-// ログアウト処理のトリガー
 function handleGoogleLogout() {
   const token = gapi.client.getToken();
   if (token !== null) {
@@ -151,12 +143,11 @@ async function onLoginSuccess() {
     // 1. スプシの自動検索 ＆ 自動生成
     await setupUserSpreadsheet();
 
-    // ✨ 変更：Googleから最新のユーザープロフィールを取得してみる
+    // 🌐 まずGoogleのuserInfoから最新のメアド（固定の鍵）を特定する
     let googleProfile = null;
     try {
       const token = gapi.client.getToken();
       if (token && token.access_token) {
-        // GoogleのuserInfoエンドポイントから名前、メアド、画像を取得
         const userInfoRes = await fetch(
           "https://www.googleapis.com/oauth2/v3/userinfo",
           {
@@ -168,47 +159,87 @@ async function onLoginSuccess() {
         }
       }
     } catch (e) {
-      console.warn(
-        "Googleプロフィール取得スキップ (キャッシュを使用します):",
-        e,
-      );
+      console.warn("Googleプロフィール取得失敗:", e);
     }
 
-    // 💡 修正：Googleから取れたらそれを使う、なければキャッシュ
+    // 🔑 【裏の絶対的な鍵】としてGoogleのメールアドレスを確定（変わらないもの）
+    const secureUserEmail =
+      googleProfile?.email ||
+      localStorage.getItem("secure_user_email_id") ||
+      "guest_user";
+    localStorage.setItem("secure_user_email_id", secureUserEmail);
+
+    // 🌟 今後の同期処理のために、グローバル変数にメールアドレスを完全固定
+    window.currentUserId = secureUserEmail;
+
+    // 📄 2枚目の「user_profile」シートから、裏の鍵（メアド）を元にカスタム設定を探す
+    let savedProfile = null;
+    try {
+      const profileRes = await gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: window.userSpreadsheetId,
+        range: "user_profile!A1:E", // 🌟 A:メアド, B:名前, C:画像, D:ダミーID, E:最終更新
+      });
+      const rows = profileRes.result.values || [];
+
+      // A列（メアド）が一致する行を探す
+      const matchedRow = rows.find(
+        (row) => String(row[0]) === String(secureUserEmail),
+      );
+      if (matchedRow) {
+        savedProfile = {
+          account_id: matchedRow[0], // A列: メアド（鍵）
+          display_name: matchedRow[1], // B列: 表示名
+          avatar_url: matchedRow[2], // C列: アイコン画像
+          dummy_id: matchedRow[3], // D列: お遊び用ダミーID
+          last_updated: matchedRow[4], // E列: ⏱️ 5列目に最終更新！
+        };
+        console.log("⭕ スプレッドシートからプロフィールを復元しました");
+      }
+    } catch (e) {
+      console.warn("スプシからのプロファイル取得失敗（初回ログインなど）:", e);
+    }
+
+    // 💡 決定：画面に表示するプロフィールデータオブジェクト
     let profile = {
       display_name:
+        savedProfile?.display_name ||
         googleProfile?.name ||
         localStorage.getItem("otaku_log_display_name") ||
         "アニメオタク",
       account_id:
-        googleProfile?.email ||
+        savedProfile?.dummy_id ||
+        googleProfile?.email?.split("@")[0] ||
         localStorage.getItem("otaku_log_account_id") ||
-        "user",
+        "user", // 🌟 ここにお遊び用ダミーIDを確実に代入
       avatar_url:
+        savedProfile?.avatar_url ||
         googleProfile?.picture ||
         localStorage.getItem("otaku_log_avatar_url") ||
         "",
     };
 
-    // 次回以降（オフライン復元時など）のために最新情報を localStorage に同期
+    // ブラウザのキャッシュ（localStorage）に最新状態を記憶
     localStorage.setItem("otaku_log_display_name", profile.display_name);
-    localStorage.setItem("otaku_log_account_id", profile.account_id);
+    localStorage.setItem("otaku_log_account_id", profile.account_id); // rain3und などが入る
     localStorage.setItem("otaku_log_avatar_url", profile.avatar_url);
 
-    // グローバルに保持（これまでの user.uid の代わりにメールアドレスなどをセット）
-    window.currentUserId = profile.account_id;
-
-    // 2. スプシ（user_profileタブ）にログイン時の最新情報を自動保存・更新！
-    if (typeof saveUserProfileToDB === "function" && profile.account_id) {
-      await saveUserProfileToDB(profile.account_id, profile);
+    // 2. スプシにまだデータがない場合、Googleの初期データをベースに1行目を新規保存
+    if (!savedProfile && typeof saveUserProfileToDB === "function") {
+      // 5列構成の仕様に合わせて、API側の関数にデータを渡す
+      await saveUserProfileToDB(secureUserEmail, {
+        display_name: profile.display_name,
+        avatar_url: profile.avatar_url,
+        dummy_id: profile.account_id,
+      });
     }
 
     // 3. UIへの反映
     if (document.getElementById("headerName"))
       document.getElementById("headerName").innerText = profile.display_name;
-    if (document.getElementById("headerId"))
-      document.getElementById("headerId").innerText =
-        "@" + profile.account_id.split("@")[0]; // メアドの前半をIDっぽく見せる
+
+    if (document.getElementById("headerId")) {
+      document.getElementById("headerId").innerText = "@" + profile.account_id;
+    }
 
     const headerAvatar = document.getElementById("headerAvatar");
     if (headerAvatar) {
@@ -220,14 +251,14 @@ async function onLoginSuccess() {
     if (userPanel) userPanel.classList.remove("hidden");
     if (loginPanel) loginPanel.classList.add("hidden");
 
-    // 4. スプシからのアニメデータ読み込み関数を呼び出す
+    // 4. アニメデータの読み込み（次のステップで調整するため一旦そのまま）
     if (typeof window.fetchAndRenderAllData === "function") {
       window.fetchAndRenderAllData();
     } else if (typeof fetchData === "function") {
       fetchData();
     }
 
-    // 設定ページの入力欄への反映
+    // マイページ（設定画面）の入力欄への初期値セット
     if (document.getElementById("profileDisplayName"))
       document.getElementById("profileDisplayName").value =
         profile.display_name;
@@ -237,13 +268,13 @@ async function onLoginSuccess() {
       document.getElementById("profileImgUrl").value = profile.avatar_url;
     if (typeof updateAvatarPreview === "function") updateAvatarPreview();
 
-    // ログインモーダルを閉じる
     const overlay = document.getElementById("loginOverlay");
     if (overlay) overlay.classList.add("hidden");
   } catch (err) {
     console.error("ログイン後の初期化エラー:", err);
   }
 }
+
 // ==========================================
 // 🔴 ログアウト状態のUI反映ロジック
 // ==========================================
@@ -260,7 +291,6 @@ function onLogoutSuccess() {
   if (typeof animeDB !== "undefined") animeDB = [];
   if (typeof updateAllViews === "function") updateAllViews();
 
-  // スプライト起動画面のフェードアウト処理
   setTimeout(() => {
     const overlay = document.getElementById("startupOverlay");
     if (overlay) overlay.classList.add("fade-out");
@@ -305,7 +335,7 @@ async function setupUserSpreadsheet() {
         properties: { title: "anime_log_db" },
         sheets: [
           { properties: { title: "anime_log" } },
-          { properties: { title: "profile" } },
+          { properties: { title: "user_profile" } },
         ],
       },
       fields: "spreadsheetId",
@@ -321,6 +351,7 @@ async function setupUserSpreadsheet() {
   localStorage.setItem("user_spreadsheet_id", window.userSpreadsheetId);
 }
 
+// ※アニメデータ用のヘッダー初期化（1枚目からIDを撤去する方針なので、次のステップで連動させます）
 async function initSpreadsheetHeaders() {
   const headers = [
     "anilist_id",
@@ -347,7 +378,7 @@ async function initSpreadsheetHeaders() {
     "img_position",
     "memo",
     "characters",
-    "user_id",
+    "user_id", // 🌟 ここは後ほど1枚目の修正ファイル（apiなど）を統合するときに、あなたの方針に合わせて完全に撤去または調整をかけます
   ];
 
   await gapi.client.sheets.spreadsheets.values.update({

@@ -253,15 +253,21 @@ document.addEventListener("DOMContentLoaded", () => {
       rewatch_count: document.getElementById("editRewatch").value, // ★追加
     };
     try {
+      // 1. api.js側で animeData.updated_at が現在のタイムスタンプ(Date.now())にカチッと固定されて保存される
       await saveAnimeToDB(window.currentUserId, anilist_id, animeData);
+
       document.getElementById("editModal").classList.add("hidden");
-      animeData.updated_at = Date.now();
+
+      // 2. 💡 修正：余計な再代入を廃止し、翻訳などのローカル表示用プロパティだけを正しく追加
       animeData.genres_jp = window.translateGenres(animeData.genres);
+
       if (existingIndex !== -1) {
         window.animeDB[existingIndex] = animeData;
       } else {
         window.animeDB.push(animeData);
       }
+
+      // 3. X列に完全対応した updated_at を用いてローカル配列を完璧に並び替え
       window.animeDB.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
       window.updateAllViews();
     } catch (e) {
