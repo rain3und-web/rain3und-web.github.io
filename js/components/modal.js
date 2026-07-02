@@ -67,6 +67,7 @@ window.updateModalScore = function () {
   });
 
   const scoreElement = document.getElementById("myScoreValue");
+
   const overallScore = (total + res * 1.5) / 5.5;
   if (scoreElement)
     scoreElement.innerText = ((total + res * 1.5) / 5.5).toFixed(1);
