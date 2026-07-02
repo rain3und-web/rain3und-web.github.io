@@ -1,17 +1,18 @@
 // ==========================================
-// 🔑 Google API & OAuth 2.0 認証管理設定 (auth.js)
+// Google API & OAuth 2.0 認証管理設定 (auth.js)
 // ==========================================
 
 const CLIENT_ID =
   "494923453363-fqgccmebini73aia6bk0t9jjk9dg96jt.apps.googleusercontent.com";
 
-// 🌟 修正：メールアドレスとプロフィールを取得する権限を追加！
+// 修正：メールアドレスとプロフィールを取得する権限を追加
 const SCOPES =
   "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 
 let tokenClient;
 let gapiInited = false;
 let gisInited = false;
+let tokenExpirationTimer = null; // 追加: タイマー用変数
 
 document.addEventListener("DOMContentLoaded", () => {
   gapiLoaded();
@@ -41,8 +42,18 @@ function gisLoaded() {
         alert("ログインに失敗したか、キャンセルされました。");
         throw resp;
       }
-      console.log("🔑 Googleログイン成功！通行証を取得しました。");
+      console.log("Googleログイン成功: アクセストークンを取得しました。");
+
+      // トークンと取得時間を保存
       localStorage.setItem("gapi_access_token", resp.access_token);
+      localStorage.setItem("gapi_token_timestamp", Date.now().toString());
+
+      // 再接続パネルが出ている場合は閉じる
+      hideSessionExpiredModal();
+
+      // タイマーをセット (55分 = 3300000ミリ秒)
+      startTokenTimer(55 * 60 * 1000);
+
       await onLoginSuccess();
     },
   });
@@ -53,13 +64,102 @@ function gisLoaded() {
 async function checkExistingToken() {
   if (gapiInited && gisInited) {
     const savedToken = localStorage.getItem("gapi_access_token");
-    if (savedToken) {
-      gapi.client.setToken({ access_token: savedToken });
-      console.log("⚡ ログイン状態を復元しました。");
-      await onLoginSuccess();
+    const tokenTimestamp = localStorage.getItem("gapi_token_timestamp");
+    const now = Date.now();
+    const WARNING_TIME = 55 * 60 * 1000;
+
+    if (savedToken && tokenTimestamp) {
+      const timeElapsed = now - parseInt(tokenTimestamp);
+      const timeRemaining = WARNING_TIME - timeElapsed;
+
+      if (timeRemaining > 0) {
+        // まだ有効期限内なら復元して、残りの時間でタイマーをセット
+        gapi.client.setToken({ access_token: savedToken });
+        console.log("ログイン状態を復元しました。");
+        startTokenTimer(timeRemaining);
+        await onLoginSuccess();
+      } else {
+        // すでに55分以上経過している場合は、再接続パネルを表示
+        console.log("トークンの有効期限が切れています。再接続が必要です。");
+        showSessionExpiredModal();
+      }
     } else {
       onLogoutSuccess();
     }
+  }
+}
+
+// 追加: タイマー開始関数
+function startTokenTimer(duration) {
+  if (tokenExpirationTimer) clearTimeout(tokenExpirationTimer);
+  tokenExpirationTimer = setTimeout(() => {
+    showSessionExpiredModal();
+  }, duration);
+}
+
+// 追加: 再接続パネル表示関数
+function showSessionExpiredModal() {
+  if (document.getElementById("session-expired-overlay")) return;
+
+  const overlay = document.createElement("div");
+  overlay.id = "session-expired-overlay";
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(30, 41, 59, 0.4);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999;
+  `;
+
+  const panel = document.createElement("div");
+  panel.className = "glass-panel";
+  panel.style.cssText = `
+    padding: 30px; width: 90%; max-width: 400px;
+    display: flex; flex-direction: column; gap: 20px;
+    box-sizing: border-box;
+  `;
+
+  const title = document.createElement("div");
+  title.className = "panel-title";
+  title.innerText = "SESSION EXPIRED";
+
+  const text = document.createElement("p");
+  text.style.cssText = `
+    font-family: var(--f-jp); font-size: 13px; 
+    color: var(--c-text-gray); margin: 0; line-height: 1.6; text-align: center;
+  `;
+  text.innerText =
+    "セキュリティ保護のため通信を一時停止しました。入力中のデータは保持されています。再接続して操作を続けてください。";
+
+  const btn = document.createElement("button");
+  btn.style.cssText = `
+    background: var(--c-black); color: var(--c-white); 
+    font-family: var(--f-jpb); font-size: 14px;
+    border: none; padding: 12px 24px; border-radius: 8px; 
+    cursor: pointer; transition: background 0.2s;
+  `;
+  btn.innerText = "再接続する";
+
+  btn.onmouseover = () => (btn.style.background = "var(--c-blue)");
+  btn.onmouseout = () => (btn.style.background = "var(--c-black)");
+
+  btn.onclick = () => {
+    btn.innerText = "接続中...";
+    // prompt: '' を指定することで、アカウント選択画面をスキップして即座にトークンを再取得する
+    tokenClient.requestAccessToken({ prompt: "" });
+  };
+
+  panel.appendChild(title);
+  panel.appendChild(text);
+  panel.appendChild(btn);
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+}
+
+// 追加: 再接続パネル非表示関数
+function hideSessionExpiredModal() {
+  const overlay = document.getElementById("session-expired-overlay");
+  if (overlay) {
+    document.body.removeChild(overlay);
   }
 }
 
@@ -97,9 +197,10 @@ function handleGoogleLogout() {
     google.accounts.oauth2.revoke(token.access_token, () => {
       gapi.client.setToken(null);
       localStorage.removeItem("gapi_access_token");
+      localStorage.removeItem("gapi_token_timestamp");
       localStorage.removeItem("user_spreadsheet_id");
       window.userSpreadsheetId = null;
-      console.log("🔒 ログアウトしました。");
+      console.log("ログアウトしました。");
       onLogoutSuccess();
       location.reload();
     });
@@ -113,7 +214,7 @@ async function onLoginSuccess() {
   try {
     await setupUserSpreadsheet();
 
-    // 🌐 GoogleのuserInfoから確実にメアドを取得（401エラーはもう出ません）
+    // GoogleのuserInfoからメアドを取得
     let googleProfile = null;
     try {
       const token = gapi.client.getToken();
@@ -130,7 +231,7 @@ async function onLoginSuccess() {
       console.warn("Googleプロフィール取得失敗:", e);
     }
 
-    // 🔑 裏の絶対的な鍵（メアド）を確定
+    // メアドを確定
     const secureUserEmail =
       googleProfile?.email ||
       localStorage.getItem("secure_user_email_id") ||
@@ -138,7 +239,7 @@ async function onLoginSuccess() {
     localStorage.setItem("secure_user_email_id", secureUserEmail);
     window.currentUserId = secureUserEmail;
 
-    // 📄 2枚目からプロフィールを取得
+    // プロフィールを取得
     let savedProfile = null;
     try {
       const profileRes = await gapi.client.sheets.spreadsheets.values.get({
@@ -162,7 +263,7 @@ async function onLoginSuccess() {
       console.warn("スプシからのプロファイル取得失敗:", e);
     }
 
-    // 💡 決定：悪しき変数名「account_id」を廃止し、「dummy_id」として完全管理
+    // 変数名「account_id」を廃止し、「dummy_id」として完全管理
     let profile = {
       display_name:
         savedProfile?.display_name ||
@@ -181,12 +282,10 @@ async function onLoginSuccess() {
         "",
     };
 
-    // キャッシュ名も dummy_id に統一
     localStorage.setItem("otaku_log_display_name", profile.display_name);
     localStorage.setItem("otaku_log_dummy_id", profile.dummy_id);
     localStorage.setItem("otaku_log_avatar_url", profile.avatar_url);
 
-    // 新規ユーザーの場合、正しいキー名で保存
     if (
       !savedProfile &&
       typeof saveUserProfileToDB === "function" &&
@@ -199,7 +298,6 @@ async function onLoginSuccess() {
       });
     }
 
-    // UI反映
     if (document.getElementById("headerName"))
       document.getElementById("headerName").innerText = profile.display_name;
     if (document.getElementById("headerId"))
@@ -221,7 +319,6 @@ async function onLoginSuccess() {
       fetchData();
     }
 
-    // 入力欄へのセット
     if (document.getElementById("profileDisplayName"))
       document.getElementById("profileDisplayName").value =
         profile.display_name;
@@ -315,7 +412,6 @@ async function initSpreadsheetHeaders() {
     "characters",
   ];
 
-  // 🌟 修正：2枚目のプロフィールシートのヘッダーもここで確実に生成する
   const profileHeaders = [
     "account_id",
     "display_name",
@@ -338,5 +434,5 @@ async function initSpreadsheetHeaders() {
     resource: { values: [profileHeaders] },
   });
 
-  console.log("📄 スプシ両シートにヘッダー行を書き込みました。");
+  console.log("スプシ両シートにヘッダー行を書き込みました。");
 }
