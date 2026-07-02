@@ -188,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const anilist_id = String(document.getElementById("editAnilistId").value);
 
-    // ★ 刺さり度を特別扱いにして、1.5倍で計算するロジックに変更！
+    // ★ 刺さり度を特別扱いにして、1.5倍で計算するロジック
     const scores = {};
     let totalScore = 0;
     let resonanceScore = 0;
@@ -206,72 +206,98 @@ document.addEventListener("DOMContentLoaded", () => {
       ((totalScore + resonanceScore * 1.5) / 5.5).toFixed(1),
     );
 
-    // 既存のデータがあるかチェック
+    // 既存のデータがあるかチェック（作成日時や、アニリストから取得済みの裏データを維持するため）
     const existingIndex = window.animeDB.findIndex(
       (a) => String(a.anilist_id) === anilist_id,
     );
     const existingData =
       existingIndex !== -1 ? window.animeDB[existingIndex] : null;
 
-    const animeData = {
-      synopsis: document.getElementById("editSynopsis").value,
+    const nowTimestamp = Date.now();
 
+    // 💡 api.jsの受け取り口に完全適合させたオブジェクト
+    const animeData = {
       anilist_id: anilist_id,
       title: document.getElementById("editTitle").value,
-      cover_url: document.getElementById("editImgUrl").value,
-      year: document.getElementById("editYear").value, // ★これが自由に書ける「放送時期」になります
-      format: document.getElementById("editFormat").value,
-      episodes: document.getElementById("editEps").value,
-      duration: document.getElementById("editDuration")
-        ? document.getElementById("editDuration").value
-        : "", // ★安全に時間を取得
-      genres: document.getElementById("editGenres").value,
-      director:
-        document.getElementById("editDirectorRaw").value ||
-        document.getElementById("editDirector").value,
-      studio: document.getElementById("editStudio").value,
-      cast: document.getElementById("editVoiceActors").value,
-      official_site: document.getElementById("editOfficialSite").value,
       watch_status: document.getElementById("editStatus").value,
-      memo: document.getElementById("editMemo").value,
-      characters: document.getElementById("editCharacters").value,
       my_score: calculatedMyScore,
       score_story: scores.story,
       score_visual: scores.visual,
       score_character: scores.character,
       score_music: scores.music,
       score_resonance: scores.resonance,
+      format: document.getElementById("editFormat").value,
+      year: document.getElementById("editYear").value,
+
+      // 🌟 ここがポイント：画面（UI）からは取らず、アニリストから取得して保持していた既存のseasonデータ（あれば）をそのまま裏側で引き継ぎます
+      season: existingData && existingData.season ? existingData.season : "",
+
+      episodes: document.getElementById("editEps").value,
+      duration: document.getElementById("editDuration")
+        ? document.getElementById("editDuration").value
+        : "0",
+      rewatch_count: document.getElementById("editRewatch")
+        ? document.getElementById("editRewatch").value
+        : "1",
+      synopsis: document.getElementById("editSynopsis").value,
+      genres: document.getElementById("editGenres").value,
+      director:
+        document.getElementById("editDirectorRaw").value ||
+        document.getElementById("editDirector").value,
+      studio: document.getElementById("editStudio").value,
+      cast: document.getElementById("editVoiceActors").value,
+      cover_url: document.getElementById("editImgUrl").value,
+      official_site: document.getElementById("editOfficialSite").value,
       created_at:
         existingData && existingData.created_at
           ? existingData.created_at
-          : existingData && existingData.updated_at
-            ? existingData.updated_at
-            : Date.now(),
+          : nowTimestamp,
+      updated_at: nowTimestamp,
       img_position: document.getElementById("editImgPosition")
         ? document.getElementById("editImgPosition").value
         : "50% 50%",
-      rewatch_count: document.getElementById("editRewatch").value, // ★追加
+      memo: document.getElementById("editMemo").value,
+
+      // api.jsの判定をバグらせないための安全ガード
+      characters: (() => {
+        const raw = document.getElementById("editCharacters")?.value || "[]";
+        try {
+          return raw.startsWith("[") || raw.startsWith("{")
+            ? JSON.parse(raw)
+            : raw;
+        } catch (e) {
+          return raw;
+        }
+      })(),
     };
+
     try {
-      // 1. api.js側で animeData.updated_at が現在のタイムスタンプ(Date.now())にカチッと固定されて保存される
+      // 1. api.js側の関数を呼び出し（自動で列をマッピングしてスプシを更新）
       await saveAnimeToDB(window.currentUserId, anilist_id, animeData);
 
+      // モーダルを閉じる
       document.getElementById("editModal").classList.add("hidden");
 
-      // 2. 💡 修正：余計な再代入を廃止し、翻訳などのローカル表示用プロパティだけを正しく追加
+      // 2. ローカル表示用の日本語翻訳プロパティなどをトッピング
       animeData.genres_jp = window.translateGenres(animeData.genres);
+      animeData.studio = window.translateStudio(animeData.studio);
+      if (animeData.cast)
+        animeData.cast = animeData.cast.replace(/[\r\n]/g, "");
 
+      // 3. メモリ上の配列（window.animeDB）を更新
       if (existingIndex !== -1) {
         window.animeDB[existingIndex] = animeData;
       } else {
         window.animeDB.push(animeData);
       }
 
-      // 3. X列に完全対応した updated_at を用いてローカル配列を完璧に並び替え
+      // 4. 最新の updated_at に基づいて綺麗に降順ソートして画面をリフレッシュ
       window.animeDB.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
       window.updateAllViews();
+
+      alert("保存が完了しました！");
     } catch (e) {
-      alert("保存エラーが発生しました");
+      alert("保存エラーが発生しました: " + e.message);
       console.error(e);
     } finally {
       btn.innerText = "SAVE";

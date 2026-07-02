@@ -67,9 +67,15 @@ document
 
     const headerAvatar = document.getElementById("headerAvatar");
     if (headerAvatar) {
-      headerAvatar.innerHTML = aUrl
-        ? `<img src="${aUrl}" class="feed-avatar-img">`
-        : "ME";
+      if (aUrl) {
+        headerAvatar.innerHTML = ""; // 一度中身をクリア
+        const img = document.createElement("img");
+        img.src = aUrl; // 💡srcに直接代入すれば、中にどれだけ変な文字が入っていてもただの「URL文字列」として安全に処理されます
+        img.className = "feed-avatar-img";
+        headerAvatar.appendChild(img);
+      } else {
+        headerAvatar.innerText = "ME";
+      }
     }
 
     const btn = document.getElementById("saveProfileBtn");
