@@ -132,7 +132,7 @@ function showSessionExpiredModal() {
   const btn = document.createElement("button");
   btn.style.cssText = `
     background: var(--c-black); color: var(--c-white); 
-    font-family: var(--f-jpb); font-size: 14px;
+    font-family: var(--f-jp); font-size: 14px;
     border: none; padding: 12px 24px; border-radius: 8px; 
     cursor: pointer; transition: background 0.2s;
   `;
