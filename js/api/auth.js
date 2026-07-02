@@ -263,13 +263,12 @@ async function onLoginSuccess() {
       console.warn("スプシからのプロファイル取得失敗:", e);
     }
 
-    // 変数名「account_id」を廃止し、「dummy_id」として完全管理
     let profile = {
       display_name:
         savedProfile?.display_name ||
         googleProfile?.name ||
         localStorage.getItem("otaku_log_display_name") ||
-        "アニメオタク",
+        "自分",
       dummy_id:
         savedProfile?.dummy_id ||
         localStorage.getItem("otaku_log_dummy_id") ||
@@ -277,7 +276,6 @@ async function onLoginSuccess() {
         "user",
       avatar_url:
         savedProfile?.avatar_url ||
-        googleProfile?.picture ||
         localStorage.getItem("otaku_log_avatar_url") ||
         "",
     };
