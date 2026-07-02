@@ -188,7 +188,8 @@ function setupAuthUIEvents() {
 
 function handleGoogleLogin() {
   if (!tokenClient) return;
-  tokenClient.requestAccessToken({ prompt: "consent" });
+  // prompt を空にするか、"select_account" に変更する
+  tokenClient.requestAccessToken({ prompt: "select_account" });
 }
 
 function handleGoogleLogout() {
