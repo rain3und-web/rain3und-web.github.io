@@ -53,9 +53,6 @@ window.updateModalScore = function () {
     if (inp.dataset.type === "resonance") res = val;
     else total += val;
 
-    // ==========================================
-    // ✨ 【ここをあなたのファイルに永続追加！】
-    // ==========================================
     const type = inp.dataset.type;
     const display =
       document.getElementById(`${type}ScoreDisplay`) ||
@@ -65,7 +62,6 @@ window.updateModalScore = function () {
     }
     // ==========================================
   });
-
   const scoreElement = document.getElementById("myScoreValue");
 
   const overallScore = (total + res * 1.5) / 5.5;
