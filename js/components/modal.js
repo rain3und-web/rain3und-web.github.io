@@ -60,7 +60,6 @@ window.updateModalScore = function () {
     if (display) {
       display.innerText = val;
     }
-    // ==========================================
   });
   const scoreElement = document.getElementById("myScoreValue");
 
