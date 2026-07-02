@@ -185,7 +185,6 @@ function setupAuthUIEvents() {
     if (e.target.id === "loginOverlay") e.target.classList.add("hidden");
   });
 }
-
 function handleGoogleLogin() {
   if (!tokenClient) return;
   // prompt を空にするか、"select_account" に変更する
