@@ -1,5 +1,5 @@
 // =================================================================
-// 📊 スプレッドシート データの読み書き管理 (api.js) - 完全クリーン版
+// 📊 スプレッドシート 管理 (api.js) - 列名自動マッピング版（行指定完全廃止）
 // =================================================================
 
 function ensureGoogleToken() {
@@ -11,36 +11,49 @@ function ensureGoogleToken() {
   }
 }
 
+// 💡 ヘッダー行（1行目）から「列名 -> インデックス」のマップを自動で作る魔法の関数
+function createColumnMap(headerRow) {
+  const map = {};
+  if (!headerRow) return map;
+  headerRow.forEach((cellName, index) => {
+    if (cellName) map[cellName.trim()] = index;
+  });
+  return map;
+}
+
 // -----------------------------------------
-// ① アニメデータを取得する（A2:AA列・無駄なし版）
+// ① アニメデータを取得する（列名ベース）
 // -----------------------------------------
 async function getAnimeDataFromDB(uid) {
-  if (!window.userSpreadsheetId) {
-    console.warn("⚠️ スプレッドシートIDが見つかりません。");
-    return [];
-  }
-
+  if (!window.userSpreadsheetId) return [];
   ensureGoogleToken();
 
   try {
-    console.log("📥 スプレッドシートからアニメデータを取得中（A2:AA）...");
+    console.log("📥 スプレッドシートからアニメデータを取得中...");
 
-    // 💡 決定：後ろの重複する更新時間とIDを完全にカット。AA列（characters）までに縮小
+    // 💡 変更：列指定を完全になくし、データがある分すべてをごそっと取る
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
-      range: "anime_log!A2:AA",
+      range: "anime_log!A1:ZZ",
     });
 
-    const rows = response.result.values;
-    if (!rows || rows.length === 0) {
-      console.log("📄 スプシはまだ空っぽです。");
-      return [];
-    }
+    const allRows = response.result.values;
+    if (!allRows || allRows.length === 0) return [];
 
-    const animeList = rows.map((row) => {
+    const headerRow = allRows[0];
+    const col = createColumnMap(headerRow);
+
+    const dataRows = allRows.slice(1);
+    const animeList = dataRows.map((row) => {
+      const getValue = (columnName, defaultValue = "") => {
+        const index = col[columnName];
+        return index !== undefined && row[index] !== undefined
+          ? row[index]
+          : defaultValue;
+      };
+
       let parsedCharacters = [];
-      const rawCharacters = row[26]; // AA列：characters
-
+      const rawCharacters = getValue("characters");
       if (rawCharacters) {
         try {
           if (
@@ -52,75 +65,88 @@ async function getAnimeDataFromDB(uid) {
             parsedCharacters = rawCharacters;
           }
         } catch (e) {
-          console.warn("キャラクターのパースに失敗:", rawCharacters);
           parsedCharacters = rawCharacters;
         }
       }
 
-      // 💡 決定：重複していたlast_updatedは排除し、元からある updated_at (row[23]) を基準にする
       return {
-        anilist_id: row[0] || "", // A
-        title: row[1] || "", // B
-        watch_status: row[2] || "未履修", // C
-        my_score: row[3] ? Number(row[3]) : 0, // D
-        score_story: row[4] ? Number(row[4]) : 0, // E
-        score_visual: row[5] ? Number(row[5]) : 0, // F
-        score_character: row[6] ? Number(row[6]) : 0, // G
-        score_music: row[7] ? Number(row[7]) : 0, // H
-        score_resonance: row[8] ? Number(row[8]) : 0, // I
-        format: row[9] || "", // J
-        year: row[10] || "", // K
-        season: row[11] || "", // L
-        episodes: row[12] || "", // M
-        duration: row[13] || "0", // N
-        rewatch_count: row[14] || "1", // O
-        synopsis: row[15] || "", // P
-        genres: row[16] || "", // Q
-        director: row[17] || "", // R
-        studio: row[18] || "", // S
-        cast: row[19] || "", // T
-        cover_url: row[20] || "", // U
-        official_site: row[21] || "", // V
-        created_at: row[22] ? Number(row[22]) : Date.now(), // W
-        updated_at: row[23] ? Number(row[23]) : Date.now(), // X
-        img_position: row[24] || "50% 50%", // Y
-        memo: row[25] || "", // Z
-        characters: parsedCharacters, // AA
+        anilist_id: getValue("anilist_id"),
+        title: getValue("title"),
+        watch_status: getValue("watch_status", "未履修"),
+        my_score: Number(getValue("my_score", 0)),
+        score_story: Number(getValue("score_story", 0)),
+        score_visual: Number(getValue("score_visual", 0)),
+        score_character: Number(getValue("score_character", 0)),
+        score_music: Number(getValue("score_music", 0)),
+        score_resonance: Number(getValue("score_resonance", 0)),
+        format: getValue("format"),
+        year: getValue("year"),
+        season: getValue("season"),
+        episodes: getValue("episodes"),
+        duration: getValue("duration", "0"),
+        rewatch_count: getValue("rewatch_count", "1"),
+        synopsis: getValue("synopsis"),
+        genres: getValue("genres"),
+        director: getValue("director"),
+        studio: getValue("studio"),
+        cast: getValue("cast"),
+        cover_url: getValue("cover_url"),
+        official_site: getValue("official_site"),
+        created_at: Number(getValue("created_at", Date.now())),
+        updated_at: Number(getValue("updated_at", Date.now())),
+        img_position: getValue("img_position", "50% 50%"),
+        memo: getValue("memo"),
+        characters: parsedCharacters,
       };
     });
 
-    // 元からある X列の updated_at を使って綺麗にソート
     return animeList.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
   } catch (err) {
-    console.error("❌ スプシからのデータ取得に失敗しました:", err);
+    console.error("❌ アニメデータの取得に失敗:", err);
     return [];
   }
 }
 
 // -----------------------------------------
-// ② アニメデータを保存・更新する（A:AA列・無駄なし版）
+// ② アニメデータを保存・更新する（列名ベース・自動マップ型）
 // -----------------------------------------
 async function saveAnimeToDB(uid, anilist_id, animeData) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
-
   ensureGoogleToken();
 
   const now = Date.now();
-  animeData.updated_at = now; // X列のタイムスタンプを更新
+  animeData.updated_at = now;
 
+  // まず現在のシートの状態（1行目のヘッダーとA列のID）を取得
   const response = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: window.userSpreadsheetId,
-    range: "anime_log!A1:A",
+    range: "anime_log!A1:ZZ",
   });
 
-  const rows = response.result.values || [];
-  let targetRowIndex = -1;
+  const allRows = response.result.values || [];
+  const headerRow = allRows[0] || [];
+  const col = createColumnMap(headerRow);
 
-  for (let i = 0; i < rows.length; i++) {
-    if (String(rows[i][0]) === String(anilist_id)) {
-      targetRowIndex = i + 1;
-      break;
+  // 💡 もし万が一スプシが完全な空っぽなら、標準のヘッダーを自動生成してあげる安全ガード
+  if (headerRow.length === 0) {
+    throw new Error(
+      "スプレッドシートの1行目にヘッダー（列名）が見つかりません。",
+    );
+  }
+
+  // 更新対象の行を探す（anilist_idの列の位置を動的に特定）
+  let targetRowIndex = -1;
+  const idColIndex = col["anilist_id"];
+
+  if (idColIndex !== undefined) {
+    for (let i = 1; i < allRows.length; i++) {
+      if (String(allRows[i][idColIndex]) === String(anilist_id)) {
+        targetRowIndex = i + 1;
+        break;
+      }
     }
+  } else {
+    throw new Error("スプシの1行目に 'anilist_id' という列名が存在しません。");
   }
 
   const charactersStr =
@@ -128,38 +154,49 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
       ? JSON.stringify(animeData.characters)
       : animeData.characters || "[]";
 
-  // 💡 決定：無駄なデータを一切持たせない、純粋な27列の配列
-  const rowValue = [
-    String(animeData.anilist_id || ""), // A
-    String(animeData.title || ""), // B
-    String(animeData.watch_status || "未履修"), // C
-    Number(animeData.my_score || 0), // D
-    Number(animeData.score_story || 0), // E
-    Number(animeData.score_visual || 0), // F
-    Number(animeData.score_character || 0), // G
-    Number(animeData.score_music || 0), // H
-    Number(animeData.score_resonance || 0), // I
-    String(animeData.format || ""), // J
-    String(animeData.year || ""), // K
-    String(animeData.season || ""), // L
-    String(animeData.episodes || ""), // M
-    String(animeData.duration || "0"), // N
-    String(animeData.rewatch_count || "1"), // O
-    String(animeData.synopsis || animeData.description || ""), // P
-    String(animeData.genres || ""), // Q
-    String(animeData.director || ""), // R
-    String(animeData.studio || ""), // S
-    String(animeData.cast || ""), // T
-    String(animeData.cover_url || ""), // U
-    String(animeData.official_site || ""), // V
-    Number(animeData.created_at || now), // W
-    Number(animeData.updated_at || now), // X (これが最終更新となる)
-    String(animeData.img_position || "50% 50%"), // Y
-    String(animeData.memo || ""), // Z
-    charactersStr, // AA
-  ];
+  // 💡 決定：現在のスプシの列幅に合わせて、正しい名前の位置にデータを流し込む配列を動的作成
+  const rowValue = new Array(headerRow.length).fill("");
+
+  const mapping = {
+    anilist_id: String(animeData.anilist_id || ""),
+    title: String(animeData.title || ""),
+    watch_status: String(animeData.watch_status || "未履修"),
+    my_score: Number(animeData.my_score || 0),
+    score_story: Number(animeData.score_story || 0),
+    score_visual: Number(animeData.score_visual || 0),
+    score_character: Number(animeData.score_character || 0),
+    score_music: Number(animeData.score_music || 0),
+    score_resonance: Number(animeData.score_resonance || 0),
+    format: String(animeData.format || ""),
+    year: String(animeData.year || ""),
+    season: String(animeData.season || ""),
+    episodes: String(animeData.episodes || ""),
+    duration: String(animeData.duration || "0"),
+    rewatch_count: String(animeData.rewatch_count || "1"),
+    synopsis: String(animeData.synopsis || animeData.description || ""),
+    genres: String(animeData.genres || ""),
+    director: String(animeData.director || ""),
+    studio: String(animeData.studio || ""),
+    cast: String(animeData.cast || ""),
+    cover_url: String(animeData.cover_url || ""),
+    official_site: String(animeData.official_site || ""),
+    created_at: Number(animeData.created_at || now),
+    updated_at: Number(animeData.updated_at || now),
+    img_position: String(animeData.img_position || "50% 50%"),
+    memo: String(animeData.memo || ""),
+    characters: charactersStr,
+  };
+
+  // スプシのヘッダー名に合わせて配列を組み立て（順番が入れ替わっていてもここにハマる）
+  headerRow.forEach((key, index) => {
+    const cleanKey = key.trim();
+    if (mapping[cleanKey] !== undefined) {
+      rowValue[index] = mapping[cleanKey];
+    }
+  });
 
   if (targetRowIndex !== -1) {
+    // 既存行の上書き（その行のA列から右端までを綺麗に上書き）
     await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId: window.userSpreadsheetId,
       range: `anime_log!A${targetRowIndex}`,
@@ -167,6 +204,7 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
       resource: { values: [rowValue] },
     });
   } else {
+    // 新規行の追加
     await gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: window.userSpreadsheetId,
       range: "anime_log!A1",
@@ -178,7 +216,7 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
 }
 
 // -----------------------------------------
-// ③ アニメデータを削除する
+// ③ アニメデータを削除する（列名ベース）
 // -----------------------------------------
 async function deleteAnimeFromDB(uid, anilist_id) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
@@ -186,15 +224,21 @@ async function deleteAnimeFromDB(uid, anilist_id) {
 
   const response = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: window.userSpreadsheetId,
-    range: "anime_log!A1:A",
+    range: "anime_log!A1:ZZ",
   });
 
-  const rows = response.result.values || [];
-  let targetRowIndex = -1;
+  const allRows = response.result.values || [];
+  if (allRows.length === 0) return;
 
-  for (let i = 0; i < rows.length; i++) {
-    if (String(rows[i][0]) === String(anilist_id)) {
-      targetRowIndex = i;
+  const col = createColumnMap(allRows[0]);
+  const idColIndex = col["anilist_id"];
+
+  if (idColIndex === undefined) return;
+
+  let targetRowIndex = -1;
+  for (let i = 1; i < allRows.length; i++) {
+    if (String(allRows[i][idColIndex]) === String(anilist_id)) {
+      targetRowIndex = i; // batchUpdate用の0始まりインデックス
       break;
     }
   }
@@ -226,7 +270,7 @@ async function deleteAnimeFromDB(uid, anilist_id) {
 }
 
 // -----------------------------------------
-// ④ ユーザープロファイルを取得する
+// ④ ユーザープロファイルを取得する（列名ベース）
 // -----------------------------------------
 async function getUserProfileFromDB(uid) {
   if (!window.userSpreadsheetId) return null;
@@ -235,29 +279,50 @@ async function getUserProfileFromDB(uid) {
   try {
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
-      range: "user_profile!A2:E",
+      range: "user_profile!A1:ZZ",
     });
 
-    const rows = response.result.values || [];
-    const userRow = rows.find((row) => String(row[0]) === String(uid));
+    const allRows = response.result.values || [];
+    if (allRows.length === 0) return null;
+
+    const col = createColumnMap(allRows[0]);
+    const dataRows = allRows.slice(1);
+
+    const userRow = dataRows.find((row) => {
+      const emailIndex = col["account_id"];
+      return (
+        emailIndex !== undefined &&
+        String(row[emailIndex]).trim().toLowerCase() ===
+          String(uid).trim().toLowerCase()
+      );
+    });
 
     if (!userRow) return null;
 
+    const getValue = (columnName) => {
+      const index = col[columnName];
+      return index !== undefined && userRow[index] !== undefined
+        ? userRow[index]
+        : "";
+    };
+
     return {
-      account_id: userRow[0] || "",
-      display_name: userRow[1] || "",
-      avatar_url: userRow[2] || "",
-      dummy_id: userRow[3] || "",
-      last_updated: userRow[4] ? Number(userRow[4]) : Date.now(),
+      account_id: getValue("account_id"),
+      display_name: getValue("display_name"),
+      avatar_url: getValue("avatar_url"),
+      dummy_id: getValue("dummy_id"),
+      last_updated: getValue("last_updated")
+        ? Number(getValue("last_updated"))
+        : Date.now(),
     };
   } catch (err) {
-    console.error("❌ ユーザープロファイルの取得に失敗:", err);
+    console.error("❌ プロファイルの取得に失敗:", err);
     return null;
   }
 }
 
 // -----------------------------------------
-// ⑤ ユーザープロファイルを保存・更新する
+// ⑤ ユーザープロファイルを保存・更新する（列名ベース・自動マップ型）
 // -----------------------------------------
 async function saveUserProfileToDB(uid, profileData) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
@@ -266,9 +331,10 @@ async function saveUserProfileToDB(uid, profileData) {
   const now = Date.now();
   const targetUid = uid || window.currentUserId;
 
-  if (!targetUid) {
+  if (!targetUid || targetUid.includes("@") === false) {
     console.warn(
-      "⚠️ ユーザーIDが特定できないため、プロファイルを保存できません。",
+      "⚠️ 有効なユーザーID（メアド）が特定できないため中断:",
+      targetUid,
     );
     return false;
   }
@@ -276,26 +342,49 @@ async function saveUserProfileToDB(uid, profileData) {
   try {
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
-      range: "user_profile!A1:A",
+      range: "user_profile!A1:ZZ",
     });
 
-    const rows = response.result.values || [];
-    let targetRowIndex = -1;
+    const allRows = response.result.values || [];
+    const headerRow = allRows[0] || [];
+    const col = createColumnMap(headerRow);
 
-    for (let i = 0; i < rows.length; i++) {
-      if (String(rows[i][0]) === String(targetUid)) {
-        targetRowIndex = i + 1;
-        break;
+    if (headerRow.length === 0) {
+      throw new Error("user_profileシートにヘッダーが見つかりません。");
+    }
+
+    let targetRowIndex = -1;
+    const emailColIndex = col["account_id"];
+
+    if (emailColIndex !== undefined) {
+      for (let i = 1; i < allRows.length; i++) {
+        if (
+          String(allRows[i][emailColIndex]).trim().toLowerCase() ===
+          String(targetUid).trim().toLowerCase()
+        ) {
+          targetRowIndex = i + 1;
+          break;
+        }
       }
     }
 
-    const rowValue = [
-      String(targetUid),
-      String(profileData.display_name || ""),
-      String(profileData.avatar_url || ""),
-      String(profileData.dummy_id || ""),
-      Number(now),
-    ];
+    // データの詰め込み用オブジェクト
+    const mapping = {
+      account_id: String(targetUid),
+      display_name: String(profileData.display_name || ""),
+      avatar_url: String(profileData.avatar_url || ""),
+      dummy_id: String(profileData.dummy_id || ""),
+      last_updated: Number(now),
+    };
+
+    // ヘッダーの現在の並び順に合わせて配列を生成
+    const rowValue = new Array(headerRow.length).fill("");
+    headerRow.forEach((key, index) => {
+      const cleanKey = key.trim();
+      if (mapping[cleanKey] !== undefined) {
+        rowValue[index] = mapping[cleanKey];
+      }
+    });
 
     if (targetRowIndex !== -1) {
       await gapi.client.sheets.spreadsheets.values.update({
@@ -304,7 +393,6 @@ async function saveUserProfileToDB(uid, profileData) {
         valueInputOption: "RAW",
         resource: { values: [rowValue] },
       });
-      console.log("👤 ユーザープロファイルを更新しました。");
     } else {
       await gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: window.userSpreadsheetId,
@@ -313,7 +401,6 @@ async function saveUserProfileToDB(uid, profileData) {
         insertDataOption: "INSERT_ROWS",
         resource: { values: [rowValue] },
       });
-      console.log("👤 ユーザープロファイルを新規保存しました。");
     }
     return true;
   } catch (err) {
