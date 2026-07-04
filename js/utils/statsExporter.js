@@ -315,7 +315,7 @@ const StatsExporter = {
                 ctx.fillText("データなし", x + 12, y + 36);
               }
             }
-            // 🚀 1段目・真ん中のマス (row: 0, col: 1) に「視聴スタイル」を描画（位置・反転完全修正版）
+            // 🚀 1段目・真ん中のマス (row: 0, col: 1) に「視聴スタイル」を描画
             else if (row === 0 && col === 1) {
               // 🚀 画面のHTML要素から直接「1696」と「21」の文字を確実に引っこ抜く！
               let calcH = "0";
@@ -324,8 +324,8 @@ const StatsExporter = {
               // 画面内の time-badge から数字が書かれているクラスを探します
               const timeNums = document.querySelectorAll(".s-time-num");
               if (timeNums && timeNums.length >= 2) {
-                calcH = timeNums[0].textContent.trim(); // 1番目のバッジから「1696」を取得
-                calcM = timeNums[1].textContent.trim(); // 2番目のバッジから「21」を取得
+                calcH = timeNums[0].textContent.trim(); // 1番目のバッジから時間を取得
+                calcM = timeNums[1].textContent.trim(); // 2番目のバッジから分を取得
               } else {
                 // 万が一画面から取れなかった場合のセーフティ
                 const totalMins = data.totalMinutes || 0;
@@ -339,7 +339,17 @@ const StatsExporter = {
                 totalDBLengthVal > 0
                   ? Math.round((totalAnimeVal / totalDBLengthVal) * 100)
                   : 0;
-              const backlogCountVal = totalDBLengthVal - totalAnimeVal;
+
+              // 💡 積みアニメのカウント方法を、データ上の「未履修」「再履修」「履修中」の合算値に揃えました！
+              const backlogCountVal =
+                typeof window.animeDB !== "undefined"
+                  ? window.animeDB.filter(
+                      (a) =>
+                        a.watch_status === "未履修" ||
+                        a.watch_status === "再履修" ||
+                        a.watch_status === "履修中",
+                    ).length
+                  : totalDBLengthVal - totalAnimeVal;
 
               // 1. パネルタイトル
               ctx.fillStyle = cfg.colors.textSub;
@@ -425,16 +435,16 @@ const StatsExporter = {
               ctx.font = '800 11px "Source Han Sans JP", sans-serif';
               ctx.fillText("総視聴時間", x + 24, timeWrapY + 14);
 
-              // 🚀 【並び順修正】右端から左に向かって「m ➔ 分の数字 ➔ h ➔ 時間の数字」の順にパズルを組み立てる
+              // 右端から左に向かって「m ➔ 分の数字 ➔ h ➔ 時間の数字」の順に描画
               ctx.textAlign = "right";
 
-              // 1. まず一番右端に「m」を書く
+              // 1. まず一番右端に「m」を描画
               ctx.fillStyle = "#64748b";
               ctx.font = "800 10px sans-serif";
               ctx.fillText("m", x + gridColWidth - 24, timeWrapY + 16);
               const unitMW = ctx.measureText("m").width;
 
-              // 2. 「m」のすぐ左に「分の数字」を書く
+              // 2. 「m」のすぐ左に「分の数字」を描画
               ctx.fillStyle = "#334155";
               ctx.font = "900 15px sans-serif";
               ctx.fillText(
@@ -444,14 +454,14 @@ const StatsExporter = {
               );
               const valMW = ctx.measureText(calcM).width;
 
-              // 3. その左に「h」を書く
+              // 3. その左に「h」を描画
               const hLabelX = x + gridColWidth - 24 - unitMW - 2 - valMW - 12;
               ctx.fillStyle = "#64748b";
               ctx.font = "800 10px sans-serif";
               ctx.fillText("h", hLabelX, timeWrapY + 16);
               const unitHW = ctx.measureText("h").width;
 
-              // 4. 「h」のすぐ左に「時間の数字」を書く
+              // 4. 「h」のすぐ左に「時間の数字」を描画
               ctx.fillStyle = "#334155";
               ctx.font = "900 15px sans-serif";
               ctx.fillText(calcH, hLabelX - unitHW - 2, timeWrapY + 12);
@@ -478,16 +488,16 @@ const StatsExporter = {
               ctx.font = '800 12px "Source Han Sans JP", sans-serif';
               ctx.fillText("積みアニメ", x + 26, btnY + 15);
 
-              // 🚀 【並び順修正】右端に「本」、その左に「本数の数字」を描画する
+              // 右端に「本」、その左に「本数の数字」を描画する
               ctx.textAlign = "right";
 
-              // 1. 一番右端に「本」を書く
+              // 1. 一番右端に「本」を描画
               ctx.fillStyle = "#6366f1";
               ctx.font = '700 10px "Source Han Sans JP", sans-serif';
               ctx.fillText("本", x + gridColWidth - 24, btnY + 16);
               const unitHonW = ctx.measureText("本").width;
 
-              // 2. 「本」のすぐ左に「本数の数字」を書く
+              // 2. 「本」のすぐ左に「本数の数字」を描画
               ctx.fillStyle = "#6366f1";
               ctx.font = "900 16px sans-serif";
               ctx.fillText(
@@ -498,52 +508,88 @@ const StatsExporter = {
 
               ctx.textAlign = "left"; // 基準を戻す
 
-              // --- ④ フォーマット別シェアバー ---
-              let rowY = y + 196;
+              // --- ④ フォーマット別シェアバー（全6種・日本語・1位基準マックス版） ---
+              let rowY = y + 192; // 👈 隙間を詰めるために開始位置を少し上に調整
               const formatCounts = data.formatCounts || {};
 
               if (formatCounts && totalAnimeVal > 0) {
-                const topFormats = Object.entries(formatCounts)
-                  .sort((a, b) => b[1] - a[1])
-                  .slice(0, 4);
+                // 💡 画面表示に合わせるための英語➔日本語変換マップ
+                const formatNameMap = {
+                  TV: "TV",
+                  MOVIE: "映画",
+                  映画: "映画",
+                  ONA: "ONA",
+                  OVA: "OVA",
+                  SHORT: "ショート",
+                  ショート: "ショート",
+                  SPECIAL: "スペシャル",
+                  スペシャル: "スペシャル",
+                };
 
-                topFormats.forEach(([formatName, count]) => {
-                  const pct = Math.round((count / totalAnimeVal) * 100);
+                // 1. データをすべて日本語名にクリーンアップしつつ、本数順にソート（最大6つ取得）
+                const sortedFormats = Object.entries(formatCounts)
+                  .map(([name, count]) => {
+                    const jpName = formatNameMap[name] || name;
+                    return { name: jpName, count: count };
+                  })
+                  // 同じ日本語名になったものを合算するセーフティ処理
+                  .reduce((acc, cur) => {
+                    const existing = acc.find((f) => f.name === cur.name);
+                    if (existing) {
+                      existing.count += cur.count;
+                    } else {
+                      acc.push(cur);
+                    }
+                    return acc;
+                  }, [])
+                  .sort((a, b) => b.count - a.count)
+                  .slice(0, 6);
 
-                  // フォーマット名
+                // 💡 🚀 【重要】1位（配列の先頭）の本数を「バーの基準値(100%)」にする
+                const maxCount =
+                  sortedFormats.length > 0 ? sortedFormats[0].count : 1;
+
+                sortedFormats.forEach(({ name, count }) => {
+                  // 💡 1位の本数を基準にした相対的な割合（％）を計算
+                  const barPct = Math.round((count / maxCount) * 100);
+
+                  // 1. フォーマット名を描画
                   ctx.fillStyle = "#334155";
-                  ctx.font = '700 11px "Source Han Sans JP", sans-serif';
-                  ctx.fillText(formatName, x + 12, rowY + 2);
+                  // 💡 「スペシャル」が折れないよう、フォントサイズを10.5pxに微調整
+                  ctx.font = '700 10.5px "Source Han Sans JP", sans-serif';
+                  ctx.fillText(name, x + 12, rowY + 1);
 
-                  // 横型ミニプログレスバー
-                  const miniBarX = x + 68;
-                  const miniBarW = gridColWidth - 110;
+                  // 2. 横型ミニプログレスバーの描画（位置と幅の最適化）
+                  const miniBarX = x + 72; // 名前の幅を考慮してバーの開始位置を少し右に
+                  const miniBarW = gridColWidth - 124; // 「〇〇本」のテキストとぶつからない幅
+
                   ctx.fillStyle = "#f1f5f9";
                   ctx.beginPath();
-                  ctx.roundRect(miniBarX, rowY + 5, miniBarW, 8, 4);
+                  ctx.roundRect(miniBarX, rowY + 4, miniBarW, 7, 3.5); // 高さを7pxにしてスタイリッシュに
                   ctx.fill();
 
-                  if (pct > 0) {
+                  if (barPct > 0) {
                     ctx.fillStyle = "#6366f1";
                     ctx.beginPath();
                     ctx.roundRect(
                       miniBarX,
-                      rowY + 5,
-                      miniBarW * (Math.min(100, pct) / 100),
-                      8,
-                      4,
+                      rowY + 4,
+                      miniBarW * (Math.min(100, barPct) / 100), // 1位基準の長さで伸びる
+                      7,
+                      3.5,
                     );
                     ctx.fill();
                   }
 
-                  // パーセンテージ
+                  // 3. 右端に本数を描画（〇〇本）
                   ctx.textAlign = "right";
                   ctx.fillStyle = "#334155";
                   ctx.font = "700 11px sans-serif";
-                  ctx.fillText(`${pct}%`, x + gridColWidth - 12, rowY + 2);
+                  ctx.fillText(`${count}本`, x + gridColWidth - 12, rowY + 1);
                   ctx.textAlign = "left";
 
-                  rowY += 31;
+                  // 💡 6種類を等間隔で詰め込むため、行のピッチ（進む幅）を 23.5px に縮小
+                  rowY += 23.5;
                 });
               }
             }
@@ -562,31 +608,44 @@ const StatsExporter = {
 
               // カラーマップの定義
               const genreColorMap = {
-                ドラマ: "#FF7EB3",
-                コメディ: "#2DD4BF",
-                日常: "#FFA800",
-                アクション: "#FF4B72",
-                ミステリー: "#A855F7",
-                アドベンチャー: "#F97316",
-                超能力: "#38BDF8",
-                ファンタジー: "#14B8A6",
-                ロマンス: "#F472B6",
-                スポーツ: "#60A5FA",
-                ホラー: "#6366F1",
-                魔法少女: "#D946EF",
-                メカ: "#64748B",
-                音楽: "#10B981",
-                サイコ: "#06B6D4",
-                SF: "#2563EB",
-                スリラー: "#E11D48",
-                お色気: "#FF52D9",
+                // 🔥 王道・アクティブ系（赤・橙）
+                アクション: "#EF4444", // 燃えるようなソリッドな赤
+                アドベンチャー: "#F97316", // 冒険・炎を想起させる鮮やかなオレンジ
+                スポーツ: "#FB923C", // スポーティーで快活なライトオレンジ
+
+                // 🎀 キュート・ドラマ系（ピンク・パステルローズ）
+                ロマンス: "#EC4899", // 恋愛の王道、華やかなピンキーロゼ
+                ドラマ: "#F43F5E", // 人情・葛藤・エモさを乗せた深みのあるローズピンク
+                お色気: "#F472B6", // 少し甘めのライトピンク
+
+                // 🍀 ポジティブ・まったり系（イエロー・黄緑）
+                日常: "#EAB308", // ほのぼのした陽だまりのイエロー
+                コメディ: "#84CC16", // ポップで弾けるフレッシュなライムグリーン
+                音楽: "#10B981", // 美しい旋律を奏でるミントエメラルド
+
+                // 🧪 ファンタジー・SF・頭脳系（グリーン・シアン）
+                ファンタジー: "#0D9488", // 神秘的な森や魔法を感じさせる深みのあるティールグリーン
+                超能力: "#06B6D4", // サイキック・エネルギーのネオンシアン
+                SF: "#2563EB", // 近未来・宇宙を感じさせるソリッドなデジタルブルー
+
+                // 🔮 神秘・ダーク・ダークファンタジー系（パープル・ディープブルー）
+                魔法少女: "#D946EF", // キラキラした魔法のネオンマゼンタ
+                ミステリー: "#8B5CF6", // 謎めいた夜のトワイライトパープル
+                サイコ: "#6366F1", // 精神世界を侵食するサイケデリックなインディゴブルー
+                ホラー: "#4338CA", // 闇夜に潜む恐怖のディープオーシャンネオン
+                スリラー: "#991B1B", // サスペンス・血の気配を感じるダーククリムゾン
+
+                // ⚙️ メカ・シック系（アース・モノトーン）
+                メカ: "#475569", // 重厚な鋼鉄・ロボットのスチールグレー
               };
+
+              // 💡 登録外のジャンルが来たときの予備カラー（絶対に被らないグラデーション用5色）
               const fallbackColors = [
-                "#FF7EB3",
-                "#2DD4BF",
-                "#FFA800",
-                "#A855F7",
-                "#38BDF8",
+                "#14B8A6", // ティールターコイズ
+                "#F59E0B", // アンバーゴールド
+                "#6366F1", // インディゴ
+                "#EC4899", // 鮮やかピンク
+                "#A855F7", // パープル
               ];
 
               if (ballGenres && ballGenres.length > 0) {

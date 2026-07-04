@@ -45,14 +45,14 @@
 
 /* スコア用（小さい丸いボタン） */
 .custom-select-score {
-  border-radius: 20%;
+  border-radius: 90%;
   width: 46px;
-  height: 30px;
-  font-size: 14px;
-  font-family: var(--f-num);
+  height: 46px;
+  font-size: 17px;
+  font-family: var(--f-eng);
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
-  font-weight: 700;
+  font-weight: 900;
   z-index: 9999;
 }
 

@@ -157,7 +157,11 @@ window.openEditModal = async function (anilist_id, presetData = null) {
   );
   if (triggerText) triggerText.textContent = "履修済";
   const triggerBtn = document.getElementById("customStatusTrigger");
-  if (triggerBtn) triggerBtn.setAttribute("data-status", "default"); // default = 履修済のデザイン
+  if (triggerBtn) triggerBtn.setAttribute("data-status", "default");
+
+  // 💡 追加：形式（フォーマット）の表示も「形式を選択」に初期リセット
+  const formatTrigger = document.getElementById("customFormatTrigger");
+  if (formatTrigger) formatTrigger.textContent = "形式を選択";
 
   // 3. 周回カウンターを「1周目」に絶対強制リセット
   setVal("editRewatch", "1");
@@ -218,8 +222,14 @@ window.openEditModal = async function (anilist_id, presetData = null) {
       setVal("editYear", presetYear);
     }
 
+    // 隠しinputに値をセット
     setVal("editFormat", presetData.format);
-    setVal("editFormat", presetData.format);
+    const formatTriggerA = document.getElementById("customFormatTrigger");
+    if (formatTriggerA) {
+      // 💡 辞書にあれば日本語、なければ元の文字（または「形式を選択」）を入れる
+      formatTriggerA.textContent =
+        formatMap[presetData.format] || presetData.format || "形式を選択";
+    }
     setVal("editEps", presetData.eps);
     setVal("editDuration", presetData.duration);
     setVal("editStudio", presetData.studio);
@@ -308,7 +318,14 @@ window.openEditModal = async function (anilist_id, presetData = null) {
     } else {
       setVal("editYear", animeYear);
     }
+    // 隠しinputに値をセット
     setVal("editFormat", anime.format);
+    const formatTriggerB = document.getElementById("customFormatTrigger");
+    if (formatTriggerB) {
+      // 💡 同様に日本語に変換してセット
+      formatTriggerB.textContent =
+        formatMap[anime.format] || anime.format || "形式を選択";
+    }
     setVal("editEps", anime.episodes);
     setVal("editDuration", anime.duration);
     setVal("editStudio", anime.studio);

@@ -113,7 +113,9 @@
 /* 🌟 箱を下までピッタリ伸ばしつつ、底の余白を極限まで削る完全版！ */
 #listViewArea,
 #myPageArea,
-#oshiCharaArea {
+#oshiCharaArea,
+#trophyPageArea {
+  /* 💡 ここにトロフィーのエリアを追加！ */
   flex: 1 !important;
   min-height: 0;
   overflow-y: auto;
@@ -122,9 +124,12 @@
   /* ★ 箱の内側の「底の厚み」を 0px にして、分厚い縁を完全に消滅させます！ */
   padding: 20px 25px 0px 25px !important;
 }
+
+/* 💡 スクロールバーを隠す設定にも忘れず追加 */
 #listViewArea::-webkit-scrollbar,
 #myPageArea::-webkit-scrollbar,
-#oshiCharaArea::-webkit-scrollbar {
+#oshiCharaArea::-webkit-scrollbar,
+#trophyPageArea::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;

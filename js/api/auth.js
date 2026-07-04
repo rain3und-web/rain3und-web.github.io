@@ -239,11 +239,12 @@ async function onLoginSuccess() {
     window.currentUserId = secureUserEmail;
 
     // プロフィールを取得
+    // プロフィールを取得
     let savedProfile = null;
     try {
       const profileRes = await gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: window.userSpreadsheetId,
-        range: "user_profile!A1:E",
+        range: "user_profile!A1:F", // 💡 EからFに拡張してアカウント作成日も含めて取得
       });
       const rows = profileRes.result.values || [];
       const matchedRow = rows.find(
@@ -256,6 +257,7 @@ async function onLoginSuccess() {
           avatar_url: matchedRow[2],
           dummy_id: matchedRow[3],
           last_updated: matchedRow[4],
+          account_created_at: matchedRow[5], // 💡 6列目（F列）の作成日をしっかり格納
         };
       }
     } catch (e) {
@@ -282,6 +284,14 @@ async function onLoginSuccess() {
     localStorage.setItem("otaku_log_display_name", profile.display_name);
     localStorage.setItem("otaku_log_dummy_id", profile.dummy_id);
     localStorage.setItem("otaku_log_avatar_url", profile.avatar_url);
+
+    // 💡 スプシから無事に作成日が取れていれば、ローカルストレージに最優先で保存
+    if (savedProfile && savedProfile.account_created_at) {
+      localStorage.setItem(
+        "account_created_at",
+        String(savedProfile.account_created_at),
+      );
+    }
 
     if (
       !savedProfile &&
@@ -348,6 +358,8 @@ function onLogoutSuccess() {
   document.getElementById("loginOverlay")?.classList.remove("hidden");
 }
 
+// 🔄 auth.js の該当部分をこれにアップデート
+
 async function setupUserSpreadsheet() {
   const cachedId = localStorage.getItem("user_spreadsheet_id");
   if (cachedId) {
@@ -364,23 +376,73 @@ async function setupUserSpreadsheet() {
   const files = response.result.files;
   if (files && files.length > 0) {
     window.userSpreadsheetId = files[0].id;
+
+    // 💡 既存のユーザー向け安全ガード：3枚目のシート「trophy_log」が存在するか確認し、なければ追加する
+    try {
+      const spreadsheet = await gapi.client.sheets.spreadsheets.get({
+        spreadsheetId: window.userSpreadsheetId,
+      });
+      const sheets = spreadsheet.result.sheets || [];
+      const hasTrophySheet = sheets.some(
+        (s) => s.properties.title === "trophy_log",
+      );
+
+      if (!hasTrophySheet) {
+        console.log(
+          "📥 新しい機能のため、3枚目のシート 'trophy_log' を追加します...",
+        );
+        await gapi.client.sheets.spreadsheets.batchUpdate({
+          spreadsheetId: window.userSpreadsheetId,
+          resource: {
+            requests: [{ addSheet: { properties: { title: "trophy_log" } } }],
+          },
+        });
+        await initTrophyHeaderOnly(); // トロフィーのヘッダーだけ初期化
+      }
+    } catch (e) {
+      console.warn("トロフィーシートの存在確認・追加に失敗しました:", e);
+    }
   } else {
+    // ✨ 完全新規作成の場合（3つのシートを同時に作る）
     const createResponse = await gapi.client.sheets.spreadsheets.create({
       resource: {
         properties: { title: "anime_log_db" },
         sheets: [
           { properties: { title: "anime_log" } },
           { properties: { title: "user_profile" } },
+          { properties: { title: "trophy_log" } },
         ],
       },
       fields: "spreadsheetId",
     });
     window.userSpreadsheetId = createResponse.result.spreadsheetId;
+
+    // まずヘッダーを作る
     await initSpreadsheetHeaders();
+
+    // 💡 【新設】初めてスプシが作られた「この瞬間」をアカウント登録日として即座に保存！
+    const now = Date.now();
+    const secureUserEmail =
+      localStorage.getItem("secure_user_email_id") || "guest_user";
+    const initialProfile = {
+      display_name: localStorage.getItem("otaku_log_display_name") || "自分",
+      dummy_id: localStorage.getItem("otaku_log_dummy_id") || "user",
+      avatar_url: localStorage.getItem("otaku_log_avatar_url") || "",
+      account_created_at: now, // 👈 スプシ生成時のタイムスタンプ
+    };
+
+    // saveUserProfileToDBをここで一度叩いて最初の1行を確定させる
+    if (secureUserEmail !== "guest_user") {
+      await saveUserProfileToDB(secureUserEmail, initialProfile);
+      console.log(
+        "✨ 新規ユーザーのアカウント作成日をスプシに永久記録しました！",
+      );
+    }
   }
   localStorage.setItem("user_spreadsheet_id", window.userSpreadsheetId);
 }
 
+// 🔄 auth.js のヘッダー初期化関数を書き換え
 async function initSpreadsheetHeaders() {
   const animeHeaders = [
     "anilist_id",
@@ -409,13 +471,17 @@ async function initSpreadsheetHeaders() {
     "characters",
   ];
 
+  // 💡 account_created_at に変更！
   const profileHeaders = [
     "account_id",
     "display_name",
     "avatar_url",
     "dummy_id",
     "last_updated",
+    "account_created_at",
   ];
+
+  const trophyHeaders = ["trophy_id", "is_unlocked", "unlocked_at"];
 
   await gapi.client.sheets.spreadsheets.values.update({
     spreadsheetId: window.userSpreadsheetId,
@@ -431,5 +497,22 @@ async function initSpreadsheetHeaders() {
     resource: { values: [profileHeaders] },
   });
 
-  console.log("スプシ両シートにヘッダー行を書き込みました。");
+  await gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: window.userSpreadsheetId,
+    range: "trophy_log!A1",
+    valueInputOption: "RAW",
+    resource: { values: [trophyHeaders] },
+  });
+
+  console.log("スプシ全シートにヘッダー行を書き込みました。");
+}
+// 既存ユーザー向けの単体ヘッダー初期化ヘルパー
+async function initTrophyHeaderOnly() {
+  const trophyHeaders = ["trophy_id", "is_unlocked", "unlocked_at"];
+  await gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: window.userSpreadsheetId,
+    range: "trophy_log!A1",
+    valueInputOption: "RAW",
+    resource: { values: [trophyHeaders] },
+  });
 }

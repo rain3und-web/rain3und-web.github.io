@@ -147,6 +147,8 @@
                       stroke="currentColor"
                       stroke-width="2"
                       fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
                     >
                       <path
                         d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
@@ -283,7 +285,7 @@
                   </button>
                 </li>
                 <li>
-                  <button class="nav-btn">
+                  <button class="nav-btn" onclick="window.switchView('trophy')">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -473,6 +475,56 @@
                 placeholder="例：otaku_log"
               />
             </div>
+            <form
+              id="geminiKeyForm"
+              action="#"
+              onsubmit="return false;"
+              class="profile-input-group profile-input-group-custom"
+            >
+              <input
+                type="text"
+                id="geminiUserEmailHidden"
+                name="username"
+                autocomplete="username"
+                style="display: none"
+              />
+
+              <label
+                >あらすじ生成用 Gemini APIキー（無料枠：1日 500回まで）</label
+              >
+              <div class="api-key-input-wrapper">
+                <input
+                  type="password"
+                  id="geminiApiKeyInput"
+                  name="password"
+                  autocomplete="current-password"
+                  class="custom-input api-key-input"
+                  placeholder="AIzaSy...（入力するとブラウザに安全に保存されます）"
+                />
+                <button
+                  type="button"
+                  id="togglePasswordBtn"
+                  class="btn-toggle-password"
+                  aria-label="パスワードの表示切り替え"
+                >
+                  <svg
+                    id="eyeIcon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="svg-eye-icon"
+                  >
+                    <path
+                      d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    ></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </form>
             <div class="profile-actions mt-6 text-center">
               <button id="saveProfileBtn" class="btn-save btn-profile-save">
                 プロフィールを保存
@@ -717,6 +769,71 @@
               あなたへのおすすめを発掘
             </button>
             <button class="btn-share-small">SHARE</button>
+          </div>
+        </div>
+        <div id="trophyPageArea" class="hidden">
+          <div class="trophy-page-summary">
+            <div class="summary-counter-block">
+              <div class="summary-counter-label">TOTAL TROPHIES</div>
+              <div class="trophy-progress-badge">
+                <span class="counter-highlight-num" id="unlockedTrophyCount"
+                  >0</span
+                >
+                <span class="counter-total-num" id="totalTrophyCount">/ 0</span>
+              </div>
+            </div>
+
+            <div class="summary-counter-block">
+              <div class="summary-counter-label">ANIME MEDALS</div>
+              <div class="trophy-progress-badge">
+                <span
+                  class="counter-highlight-num"
+                  id="unlockedMedalCount"
+                  style="color: #9333ea"
+                  >0</span
+                >
+                <span class="counter-total-num">MEDALS</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="medal-toggle-wrap"
+            style="
+              display: flex;
+              justify-content: flex-end;
+              margin: -10px 4px 15px 0;
+              font-size: 0.85rem;
+              color: var(--c-text-muted, #666);
+            "
+          >
+            <label
+              for="toggleMedalShow"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                cursor: pointer;
+                user-select: none;
+              "
+            >
+              <input
+                type="checkbox"
+                id="toggleMedalShow"
+                checked
+                style="
+                  cursor: pointer;
+                  width: 14px;
+                  height: 14px;
+                  accent-color: #9333ea;
+                "
+              />
+              <span>オタク勲章（ファン称号）を表示する</span>
+            </label>
+          </div>
+
+          <div id="trophyGridContainer" class="trophy-grid">
+            <div class="trophy-loading">トロフィーを読み込み中...</div>
           </div>
         </div>
       </main>
@@ -1326,10 +1443,11 @@
                   </div>
                   <div class="cute-custom-options hidden">
                     <div data-value="TV">TV</div>
-                    <div data-value="MOVIE">MOVIE</div>
+                    <div data-value="TV_SHORT">ショート</div>
+                    <div data-value="MOVIE">映画</div>
                     <div data-value="OVA">OVA</div>
                     <div data-value="ONA">ONA</div>
-                    <div data-value="SPECIAL">SPECIAL</div>
+                    <div data-value="SPECIAL">スペシャル</div>
                   </div>
                   <input type="hidden" id="editFormat" value="" />
                 </div>
@@ -1366,16 +1484,19 @@
                 <span class="archive-section-title">
                   <svg
                     viewBox="0 0 24 24"
-                    fill="none"
                     stroke="currentColor"
                     stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    fill="none"
                   >
-                    <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-                    <path d="M2 2l7.586 7.586"></path>
-                    <circle cx="11" cy="11" r="2"></circle>
+                    <rect
+                      x="2"
+                      y="7"
+                      width="20"
+                      height="14"
+                      rx="2"
+                      ry="2"
+                    ></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
                   </svg>
                   制作会社
                 </span>
@@ -1391,14 +1512,18 @@
                 <span class="archive-section-title">
                   <svg
                     viewBox="0 0 24 24"
-                    fill="none"
                     stroke="currentColor"
                     stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    fill="none"
                   >
-                    <polygon points="11 19 2 12 11 5 11 19"></polygon>
-                    <path d="M22 12A10 10 0 0 0 12 2"></path>
+                    <rect
+                      x="2"
+                      y="2"
+                      width="20"
+                      height="20"
+                      rx="2.18"
+                      ry="2.18"
+                    ></rect>
                   </svg>
                   監督
                 </span>
@@ -1545,18 +1670,14 @@
                   <span class="archive-section-title">
                     <svg
                       viewBox="0 0 24 24"
-                      fill="none"
                       stroke="currentColor"
                       stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      fill="none"
                     >
                       <path
                         d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
                       ></path>
                       <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                      <line x1="12" y1="19" x2="12" y2="23"></line>
-                      <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                     声優
                   </span>
@@ -1750,6 +1871,7 @@
     <script src="js/pages/profile.js"></script>
     <script src="js/pages/oshiChara.js"></script>
     <script src="js/pages/stats.js"></script>
+    <script src="js/pages/trophies.js"></script>
 
     <script src="js/api/anilist.js"></script>
     <script src="js/api/api.js"></script>

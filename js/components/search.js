@@ -156,18 +156,36 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
                 ? existingData.synopsis
                 : "";
 
-            // 3. 既存のあらすじがなく、AniList側に英語のあらすじがある場合のみ翻訳実行！
-            if (!synopsis_jp && anime.description) {
+            // -----------------------------------------------------------------
+            // 3. 既存のあらすじの判定 ＆ 誤操作による手書きあらすじ上書き完全防衛ガード
+            // -----------------------------------------------------------------
+            const infoText =
+              "（マイページでGemini APIキーを設定すると、AIによる自動あらすじ生成が有効になります）";
+
+            // 「まだあらすじが無い」または「あらすじ欄がただの初期案内テキストのまま」の場合のみ、上書き・生成の対象にする
+            const isSynopsisEmptyOrGuide =
+              !synopsis_jp ||
+              synopsis_jp === infoText ||
+              synopsis_jp.includes("Gemini APIキーを設定すると");
+
+            if (isSynopsisEmptyOrGuide && anime.description) {
+              // 新規生成、または案内テキストからのアップデート時のみGeminiを呼び出す
               synopsis_jp = await window.translateSynopsis(
                 anime.description,
                 title,
               );
+            } else if (existingData && existingData.synopsis) {
+              // 🌟 手書きのあらすじ、または過去にGeminiが生成したあらすじが既にある場合は、絶対に上書きせず死守する！
+              synopsis_jp = existingData.synopsis;
+              console.log(
+                "🔒 ユーザーの手書きあらすじ、または既存ログを検出。上書きを完全にブロックしました。",
+              );
             }
 
-            // ★追加：SAVEボタンに翻訳済みのあらすじをこっそり持たせておく
+            // ★元々あった処理：SAVEボタンに確定したあらすじをこっそり持たせておく
             const saveBtn = document.getElementById("saveBtn");
             if (saveBtn) saveBtn.dataset.synopsis = synopsis_jp;
-
+            // -----------------------------------------------------------------
             // 4. データが揃ったらモーダルを開く
             window.openEditModal(null, {
               anilist_id: String(anime.id),

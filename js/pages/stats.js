@@ -29,6 +29,14 @@ window.renderStatsPage = function () {
   let totalDurationsForTime = 0;
   let validYears = [];
 
+  // 💡 「未視聴」からデータ上の正しい名前「未履修」に修正しました！
+  const backlogCount = window.animeDB.filter(
+    (a) =>
+      a.watch_status === "未履修" ||
+      a.watch_status === "再履修" ||
+      a.watch_status === "履修中",
+  ).length;
+
   window.animeDB.forEach((a) => {
     const y = parseInt(a.year);
     if (!isNaN(y) && y > 1950 && y <= new Date().getFullYear() + 2) {
@@ -51,7 +59,8 @@ window.renderStatsPage = function () {
     }
 
     // フォーマット集計
-    let fmt = (a.format || "OTHER").replace("_SHORT", "");
+    // 💡 .replace("_SHORT", "") を削除して、TV_SHORT をそのまま残します！
+    let fmt = a.format || "OTHER";
     formatCounts[fmt] = (formatCounts[fmt] || 0) + 1;
 
     const score = parseFloat(a.my_score || 0);
@@ -244,7 +253,7 @@ window.renderStatsPage = function () {
       ? Object.entries(decadeCounts).sort((a, b) => b[1] - a[1])[0][0]
       : "";
   const decadeText = topDecade
-    ? `また、<span class="report-highlight">${topDecade}s</span> のアニメを最もよく視聴しているようです。`
+    ? `また、<span class="report-highlight">${topDecade}年代</span> のアニメを最もよく視聴しているようです。`
     : "";
   const maxBallCount = ballGenres.length > 0 ? ballGenres[0][1] : 1;
   const compColors = [
@@ -293,7 +302,7 @@ window.renderStatsPage = function () {
 
   if (topDecade) {
     reportTokens.push({ text: "また、" });
-    reportTokens.push({ text: topDecade + "s", type: "highlight" });
+    reportTokens.push({ text: topDecade + "年代", type: "highlight" });
     reportTokens.push({ text: " のアニメを最もよく視聴しているようです。 " });
   }
 
@@ -371,29 +380,49 @@ window.renderStatsPage = function () {
   const totalH = Math.floor(totalMinutes / 60);
   const totalM = totalMinutes % 60;
 
-  const backlogCount = totalDBLength - totalAnime;
+  // 💡 （上のエリアで正確に計算して定義したため、ここの重複行はバグ防止のため削除しています）
 
   const panelStyle = document.getElementById("panelContent-style");
 
   if (panelStyle) {
+    // 💡 統計画面用のフォーマット日本語辞書
+    const formatTranslationMap = {
+      TV: "TV",
+      TV_SHORT: "ショート",
+      MOVIE: "映画",
+      OVA: "OVA",
+      ONA: "ONA",
+      SPECIAL: "スペシャル",
+    };
+
+    // 💡 formatCounts からすべての形式を取得して多い順にソート
     const topFormats = Object.entries(formatCounts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 4);
+      .slice(0, 6);
+
+    // 💡 ％の計算をやめて、単純な「本数（count）」をそのまま使うように修正
     const formatHtml = topFormats
-      .map((f) => {
-        const pct = totalAnime > 0 ? Math.round((f[1] / totalAnime) * 100) : 0;
+      .map(([rawFormat, count]) => {
+        // 英語のキーを日本語に翻訳
+        const displayFormatName = formatTranslationMap[rawFormat] || rawFormat;
+
+        // 💡 グラフの長さ（width）用に、一番件数が多い形式を100%とした時の割合を計算
+        const maxCount = topFormats[0][1];
+        const barWidth =
+          maxCount > 0 ? Math.round((count / maxCount) * 100) : 0;
+
         return `
         <div class="s-media-row">
           <div class="s-media-left">
             <div class="s-media-name" style="display: flex; align-items: center; gap: 6px;">
               <svg viewBox="0 0 24 24" fill="none" stroke="#6366F1" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg> 
-              ${f[0]}
+              ${displayFormatName}
             </div>
           </div>
           <div class="s-media-bar">
-            <div class="s-media-fill" style="width: ${pct}%;"></div>
+            <div class="s-media-fill" style="width: ${barWidth}%;"></div>
           </div>
-          <div class="s-media-pct">${pct}%</div>
+          <div class="s-media-pct" style="width: 45px;">${count}本</div>
         </div>`;
       })
       .join("");
@@ -437,11 +466,12 @@ window.renderStatsPage = function () {
     `;
   }
 
+  // 💡 ボタンを押した時に、グリッド側に「積みアニメ」という目印を渡して絞り込ませる
   window.goToHomeUnwatched = function () {
     const statsArea = document.getElementById("statsPageArea");
     if (statsArea) statsArea.classList.remove("slide-down");
     if (typeof window.applyFilter === "function") {
-      window.applyFilter("watch_status", "未視聴", true);
+      window.applyFilter("watch_status", "積みアニメ", true);
     }
   };
 
@@ -484,32 +514,44 @@ window.renderStatsPage = function () {
     const pseudoTotal = genreData.reduce((sum, item) => sum + item.count, 0);
 
     const genreColorMap = {
-      ドラマ: "#FF7EB3",
-      コメディ: "#2DD4BF",
-      日常: "#FFA800",
-      アクション: "#FF4B72",
-      ミステリー: "#A855F7",
-      アドベンチャー: "#F97316",
-      超能力: "#38BDF8",
-      ファンタジー: "#14B8A6",
-      ロマンス: "#F472B6",
-      スポーツ: "#60A5FA",
-      ホラー: "#6366F1",
-      魔法少女: "#D946EF",
-      メカ: "#64748B",
-      音楽: "#10B981",
-      サイコ: "#06B6D4",
-      SF: "#2563EB",
-      スリラー: "#E11D48",
-      お色気: "#FF52D9",
+      // 🔥 王道・アクティブ系（赤・橙）
+      アクション: "#EF4444", // 燃えるようなソリッドな赤
+      アドベンチャー: "#F97316", // 冒険・炎を想起させる鮮やかなオレンジ
+      スポーツ: "#FB923C", // スポーティーで快活なライトオレンジ
+
+      // 🎀 キュート・ドラマ系（ピンク・パステルローズ）
+      ロマンス: "#EC4899", // 恋愛の王道、華やかなピンキーロゼ
+      ドラマ: "#F43F5E", // 人情・葛藤・エモさを乗せた深みのあるローズピンク
+      お色気: "#F472B6", // 少し甘めのライトピンク
+
+      // 🍀 ポジティブ・まったり系（イエロー・黄緑）
+      日常: "#EAB308", // ほのぼのした陽だまりのイエロー
+      コメディ: "#84CC16", // ポップで弾けるフレッシュなライムグリーン
+      音楽: "#10B981", // 美しい旋律を奏でるミントエメラルド
+
+      // 🧪 ファンタジー・SF・頭脳系（グリーン・シアン）
+      ファンタジー: "#0D9488", // 神秘的な森や魔法を感じさせる深みのあるティールグリーン
+      超能力: "#06B6D4", // サイキック・エネルギーのネオンシアン
+      SF: "#2563EB", // 近未来・宇宙を感じさせるソリッドなデジタルブルー
+
+      // 🔮 神秘・ダーク・ダークファンタジー系（パープル・ディープブルー）
+      魔法少女: "#D946EF", // キラキラした魔法のネオンマゼンタ
+      ミステリー: "#8B5CF6", // 謎めいた夜のトワイライトパープル
+      サイコ: "#6366F1", // 精神世界を侵食するサイケデリックなインディゴブルー
+      ホラー: "#4338CA", // 闇夜に潜む恐怖のディープオーシャンネオン
+      スリラー: "#991B1B", // サスペンス・血の気配を感じるダーククリムゾン
+
+      // ⚙️ メカ・シック系（アース・モノトーン）
+      メカ: "#475569", // 重厚な鋼鉄・ロボットのスチールグレー
     };
 
+    // 💡 登録外のジャンルが来たときの予備カラー（絶対に被らないグラデーション用5色）
     const fallbackColors = [
-      "#FF7EB3",
-      "#2DD4BF",
-      "#FFA800",
-      "#A855F7",
-      "#38BDF8",
+      "#14B8A6", // ティールターコイズ
+      "#F59E0B", // アンバーゴールド
+      "#6366F1", // インディゴ
+      "#EC4899", // 鮮やかピンク
+      "#A855F7", // パープル
     ];
 
     const cx = 150;
@@ -672,7 +714,7 @@ window.renderStatsPage = function () {
               return `
               <div class="combo-legend-item" onclick="${clickComboAction}" onmouseover="${comboHover}" onmouseout="${comboLeave}">
                 <span style="color: ${color1}; font-weight: 800;">${parts[0]}</span>
-                <span style="color: #94a3b8; margin: 0 4px;">×</span>
+                <span style="color: #94a3b8; margin: 0 5px;">×</span>
                 <span style="color: ${color2}; font-weight: 800;">${parts[1]}</span>
                 <span class="combo-count">${c[1]}</span>
               </div>`;

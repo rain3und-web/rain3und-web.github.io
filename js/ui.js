@@ -10,6 +10,7 @@ window.switchView = function (viewType) {
   window.currentView = viewType;
   window.filterQuery = null;
 
+  // 1. すべてのエリアを一旦隠す（💡 trophyPageArea を追加）
   document.getElementById("animeGrid").classList.add("hidden");
   if (document.getElementById("listViewArea"))
     document.getElementById("listViewArea").classList.add("hidden");
@@ -17,6 +18,8 @@ window.switchView = function (viewType) {
     document.getElementById("myPageArea").classList.add("hidden");
   if (document.getElementById("oshiCharaArea"))
     document.getElementById("oshiCharaArea").classList.add("hidden");
+  if (document.getElementById("trophyPageArea"))
+    document.getElementById("trophyPageArea").classList.add("hidden"); // 👈 追加
 
   // ★ 統計画面を閉じる時はスライドダウンも確実に解除する！
   const statsArea = document.getElementById("statsPageArea");
@@ -43,9 +46,22 @@ window.switchView = function (viewType) {
     document.getElementById("viewTitle").innerHTML =
       `${goldHeartSvg}推しキャラコレクション`;
     window.renderGlobalOshiView();
+  } else if (viewType === "trophy") {
+    // 🚀 【ここを追加！】トロフィーページの切り替えロジック
+    document.getElementById("trophyPageArea").classList.remove("hidden");
+    document.getElementById("breadcrumbArea").classList.remove("hidden"); // パンくずを表示
+
+    // ゴールドに輝くトロフィーアイコン付きのタイトルに設定
+    const goldTrophySvg = `<svg class="oshi-title-heart" viewBox="0 0 24 24" fill="#EAB308"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>`;
+    document.getElementById("viewTitle").innerHTML =
+      `${goldTrophySvg}達成トロフィー`;
+
+    // トロフィーの描画関数を実行（あとで js/pages/trophies.js に作る関数）
+    if (typeof window.renderTrophyPage === "function") {
+      window.renderTrophyPage();
+    }
   } else if (viewType === "stats") {
     statsArea.classList.remove("hidden");
-    // ★ 統計は独自ヘッダーを持たせたので、古いパンくずは隠す
     document.getElementById("breadcrumbArea").classList.add("hidden");
     window.renderStatsPage();
   } else {
@@ -61,6 +77,7 @@ window.switchView = function (viewType) {
       "myPageArea",
       "oshiCharaArea",
       "statsPageArea",
+      "trophyPageArea", // 👈 スクロール位置リセット対象に追加
     ];
     scrollAreas.forEach((id) => {
       const el = document.getElementById(id);

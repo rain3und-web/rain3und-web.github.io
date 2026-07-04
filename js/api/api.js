@@ -314,6 +314,10 @@ async function getUserProfileFromDB(uid) {
       last_updated: getValue("last_updated")
         ? Number(getValue("last_updated"))
         : Date.now(),
+      // 💡 列名を account_created_at に修正
+      account_created_at: getValue("account_created_at")
+        ? Number(getValue("account_created_at"))
+        : Date.now(),
     };
   } catch (err) {
     console.error("❌ プロファイルの取得に失敗:", err);
@@ -354,6 +358,7 @@ async function saveUserProfileToDB(uid, profileData) {
     }
 
     let targetRowIndex = -1;
+    let existingCreatedAt = null;
     const emailColIndex = col["account_id"];
 
     if (emailColIndex !== undefined) {
@@ -363,6 +368,11 @@ async function saveUserProfileToDB(uid, profileData) {
           String(targetUid).trim().toLowerCase()
         ) {
           targetRowIndex = i + 1;
+          // 💡 列名を account_created_at に修正して保護
+          const createdAtIndex = col["account_created_at"];
+          if (createdAtIndex !== undefined && allRows[i][createdAtIndex]) {
+            existingCreatedAt = allRows[i][createdAtIndex];
+          }
           break;
         }
       }
@@ -375,9 +385,11 @@ async function saveUserProfileToDB(uid, profileData) {
       avatar_url: String(profileData.avatar_url || ""),
       dummy_id: String(profileData.dummy_id || ""),
       last_updated: Number(now),
+      // 💡 列名を account_created_at に修正
+      account_created_at:
+        existingCreatedAt || Number(profileData.account_created_at || now),
     };
 
-    // ヘッダーの現在の並び順に合わせて配列を生成
     const rowValue = new Array(headerRow.length).fill("");
     headerRow.forEach((key, index) => {
       const cleanKey = key.trim();
@@ -405,6 +417,131 @@ async function saveUserProfileToDB(uid, profileData) {
     return true;
   } catch (err) {
     console.error("❌ ユーザープロファイルの保存に失敗:", err);
+    return false;
+  }
+}
+
+// -----------------------------------------
+// ⑥ スプシの3枚目から獲得済みトロフィーデータを取得する
+// -----------------------------------------
+async function getTrophyDataFromDB() {
+  if (!window.userSpreadsheetId) return {};
+  ensureGoogleToken();
+
+  try {
+    console.log("📥 スプレッドシートからトロフィー獲得データを取得中...");
+    const response = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: window.userSpreadsheetId,
+      range: "trophy_log!A1:ZZ",
+    });
+
+    const allRows = response.result.values;
+    if (!allRows || allRows.length === 0) return {};
+
+    const headerRow = allRows[0];
+    const col = createColumnMap(headerRow); // 👈 雨音さんの自動マッピング魔法をここでも使用！
+
+    const dataRows = allRows.slice(1);
+    const trophyMap = {};
+
+    dataRows.forEach((row) => {
+      const getValue = (columnName, defaultValue = "") => {
+        const index = col[columnName];
+        return index !== undefined && row[index] !== undefined
+          ? row[index]
+          : defaultValue;
+      };
+
+      const id = getValue("trophy_id");
+      if (id) {
+        trophyMap[id] = {
+          trophy_id: id,
+          is_unlocked: getValue("is_unlocked") === "true",
+          unlocked_at: getValue("unlocked_at"), // "2026-07-03 21:00" などの文字列
+        };
+      }
+    });
+
+    return trophyMap; // { first_step: { is_unlocked: true, unlocked_at: "..." }, ... } という形で返る
+  } catch (err) {
+    console.error("❌ トロフィーデータの取得に失敗:", err);
+    return {};
+  }
+}
+
+// -----------------------------------------
+// ⑦ スプシの3枚目に新しく達成したトロフィーを記録する（上書き・重複防止ガード付き）
+// -----------------------------------------
+async function saveTrophyToDB(trophyId, unlockedAtStr) {
+  if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
+  ensureGoogleToken();
+
+  try {
+    // 現在のシートの状態を取得
+    const response = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: window.userSpreadsheetId,
+      range: "trophy_log!A1:ZZ",
+    });
+
+    const allRows = response.result.values || [];
+    const headerRow = allRows[0] || [];
+    const col = createColumnMap(headerRow);
+
+    if (headerRow.length === 0) {
+      throw new Error("trophy_logシートにヘッダーが見つかりません。");
+    }
+
+    // 🛡️ 決定事項の安心ガード：すでに同じトロフィーIDがあるか探す（重複・上書き防止！）
+    let targetRowIndex = -1;
+    const idColIndex = col["trophy_id"];
+
+    if (idColIndex !== undefined) {
+      for (let i = 1; i < allRows.length; i++) {
+        if (String(allRows[i][idColIndex]).trim() === String(trophyId).trim()) {
+          targetRowIndex = i + 1;
+          break;
+        }
+      }
+    }
+
+    // 🔥 すでに登録されている場合は、最初の歴史を守るために何もしないで終了！
+    if (targetRowIndex !== -1) {
+      console.log(
+        `🛡️ トロフィー '${trophyId}' はすでにスプシに記録されているため、上書きをスキップしました。`,
+      );
+      return true;
+    }
+
+    // 新規登録用の配列を組み立て
+    const mapping = {
+      trophy_id: String(trophyId),
+      is_unlocked: "true",
+      unlocked_at: String(unlockedAtStr), // 最初に達成した記念日
+    };
+
+    const rowValue = new Array(headerRow.length).fill("");
+    headerRow.forEach((key, index) => {
+      const cleanKey = key.trim();
+      if (mapping[cleanKey] !== undefined) {
+        rowValue[index] = mapping[cleanKey];
+      }
+    });
+
+    // スプシの3枚目の末尾に新しく追加
+    await gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: window.userSpreadsheetId,
+      range: "trophy_log!A1",
+      valueInputOption: "RAW",
+      insertDataOption: "INSERT_ROWS",
+      resource: { values: [rowValue] },
+    });
+
+    console.log(
+      `🏆 トロフィー '${trophyId}' の達成記録をスプシに保存しました！ (${unlockedAtStr})`,
+    );
+    return true;
+  } catch (err) {
+    console.error("❌ トロフィーの保存に失敗:", err);
     return false;
   }
 }

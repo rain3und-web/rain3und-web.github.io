@@ -135,6 +135,18 @@ window.renderGrid = function () {
         const targetGenres = window.filterQuery.value.split(" × "); // 「コメディ × 日常」を分割
         return targetGenres.every((g) => a.genres_jp.includes(g)); // 両方含まれているかチェック
       }
+      // 💡 ここも「未履修」に変更して、正しくデータベースから抽出できるようにします！
+      if (
+        window.filterQuery.type === "watch_status" &&
+        window.filterQuery.value === "積みアニメ"
+      ) {
+        return (
+          a.watch_status === "未履修" ||
+          a.watch_status === "再履修" ||
+          a.watch_status === "履修中"
+        );
+      }
+
       return true;
     });
   } else {
@@ -180,17 +192,41 @@ window.renderGrid = function () {
     card.className = "card pop-up-animation";
     card.onclick = () => window.openEditModal(anime.anilist_id);
 
-    // 💡 これを追加！保存されている位置（例: '50% 30%'）を取得し、無ければ中央にします
     const imgPosition = anime.img_position || "center center";
-    // カード全体に対して、CSS変数として位置を叩き込みます
     card.style.setProperty("--img-pos", imgPosition);
 
+    // 💡 漢字のシーズン（春・夏・秋・冬）が空でなければ、スペースで繋いでバッジにします
+    const seasonText = anime.season
+      ? `${anime.year || ""} ${anime.season}`
+      : anime.year || "-";
+
+    // 💡 format（TV等）と episodes（話数）を綺麗に結合
+    const infoParts = [];
+    if (anime.format) {
+      // 辞書にあれば日本語に変換、なければ元の文字を使う
+      const displayFormat = formatTranslationMap[anime.format] || anime.format;
+      infoParts.push(displayFormat);
+    }
+    if (anime.episodes) infoParts.push(`${anime.episodes}`);
+    const infoText = infoParts.join(" / ");
+
     card.innerHTML = `
-    <div class="card-img-wrapper"><img src="${anime.cover_url}" class="card-img"></div>
+    <div class="card-img-wrapper">
+      <img src="${anime.cover_url}" class="card-img">
+    </div>
     <h3 class="card-title">${anime.title}</h3>
-            <div class="card-meta">${anime.year || "-"} ${anime.format || ""} ${anime.episodes || ""}</div>
-            <div class="card-status-row"><div class="status-pill ${statusClass}">${statusLabel}</div><div class="score-display"><span class="score-icon">★</span><span class="score-num">${score}</span></div></div>
-        `;
+    <div class="card-meta-container">
+      <span class="meta-season-badge">${seasonText}</span>
+      <span class="meta-info-text">${infoText}</span>
+    </div>
+    <div class="card-status-row">
+      <div class="status-pill ${statusClass}">${statusLabel}</div>
+      <div class="score-display">
+        <span class="score-icon">★</span>
+        <span class="score-num">${score}</span>
+      </div>
+    </div>
+  `;
     fragment.appendChild(card);
   });
   grid.appendChild(fragment);

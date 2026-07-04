@@ -217,3 +217,21 @@ window.translateSeason = function (seasonStr) {
   let trimmed = seasonStr.trim().toUpperCase(); // 大文字に統一して判定
   return seasonMap[trimmed] ? seasonMap[trimmed] : trimmed;
 };
+// 💡 フォーマットを日本語に翻訳するための辞書を用意
+const formatMap = {
+  TV: "TV",
+  TV_SHORT: "ショート",
+  MOVIE: "映画",
+  OVA: "OVA",
+  ONA: "ONA",
+  SPECIAL: "スペシャル",
+};
+// 💡 カードでも表示を日本語に翻訳するための辞書
+const formatTranslationMap = {
+  TV: "TV",
+  TV_SHORT: "ショート",
+  MOVIE: "映画",
+  OVA: "OVA",
+  ONA: "ONA",
+  SPECIAL: "スペシャル",
+};

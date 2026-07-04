@@ -23,6 +23,4 @@
   --f-eng: "rustica", sans-serif; /* 英語・数字用のオシャレなフォント */
   --f-jp:
     "Source Han Sans JP", "Noto Sans JP", sans-serif; /* 日本語の基本フォント */
-  --f-jpb: "fot-udkakugoc80-pro", sans-serif; /* 日本語の基本フォント */
-  --f-num: "Dela Gothic One", cursive; /* 強調したい数字用のゴツいフォント */
 }

@@ -1,0 +1,287 @@
+/* ==========================================================================
+   🏆 達成トロフィー ページ内専用スタイル
+   ========================================================================== */
+
+#trophyPageArea {
+  padding: 8px 0 40px 0;
+  animation: trophyFadeIn 0.25s ease-out;
+}
+
+/* トロフィーページ全体の上部サマリーエリア */
+.trophy-page-summary {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 20px 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+
+  /* 横並びにするための設定 */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: center;
+}
+
+/* 各集計ブロックのラッパー */
+.summary-counter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-counter-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-gray);
+  font-family: var(--f-jp);
+  letter-spacing: 0.05em;
+}
+
+/* 達成率・個数バッジの数値部分 */
+.trophy-progress-badge {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-black);
+  font-family: var(--f-jp);
+  display: flex;
+  align-items: baseline;
+}
+
+/* 大きく目立たせるメインの数字 */
+.counter-highlight-num {
+  font-size: 26px;
+  color: var(--c-blue);
+  font-family: var(--f-eng);
+  font-weight: 800;
+  margin-right: 4px;
+  line-height: 1;
+}
+
+/* 分母用の斜線と数字 */
+.counter-total-num {
+  font-size: 15px;
+  color: var(--c-text-gray);
+  font-family: var(--f-eng);
+  font-weight: 600;
+}
+
+/* 🎴 トロフィーグリッド配置 */
+.trophy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+/* 共通カード基本形 */
+.trophy-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--c-border);
+  background: var(--c-white);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* 💡 メダルSVGのサイズ・線の太さ調整（太すぎずスッキリ） */
+.trophy-card-icon-svg {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.trophy-card-info {
+  flex: 1;
+}
+
+.trophy-card-title {
+  font-family: var(--f-jp);
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+  color: var(--c-black);
+}
+
+.trophy-card-desc {
+  font-family: var(--f-jp);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--c-text-gray);
+}
+
+/* 🔒 未達成（Locked）状態：パレットの --c-black (#1e293b) */
+.trophy-card.locked {
+  background: var(--c-black);
+  border-color: #334155;
+}
+.trophy-card.locked .trophy-card-icon-svg {
+  stroke: #475569;
+}
+.trophy-card.locked .trophy-card-title {
+  color: #94a3b8;
+}
+.trophy-card.locked .trophy-card-desc {
+  color: #64748b;
+}
+
+/* 🎉 達成済み（Unlocked）状態：白背景・すりガラスUI完全最適化ネオン＆光沢 */
+
+/* 共通：ベースに透明感のある白と背景ぼかし（backdrop-filter）を適応 */
+.trophy-card.unlocked {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden; /* プラチナの光沢がはみ出さないように */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+/* 🥉 1. ブロンズ：クリア・コッパー（上品な暖色ネオン） */
+.trophy-card.unlocked.bronze {
+  border-color: rgba(230, 126, 34, 0.5);
+  border-width: 1.5px;
+  box-shadow:
+    0 0 15px rgba(230, 126, 34, 0.12),
+    inset 0 0 10px rgba(230, 126, 34, 0.05);
+}
+.trophy-card.unlocked.bronze .trophy-card-icon-svg {
+  stroke: #e67e22;
+  filter: drop-shadow(0 2px 4px rgba(230, 126, 34, 0.3));
+}
+.trophy-card.unlocked.bronze .trophy-card-title {
+  color: #d35400;
+}
+
+/* 🥈 2. シルバー：サイバー・クリスタル（透明感あふれる涼しげなブルーネオン） */
+.trophy-card.unlocked.silver {
+  border-color: rgba(9, 132, 227, 0.4);
+  border-width: 1.5px;
+  box-shadow:
+    0 0 15px rgba(9, 132, 227, 0.15),
+    inset 0 0 10px rgba(9, 132, 227, 0.05);
+}
+.trophy-card.unlocked.silver .trophy-card-icon-svg {
+  stroke: #0984e3;
+  filter: drop-shadow(0 2px 6px rgba(9, 132, 227, 0.3));
+}
+.trophy-card.unlocked.silver .trophy-card-title {
+  color: #0984e3;
+}
+
+/* 🥇 3. ゴールド：シャンパン・ゴールド（白背景でも見やすい高級ゴールド） */
+.trophy-card.unlocked.gold {
+  border-color: rgba(241, 196, 15, 0.6);
+  border-width: 1.5px;
+  box-shadow:
+    0 0 18px rgba(241, 196, 15, 0.2),
+    inset 0 0 12px rgba(241, 196, 15, 0.08);
+}
+.trophy-card.unlocked.gold .trophy-card-icon-svg {
+  stroke: #f1c40f;
+  filter: drop-shadow(0 2px 8px rgba(241, 196, 15, 0.4));
+}
+.trophy-card.unlocked.gold .trophy-card-title {
+  color: #b7950b;
+}
+
+/* 💎 4. プラチナ：オーロラ・ホログラム（最高位の流星光沢アニメーション付き） */
+.trophy-card.unlocked.platinum {
+  border-color: rgba(168, 85, 247, 0.5);
+  border-width: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(243, 232, 255, 0.5) 100%
+  ) !important;
+  box-shadow:
+    0 0 20px rgba(168, 85, 247, 0.15),
+    inset 0 0 15px rgba(168, 85, 247, 0.05);
+}
+.trophy-card.unlocked.platinum .trophy-card-icon-svg {
+  stroke: #9333ea;
+  filter: drop-shadow(0 2px 8px rgba(168, 85, 247, 0.4))
+    drop-shadow(0 0 2px rgba(6, 182, 212, 0.3));
+}
+.trophy-card.unlocked.platinum .trophy-card-title {
+  color: #7e22ce;
+}
+
+/* ✨ プラチナ専用：ガラスの表面を走る滑らかな白い光の帯 */
+.trophy-card.unlocked.platinum::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shinePlatinumLight 4s infinite linear;
+}
+/* チェックボックス周りのマイルドな装飾（お好みで追加してください） */
+.medal-toggle-container input[type="checkbox"] {
+  accent-color: var(--c-blue, #3b82f6);
+  width: 15px;
+  height: 15px;
+}
+
+@keyframes shinePlatinumLight {
+  0% {
+    left: -150%;
+  }
+  20% {
+    left: -150%;
+  } /* 移動した後の余韻・待機時間 */
+  100% {
+    left: 150%;
+  }
+}
+
+/* カードにマウスを乗せたときの、ふわっと浮き上がるお洒落なホバー効果 */
+.trophy-card.unlocked:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 24px rgba(31, 38, 135, 0.08);
+}
+.trophy-card.unlocked.platinum:hover {
+  box-shadow: 0 12px 24px rgba(168, 85, 247, 0.2);
+}
+
+@keyframes trophyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.trophy-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px;
+  color: var(--c-text-gray);
+  font-size: 14px;
+}
+.trophy-card-date {
+  font-size: 10px;
+  color: var(--c-text-gray);
+  margin-top: 6px;
+  font-family: var(--f-en); /* スタイリッシュに数字を出す用 */
+  opacity: 0.8;
+}
