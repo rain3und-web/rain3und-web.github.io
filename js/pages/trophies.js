@@ -295,54 +295,92 @@ const trophyEvaluators = {
 
   // 🔒 ⑮ 【隠し進化】ストーリーはアレだけど他が最高ギャップシリーズ
   secret_gap_1: (animeDB) =>
-    animeDB.filter(
-      (a) =>
-        parseFloat(a.score_story) <= 1.5 &&
-        (parseFloat(a.score_visual) === 5.0 ||
-          parseFloat(a.score_character) === 5.0) &&
-        a.watch_status === "履修済",
-    ).length >= 1,
+    animeDB.filter((a) => {
+      const story = parseFloat(a.score_story || 0);
+      const hasHighVisual = parseFloat(a.score_visual || 0) >= 4.0;
+      const hasHighChar = parseFloat(a.score_character || 0) >= 4.0;
+      const hasHighMusic = parseFloat(a.score_music || 0) >= 4.0;
+      const hasHighResonance = parseFloat(a.score_resonance || 0) >= 4.0;
+      return (
+        story <= 2.0 &&
+        (hasHighVisual || hasHighChar || hasHighMusic || hasHighResonance) &&
+        a.watch_status === "履修済"
+      );
+    }).length >= 1,
+
   secret_gap_2: (animeDB) =>
-    animeDB.filter(
-      (a) =>
-        parseFloat(a.score_story) <= 1.5 &&
-        (parseFloat(a.score_visual) === 5.0 ||
-          parseFloat(a.score_character) === 5.0) &&
-        a.watch_status === "履修済",
-    ).length >= 2,
+    animeDB.filter((a) => {
+      const story = parseFloat(a.score_story || 0);
+      const hasHighVisual = parseFloat(a.score_visual || 0) >= 4.0;
+      const hasHighChar = parseFloat(a.score_character || 0) >= 4.0;
+      const hasHighMusic = parseFloat(a.score_music || 0) >= 4.0;
+      const hasHighResonance = parseFloat(a.score_resonance || 0) >= 4.0;
+      return (
+        story <= 2.0 &&
+        (hasHighVisual || hasHighChar || hasHighMusic || hasHighResonance) &&
+        a.watch_status === "履修済"
+      );
+    }).length >= 2,
+
   secret_gap_3: (animeDB) =>
-    animeDB.filter(
-      (a) =>
-        parseFloat(a.score_story) <= 1.5 &&
-        (parseFloat(a.score_visual) === 5.0 ||
-          parseFloat(a.score_character) === 5.0) &&
-        a.watch_status === "履修済",
-    ).length >= 5,
+    animeDB.filter((a) => {
+      const story = parseFloat(a.score_story || 0);
+      const hasHighVisual = parseFloat(a.score_visual || 0) >= 4.0;
+      const hasHighChar = parseFloat(a.score_character || 0) >= 4.0;
+      const hasHighMusic = parseFloat(a.score_music || 0) >= 4.0;
+      const hasHighResonance = parseFloat(a.score_resonance || 0) >= 4.0;
+      return (
+        story <= 2.0 &&
+        (hasHighVisual || hasHighChar || hasHighMusic || hasHighResonance) &&
+        a.watch_status === "履修済"
+      );
+    }).length >= 5,
+
   secret_gap_4: (animeDB) =>
-    animeDB.filter(
-      (a) =>
-        parseFloat(a.score_story) <= 1.5 &&
-        (parseFloat(a.score_visual) === 5.0 ||
-          parseFloat(a.score_character) === 5.0) &&
-        a.watch_status === "履修済",
-    ).length >= 10,
+    animeDB.filter((a) => {
+      const story = parseFloat(a.score_story || 0);
+      const hasHighVisual = parseFloat(a.score_visual || 0) >= 4.0;
+      const hasHighChar = parseFloat(a.score_character || 0) >= 4.0;
+      const hasHighMusic = parseFloat(a.score_music || 0) >= 4.0;
+      const hasHighResonance = parseFloat(a.score_resonance || 0) >= 4.0;
+      return (
+        story <= 2.0 &&
+        (hasHighVisual || hasHighChar || hasHighMusic || hasHighResonance) &&
+        a.watch_status === "履修済"
+      );
+    }).length >= 10,
 };
 
+// 💡 称号の文字列を「〜のファン」「〜のコアファン」など普通な表現に統一
 const MEDAL_CONFIGS = {
   cast: {
     thresholds: [3, 10, 20, 40],
-    titles: ["の耳", "推し", "神推し", "レジェンドファン"],
+    titles: [
+      "のファン",
+      "の熱心なファン",
+      "の高頻度リスナー",
+      "の特別功労ファン",
+    ],
   },
   director: {
     thresholds: [3, 7, 15, 30],
-    titles: ["の視線", "信者", "のミューズ", "の脳内理解者"],
+    titles: [
+      "作品の視聴者",
+      "作品のファン",
+      "作品の愛好家",
+      "作品の完全理解者",
+    ],
   },
   studio: {
     thresholds: [3, 7, 15, 30],
-    titles: ["の門下生", "フリーク", "の専属スポンサー", "スタジオの株主"],
+    titles: [
+      "作品の視聴者",
+      "作品のファン",
+      "作品の支持者",
+      "作品の筆頭支持者",
+    ],
   },
 };
-
 const RANK_NAMES = ["bronze", "silver", "gold", "platinum"];
 const RANK_WEIGHTS = { bronze: 1, silver: 2, gold: 3, platinum: 4 };
 
@@ -402,8 +440,11 @@ window.renderTrophyPage = async function () {
   const createdStr =
     localStorage.getItem("account_created_at") ||
     sessionStorage.getItem("account_created_at");
+  // 💡 文字列が純粋な数字（タイムスタンプ）ならNumberに変換、そうでなければnew Date()で解析（Invalid Date = NaN を完全防御）
   const accountCreatedTimestamp = createdStr
-    ? new Date(createdStr).getTime()
+    ? isNaN(createdStr)
+      ? new Date(createdStr).getTime()
+      : Number(createdStr)
     : nowTimestamp;
 
   // アニメデータの updated_at と created_at を正しく巡回する関数
@@ -695,41 +736,45 @@ window.renderTrophyPage = async function () {
 
   finalAllList.forEach((t) => {
     if (t.isUnlocked) {
+      // 💡 隠し進化：全項目5.0満点の「極上のフルコース」シリーズを普通の表現に
       if (t.id === "secret_perfect_1") {
-        t.title = "極上のフルコース";
-        t.description = "全評価項目が5.0点満点の神作が1本に到達した。";
+        t.title = "極上の神作・ブロンズ";
+        t.description = "すべての評価項目で5.0点満点をつけた作品が1本に到達。";
       }
       if (t.id === "secret_perfect_2") {
-        t.title = "神々の悪戯";
-        t.description = "全評価項目が5.0点満点の神作が2本に到達した。";
+        t.title = "極上の神作・シルバー";
+        t.description = "すべての評価項目で5.0点満点をつけた作品が2本に到達。";
       }
       if (t.id === "secret_perfect_3") {
-        t.title = "黄金比のセカイ";
-        t.description = "全評価項目が5.0点満点の神作が5本に到達した。";
+        t.title = "極上の神作・ゴールド";
+        t.description = "すべての評価項目で5.0点満点をつけた作品が5本に到達。";
       }
       if (t.id === "secret_perfect_4") {
-        t.title = "アニメの概念を超越せし開拓者";
-        t.description = "全評価項目が5.0点満点の神作が10本に到達した伝説。";
-      }
-      if (t.id === "secret_gap_1") {
-        t.title = "B級映画の沼";
+        t.title = "極上の神作・プラチナ";
         t.description =
-          "ストーリーは1.5以下だけど作画かキャラが5.0満点の偏愛作が1本に到達。";
+          "すべての評価項目で5.0点満点をつけた作品が10本に到達した偉業。";
+      }
+
+      // 💡 隠し進化：ストーリー低＋他4項目のどれかが4.0以上の「尖った名作」シリーズ
+      if (t.id === "secret_gap_1") {
+        t.title = "尖った名作・ブロンズ";
+        t.description =
+          "ストーリー評価は2.0以下、かつ他4項目のいずれかが4.0以上の作品が1本に到達。";
       }
       if (t.id === "secret_gap_2") {
-        t.title = "愛すべき歪な結晶";
+        t.title = "尖った名作・シルバー";
         t.description =
-          "ストーリーは1.5以下だけど作画かキャラが5.0満点の偏愛作が2本に到達。";
+          "ストーリー評価は2.0以下、かつ他4項目のいずれかが4.0以上の作品が2本に到達。";
       }
       if (t.id === "secret_gap_3") {
-        t.title = "カルト的信者の集会所";
+        t.title = "尖った名作・ゴールド";
         t.description =
-          "ストーリーは1.5以下だけど作画かキャラが5.0満点の偏愛作が5本に到達。";
+          "ストーリー評価は2.0以下、かつ他4項目のいずれかが4.0以上の作品が5本に到達。";
       }
       if (t.id === "secret_gap_4") {
-        t.title = "これぞオタクの終着駅";
+        t.title = "尖った名作・プラチナ";
         t.description =
-          "ストーリーは1.5以下だけど作画かキャラが5.0満点の偏愛作が10本に到達。";
+          "ストーリー評価は2.0以下、かつ他4項目のいずれかが4.0以上の作品が10本に到達。";
       }
     }
   });

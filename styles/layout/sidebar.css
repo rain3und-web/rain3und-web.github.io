@@ -3,141 +3,145 @@
    ========================================================= */
 /* --- 左カラム本体 --- */
 .sidebar-inner {
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* 画面全体の高さに合わせる（環境に合わせて 100% などに変更してください） */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* 画面全体の高さに合わせる（環境に合わせて 100% などに変更してください） */
 }
 
 /* --- スクロールエリア --- */
 .sidebar-scroll-area {
-    flex: 1; /* 余ったスペースを埋める */
-    overflow-y: auto; /* 縦スクロールを許可 */
+  flex: 1; /* 余ったスペースを埋める */
+  overflow-y: auto; /* 縦スクロールを許可 */
 }
-.sidebar-scroll-area::-webkit-scrollbar { 
-    display: none; 
+.sidebar-scroll-area::-webkit-scrollbar {
+  display: none;
 }
-.sidebar-scroll-area { 
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
+.sidebar-scroll-area {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* プロフィール欄を一番下に押し付ける */
 #userProfilePanel {
-    margin-top: auto; /* これが一番下に配置する魔法のコードです */
+  margin-top: auto; /* これが一番下に配置する魔法のコードです */
 }
 
 /* --- 固定エリア --- */
 .sidebar-fixed-bottom {
-    flex-shrink: 0; 
-    padding: 0 15px 0px 15px; 
-    background: transparent; 
+  flex-shrink: 0;
+  padding: 0 15px 0px 15px;
+  background: transparent;
 }
 
 /* --- ナビゲーションリスト --- */
-.sidebar-nav-section { 
-    padding: 0 15px; 
+.sidebar-nav-section {
+  padding: 0 15px;
 }
 
 .nav-category {
-    font-family: var(--f-jp);
-    font-size: 11px;
-    color: var(--c-text-gray);
-    margin: 24px 0 8px 12px;
-    font-weight: 600;
+  font-family: var(--f-jp);
+  font-size: 11px;
+  color: var(--c-text-gray);
+  margin: 24px 0 8px 12px;
+  font-weight: 600;
 }
 
 .nav-list {
-    list-style: none; 
-    padding: 0; 
-    margin: 0;
-    display: flex; 
-    flex-direction: column; 
-    gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* ▼ 1. 「a」を「.nav-btn」に変更し、ボタン特有のクセを消す設定を追加 ▼ */
 .nav-btn {
-    /* --- 追加：ボタンの標準デザインを打ち消すリセット --- */
-    background: transparent;
-    border: none;
-    width: 100%;
-    text-align: left;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    color: var(--c-text-gray);
-    font-family: var(--f-jp);
-    font-weight: 600;
-    font-size: 13px;
-    transition: all 0.2s ease;
+  /* --- 追加：ボタンの標準デザインを打ち消すリセット --- */
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: var(--c-text-gray);
+  font-family: var(--f-jp);
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
 }
 
 /* ▼ 2. hoverとactiveも「.nav-btn」に変更 ▼ */
-.nav-btn:hover { 
-    background: var(--c-bg); 
-    color: var(--c-black); 
+.nav-btn:hover {
+  background: var(--c-bg);
+  color: var(--c-black);
 }
 
 .nav-btn.active {
-    background: rgba(81, 82, 245, 0.1); 
-    color: var(--c-blue);
-    font-weight: 800;
+  background: rgba(81, 82, 245, 0.1);
+  color: var(--c-blue);
+  font-weight: 800;
 }
 /*下部プロフィールボックス*/
 
 .sidebar-user-box {
-    padding: 15px;
-    border-radius: 20px;
-    margin-top: auto; 
+  padding: 8px 15px;
+  margin-top: auto;
+  border: 1px solid var(--c-border) !important;
+  box-shadow: none !important;
 }
 .profile-card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;   
-    gap: 12px;              
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
 }
-.profile-card-left { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; flex: 1; 
-    min-width: 0; 
+.profile-card-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
-.profile-card-left .feed-avatar { 
-    width: 38px; 
-    height: 38px; 
-    font-size: 14px; 
-    border-radius: 50%; 
-    flex-shrink: 0; 
+.profile-card-left .feed-avatar {
+  width: 38px;
+  height: 38px;
+  font-size: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
-.profile-card-texts { 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
+.profile-card-texts {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-.profile-card-name { 
-    font-family: var(--f-jp); 
-    font-weight: 800; 
-    font-size: 13px; 
-    color: var(--c-black); 
-    line-height: 1.2; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
+.profile-card-name {
+  font-family: var(--f-jp);
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--c-black);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.profile-card-id { 
-    font-family: var(--f-eng); 
-    font-weight: 600; 
-    font-size: 11px; 
-    color: var(--c-text-gray); 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
+.profile-card-id {
+  font-family: var(--f-eng);
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--c-text-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .profile-card-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center; /* 💡 これでボタンが真ん中に揃います */
-    width: 100%;
-    align-items: center;
+  display: flex;
+  gap: 15px;
+  justify-content: center; /* 💡 これでボタンが真ん中に揃います */
+  width: 100%;
+  align-items: center;
 }

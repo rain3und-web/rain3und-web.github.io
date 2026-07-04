@@ -8,121 +8,232 @@
 中央パネル：絞り込み（フィルター）タブ
 ----------------------------------------- */
 .filter-area {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-shrink: 0;
-    padding-bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-shrink: 0;
+  padding-bottom: 0px;
 }
 
 .filter-tabs {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .filter-tab {
-    width: 92px;              /* 全部同じ幅 */
-    height: 46px;             /* 少し大きめ */
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.15em;  /* 文字間隔広げる */
-    background: var(--c-white);
-    color: var(--c-text-gray);
-    border: 1px solid rgba(0,0,0,0.06);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+  width: 92px; /* 全部同じ幅 */
+  height: 46px; /* 少し大きめ */
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.15em; /* 文字間隔広げる */
+  background: var(--c-white);
+  color: var(--c-text-gray);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
 }
 
 .filter-tab:hover {
-    transform: translateY(-2px);
-    color: var(--c-black);
-    border-color: rgba(30,41,59,0.2);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  color: var(--c-black);
+  border-color: rgba(30, 41, 59, 0.2);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
 }
 
 .filter-tab.active {
-    background: var(--c-yellow);
-    color: var(--c-black);
-    border-color: var(--c-yellow);
-    font-weight: 900;
-    transform: translateY(-2px);
-    box-shadow:0 8px 20px rgba(249,193,6,0.28);
+  background: var(--c-yellow);
+  color: var(--c-black);
+  border-color: var(--c-yellow);
+  font-weight: 900;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(249, 193, 6, 0.28);
 }
 
 /* -----------------------------------------
 📺 レトロなオープニング/ローディング画面
    ----------------------------------------- */
 .startup-overlay {
-    position: fixed; 
-    inset: 0; 
-    background: var(--c-bg);
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center;
-    z-index: 9999; 
-    transition: opacity 0.8s ease, visibility 0.8s ease;
+  position: fixed;
+  inset: 0;
+  background: var(--c-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition:
+    opacity 0.8s ease,
+    visibility 0.8s ease;
 }
 
 /* 薄く走査線（ブラウン管モニター風の横線）を重ねてレトロ感を演出 */
 .startup-overlay::after {
-    content: ""; 
-    position: absolute; 
-    inset: 0;
-    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.03), rgba(0,0,0,0.03) 1px, transparent 1px, transparent 3px);
-    pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.03),
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
 }
 
-.startup-content { 
-    text-align: center; 
-    color: var(--c-blue); 
-    animation: fadeInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
+.startup-content {
+  text-align: center;
+  color: var(--c-blue);
+  animation: fadeInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-.startup-logo { 
-    font-family: var(--f-logo); 
-    font-size: 72px; 
-    font-weight: 900; 
-    margin: 0; 
-    letter-spacing: 4px; 
-    text-shadow: 0 4px 10px rgba(81, 82, 245, 0.2); 
+.startup-logo {
+  font-family: var(--f-logo);
+  font-size: 72px;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: 4px;
+  text-shadow: 0 4px 10px rgba(81, 82, 245, 0.2);
 }
-.startup-loading-text { 
-    font-family: var(--f-eng); 
-    font-weight: 800; 
-    font-size: 14px; 
-    letter-spacing: 6px; 
-    margin-top: 15px; 
-    animation:  step-start infinite; 
+.startup-loading-text {
+  font-family: var(--f-eng);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 6px;
+  margin-top: 15px;
+  animation: step-start infinite;
 }
 
 /* データ読み込み完了後に画面を消すためのクラス */
-.startup-overlay.fade-out { 
-    opacity: 0; 
-    visibility: hidden; 
-    pointer-events: none; 
+.startup-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* ▼ リスト画面：グループ全体を囲む枠 ▼ */
 .list-group-wrap {
-    width: 100%;
-    margin-bottom: 25px;
+  width: 100%;
+  margin-bottom: 25px;
 }
 
 /* ▼ リスト画面：タグを並べるコンテナ ▼ */
 .list-group-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+/* =========================================================
+   🔮 モーダルウィンドウ共通スタイル（すりガラス連動）
+   ========================================================= */
+
+/* 画面全体を覆う半透明の黒い背景レイヤー */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4); /* 暗すぎない上品なダークトーン */
+  backdrop-filter: blur(8px); /* 背景のアプリ画面を綺麗にボカす */
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000; /* フッター(9999)よりもさらに手前に表示 */
+}
+
+/* モーダルの白い箱（glass-panelのルールを拡張） */
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 520px; /* マイページが綺麗に収まるサイズ */
+  max-height: 85vh; /* 画面からはみ出さないように制限 */
+  overflow-y: auto; /* 万が一縦に長くなったら箱の中でスクロール */
+  padding: 35px 25px 30px 25px;
+  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* ぷるんと弾むアニメーション */
+}
+
+/* 右上の「✕」閉じるボタン */
+.modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  color: #94a3b8;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  padding: 5px;
+  line-height: 1;
+}
+.modal-close-btn:hover {
+  color: var(--c-black);
+  transform: scale(1.1);
+}
+
+/* ぷるんと浮き出るアニメーションの定義 */
+@keyframes modalPop {
+  from {
+    transform: scale(0.9) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+/* --- 📄 規約モーダル内の文章装飾 --- */
+.legal-modal-body {
+  font-family: var(--f-jp);
+  font-size: 13px;
+  color: var(--c-black);
+  line-height: 1.7;
+  text-align: left;
+  max-height: 60vh; /* 縦に長くなったらモーダル内でスクロールさせる */
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.legal-modal-body h3 {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--c-blue);
+  margin: 20px 0 8px 0;
+  border-left: 3px solid var(--c-blue);
+  padding-left: 8px;
+}
+
+.legal-modal-body p {
+  margin: 0 0 10px 0;
+}
+
+.legal-modal-body ul {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+.legal-modal-date {
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: right;
+  margin-top: 25px;
+  border-top: 1px dashed var(--c-border);
+  padding-top: 10px;
 }

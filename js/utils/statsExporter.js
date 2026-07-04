@@ -520,7 +520,7 @@ const StatsExporter = {
                   映画: "映画",
                   ONA: "ONA",
                   OVA: "OVA",
-                  SHORT: "ショート",
+                  TV_SHORT: "ショート",
                   ショート: "ショート",
                   SPECIAL: "スペシャル",
                   スペシャル: "スペシャル",

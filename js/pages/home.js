@@ -633,3 +633,75 @@ window.toggleDecadeAccordion = function (targetDecade) {
     if (targetSection) targetSection.style.background = "#F8FAFC"; // ほんのり選択色
   }
 };
+
+// =========================================================
+// 🏠プライバシーポリシー
+// =========================================================
+
+// モーダルを開く関数
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // モーダル開いてる間は後ろのスクロールを固定
+  }
+}
+
+// モーダルを閉じる関数
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.add("hidden");
+    document.body.style.overflow = ""; // スクロール固定を解除
+  }
+}
+
+// モーダルの外側（黒背景）をクリックした時も閉じるようにする設定
+document.querySelectorAll(".modal-overlay").forEach((overlay) => {
+  overlay.addEventListener("click", (e) => {
+    // クリックされたのが子要素（白い箱）ではなく、背景自体だった場合だけ閉じる
+    if (e.target === overlay) {
+      closeModal(overlay.id);
+    }
+  });
+});
+
+// --- 💡 ボタンとの紐付け設定 ---
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. フッターの「オタクログとは」ボタン（既存）
+  const aboutBtn = document.getElementById("footerAboutBtn");
+  if (aboutBtn) {
+    aboutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal("aboutModal");
+    });
+  }
+
+  // ✨ 2. フッターの「利用規約」ボタン（追加）
+  const termsBtn = document.getElementById("footerTermsBtn");
+  if (termsBtn) {
+    termsBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal("termsModal");
+    });
+  }
+
+  // ✨ 3. フッターの「プライバシーポリシー」ボタン（追加）
+  const privacyBtn = document.getElementById("footerPrivacyBtn");
+  if (privacyBtn) {
+    privacyBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal("privacyModal");
+    });
+  }
+
+  // 2. 左ナビなどの「マイページ（設定）」ボタン
+  // （もし左ナビのボタンに id="navMyPageBtn" などがあれば、ここに繋げられます）
+  const myPageBtn = document.getElementById("navMyPageBtn");
+  if (myPageBtn) {
+    myPageBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal("myPageModal");
+    });
+  }
+});

@@ -2,7 +2,7 @@
   {
     "id": "count_1",
     "category": "trophy",
-    "title": "新米アニオタ",
+    "title": "アニオタの第一歩",
     "description": "履修済みの作品数が 10本 を突破した。",
     "rank": "bronze",
     "is_secret": false
@@ -10,7 +10,7 @@
   {
     "id": "count_2",
     "category": "trophy",
-    "title": "深夜アニメの住人",
+    "title": "深夜アニメの常連",
     "description": "履修済みの作品数が 50本 を突破した。",
     "rank": "silver",
     "is_secret": false
@@ -26,8 +26,8 @@
   {
     "id": "count_4",
     "category": "trophy",
-    "title": "世界の命運を見届けし者",
-    "description": "履修済みの作品数が 300本 を突破した神の領域。",
+    "title": "アニメマスター・プラチナ",
+    "description": "履修済みの作品数が 300本 を突破した。",
     "rank": "platinum",
     "is_secret": false
   },
@@ -35,7 +35,7 @@
   {
     "id": "time_1",
     "category": "trophy",
-    "title": "不眠不休の24時間",
+    "title": "丸一日アニメ三昧",
     "description": "総視聴時間が 24時間（1,440分）を突破した。",
     "rank": "bronze",
     "is_secret": false
@@ -51,7 +51,7 @@
   {
     "id": "time_3",
     "category": "trophy",
-    "title": "アニメに捧げた人生",
+    "title": "アニメに捧げた時間",
     "description": "総視聴時間が 500時間（30,000分）を突破した。",
     "rank": "gold",
     "is_secret": false
@@ -59,8 +59,8 @@
   {
     "id": "time_4",
     "category": "trophy",
-    "title": "時をかけるオタク",
-    "description": "総視聴時間が 1000時間（60,000分）を突破した廃神。",
+    "title": "タイムロガー・最高峰",
+    "description": "総視聴時間が 1000時間（60,000分）を突破した。",
     "rank": "platinum",
     "is_secret": false
   },
@@ -76,7 +76,7 @@
   {
     "id": "story_2",
     "category": "trophy",
-    "title": "考察班の執事",
+    "title": "シナリオ愛好家",
     "description": "「ストーリー」評価で 5.0 満点をつけた傑作が 10本 に達した。",
     "rank": "silver",
     "is_secret": false
@@ -84,7 +84,7 @@
   {
     "id": "story_3",
     "category": "trophy",
-    "title": "世界線の観測ディレクター",
+    "title": "世界線アナリスト",
     "description": "「ストーリー」評価で 5.0 満点をつけた傑作が 25本 に達した。",
     "rank": "gold",
     "is_secret": false
@@ -92,7 +92,7 @@
   {
     "id": "story_4",
     "category": "trophy",
-    "title": "シナリオの神に愛されしオタク",
+    "title": "シナリオ・マイスター",
     "description": "「ストーリー」評価で 5.0 満点をつけた傑作が 50本 に達した。",
     "rank": "platinum",
     "is_secret": false
@@ -101,7 +101,7 @@
   {
     "id": "visual_1",
     "category": "trophy",
-    "title": "美しい背景に目を奪われて",
+    "title": "美術・作画への視線",
     "description": "「美術・作画」評価で 5.0 満点をつけた作品が 3本 に達した。",
     "rank": "bronze",
     "is_secret": false
@@ -109,7 +109,7 @@
   {
     "id": "visual_2",
     "category": "trophy",
-    "title": "映像美の奴隷",
+    "title": "映像美スペシャリスト",
     "description": "「美術・作画」評価で 5.0 満点をつけた作品が 10本 に達した。",
     "rank": "silver",
     "is_secret": false
@@ -117,7 +117,7 @@
   {
     "id": "visual_3",
     "category": "trophy",
-    "title": "作画崩壊とは無縁のユートピア",
+    "title": "ハイクオリティ・ルック",
     "description": "「美術・作画」評価で 5.0 満点をつけた作品が 25本 に達した。",
     "rank": "gold",
     "is_secret": false
@@ -125,7 +125,7 @@
   {
     "id": "visual_4",
     "category": "trophy",
-    "title": "色彩と光の魔術師",
+    "title": "色彩と光のトップオブオブザーバー",
     "description": "「美術・作画」評価で 5.0 満点をつけた作品が 50本 に達した。",
     "rank": "platinum",
     "is_secret": false
@@ -134,7 +134,7 @@
   {
     "id": "music_1",
     "category": "trophy",
-    "title": "イントロドン一撃必殺",
+    "title": "音に惹かれて",
     "description": "「音楽」評価で 5.0 満点をつけた作品が 3本 に達した。",
     "rank": "bronze",
     "is_secret": false
@@ -142,7 +142,7 @@
   {
     "id": "music_2",
     "category": "trophy",
-    "title": "鼓膜が喜ぶ神サントラ",
+    "title": "神サントラ・コレクター",
     "description": "「音楽」評価で 5.0 満点をつけた作品が 10本 に達した。",
     "rank": "silver",
     "is_secret": false
@@ -150,7 +150,7 @@
   {
     "id": "music_3",
     "category": "trophy",
-    "title": "音響監督の絶対音感",
+    "title": "音響ディレクターの耳",
     "description": "「音楽」評価で 5.0 満点をつけた作品が 25本 に達した。",
     "rank": "gold",
     "is_secret": false
@@ -158,7 +158,7 @@
   {
     "id": "music_4",
     "category": "trophy",
-    "title": "オーケストラ・マスター",
+    "title": "劇伴・音響オーソリティ",
     "description": "「音楽」評価で 5.0 満点をつけた作品が 50本 に達した。",
     "rank": "platinum",
     "is_secret": false
@@ -167,7 +167,7 @@
   {
     "id": "char_1",
     "category": "trophy",
-    "title": "推しの産声を聞いた日",
+    "title": "キャラクターの引力",
     "description": "「キャラの魅力」評価で 5.0 満点をつけた作品が 3本 に達した。",
     "rank": "bronze",
     "is_secret": false
@@ -175,7 +175,7 @@
   {
     "id": "char_2",
     "category": "trophy",
-    "title": "限界オタクの集い",
+    "title": "推しキャラ大集合",
     "description": "「キャラの魅力」評価で 5.0 満点をつけた作品が 10本 に達した。",
     "rank": "silver",
     "is_secret": false
@@ -183,7 +183,7 @@
   {
     "id": "char_3",
     "category": "trophy",
-    "title": "二次元しか勝たん同盟",
+    "title": "二次元デザイン推し",
     "description": "「キャラの魅力」評価で 5.0 満点をつけた作品が 25本 に達した。",
     "rank": "gold",
     "is_secret": false
@@ -191,7 +191,7 @@
   {
     "id": "char_4",
     "category": "trophy",
-    "title": "全人類を魅了せし尊さの極み",
+    "title": "魅力的なキャラクターの理解者",
     "description": "「キャラの魅力」評価で 5.0 満点をつけた作品が 50本 に達した。",
     "rank": "platinum",
     "is_secret": false
@@ -200,7 +200,7 @@
   {
     "id": "resonance_1",
     "category": "trophy",
-    "title": "心がざわつく何か",
+    "title": "心に残る何か",
     "description": "「刺さり度」評価で 5.0 満点をつけた作品が 3本 に達した。",
     "rank": "bronze",
     "is_secret": false
@@ -208,7 +208,7 @@
   {
     "id": "resonance_2",
     "category": "trophy",
-    "title": "魂の共鳴者（レゾナンス）",
+    "title": "魂の共鳴・シルバー",
     "description": "「刺さり度」評価で 5.0 満点をつけた作品が 10本 に達した。",
     "rank": "silver",
     "is_secret": false
@@ -216,7 +216,7 @@
   {
     "id": "resonance_3",
     "category": "trophy",
-    "title": "人生のバイブル全集",
+    "title": "人生のバイブルログ",
     "description": "「刺さり度」評価で 5.0 満点をつけた作品が 25本 に達した。",
     "rank": "gold",
     "is_secret": false
@@ -224,7 +224,7 @@
   {
     "id": "resonance_4",
     "category": "trophy",
-    "title": "この世界に生まれてよかった",
+    "title": "マイ・ベスト・アーカイブ",
     "description": "「刺さり度」評価で 5.0 満点をつけた作品が 50本 に達した。",
     "rank": "platinum",
     "is_secret": false
@@ -233,7 +233,7 @@
   {
     "id": "movie_1",
     "category": "trophy",
-    "title": "映画館のポップコーン係",
+    "title": "シアター・ビギナー",
     "description": "フォーマット「映画（MOVIE）」の作品を 5本 履修した。",
     "rank": "bronze",
     "is_secret": false
@@ -249,7 +249,7 @@
   {
     "id": "movie_3",
     "category": "trophy",
-    "title": "映画館の主",
+    "title": "映画館のヘビーユーザー",
     "description": "フォーマット「映画（MOVIE）」の作品を 30本 履修した。",
     "rank": "gold",
     "is_secret": false
@@ -257,7 +257,7 @@
   {
     "id": "movie_4",
     "category": "trophy",
-    "title": "銀幕を愛し、銀幕に愛されたオタク",
+    "title": "シネマニア・プラチナ",
     "description": "フォーマット「映画（MOVIE）」の作品を 60本 履修した。",
     "rank": "platinum",
     "is_secret": false
@@ -266,7 +266,7 @@
   {
     "id": "short_1",
     "category": "trophy",
-    "title": "カップラーメンタイマー",
+    "title": "スキマ時間のお供",
     "description": "フォーマット「ショート」の作品を 3本 履修した。",
     "rank": "bronze",
     "is_secret": false
@@ -274,7 +274,7 @@
   {
     "id": "short_2",
     "category": "trophy",
-    "title": "スキマ時間ハンター",
+    "title": "ショートアニメ・ファン",
     "description": "フォーマット「ショート」の作品を 10本 履修した。",
     "rank": "silver",
     "is_secret": false
@@ -282,7 +282,7 @@
   {
     "id": "short_3",
     "category": "trophy",
-    "title": "3分間の魔術師",
+    "title": "ショートタイム・エキスパート",
     "description": "フォーマット「ショート」の作品を 20本 履修した。",
     "rank": "gold",
     "is_secret": false
@@ -299,32 +299,32 @@
   {
     "id": "tsundoku_1",
     "category": "trophy",
-    "title": "とりあえずマイリスト",
-    "description": "「未履修」「履修中」の積読作品が合計 10本 に達した。",
+    "title": "とりあえずウォッチリスト",
+    "description": "「未履修」「履修中」の作品が合計 10本 に達した。",
     "rank": "bronze",
     "is_secret": false
   },
   {
     "id": "tsundoku_2",
     "category": "trophy",
-    "title": "まだ見ぬ名作の山",
-    "description": "「未履修」「履修中」の積読作品が合計 25本 に達した。",
+    "title": "これからの楽しみ",
+    "description": "「未履修」「履修中」の作品が合計 25本 に達した。",
     "rank": "silver",
     "is_secret": false
   },
   {
     "id": "tsundoku_3",
     "category": "trophy",
-    "title": "一生かけても消化しきれない愛",
-    "description": "「未履修」「履修中」の積読作品が合計 50本 に達した。",
+    "title": "ボリューム・リスト",
+    "description": "「未履修」「履修中」の作品が合計 50本 に達した。",
     "rank": "gold",
     "is_secret": false
   },
   {
     "id": "tsundoku_4",
     "category": "trophy",
-    "title": "積読という名の文化資産",
-    "description": "「未履修」「履修中」の積読作品が合計 100本 に達した。",
+    "title": "マイ・ライブラリ資産",
+    "description": "「未履修」「履修中」の作品が合計 100本 に達した。",
     "rank": "platinum",
     "is_secret": false
   },
@@ -332,7 +332,7 @@
   {
     "id": "loop_1",
     "category": "trophy",
-    "title": "おかわり1杯目",
+    "title": "リピート視聴・ブロンズ",
     "description": "再履修カウントが1以上の作品が 1本 誕生した。",
     "rank": "bronze",
     "is_secret": false
@@ -340,7 +340,7 @@
   {
     "id": "loop_2",
     "category": "trophy",
-    "title": "無限ループって怖くね？",
+    "title": "リピート視聴・シルバー",
     "description": "再履修カウントが2以上の作品が 1本 誕生した。",
     "rank": "silver",
     "is_secret": false
@@ -348,7 +348,7 @@
   {
     "id": "loop_3",
     "category": "trophy",
-    "title": "セリフ全暗記の領域",
+    "title": "お気に入り周回作品",
     "description": "再履修カウントが4以上の作品が 1本 誕生した。",
     "rank": "gold",
     "is_secret": false
@@ -356,8 +356,8 @@
   {
     "id": "loop_4",
     "category": "trophy",
-    "title": "無限回廊の永住権",
-    "description": "再履修カウントが8以上の限界突破作品が 1本 誕生した。",
+    "title": "限界突破リピーター",
+    "description": "再履修カウントが8以上の作品が 1本 誕生した。",
     "rank": "platinum",
     "is_secret": false
   },
@@ -373,7 +373,7 @@
   {
     "id": "oshi_2",
     "category": "trophy",
-    "title": "目移りしちゃう全肯定オタク",
+    "title": "お気に入りメンバー",
     "description": "登録した推しキャラの総数が 15人 を突破した。",
     "rank": "silver",
     "is_secret": false
@@ -381,7 +381,7 @@
   {
     "id": "oshi_3",
     "category": "trophy",
-    "title": "推ししか勝たん",
+    "title": "マイセレクト・ベスト30",
     "description": "登録した推しキャラの総数が 30人 を突破した。",
     "rank": "gold",
     "is_secret": false
@@ -389,7 +389,7 @@
   {
     "id": "oshi_4",
     "category": "trophy",
-    "title": "百花繚乱のハーレムマスター",
+    "title": "推しキャラ・マスター",
     "description": "登録した推しキャラの総数が 60人 を突破した。",
     "rank": "platinum",
     "is_secret": false
@@ -473,7 +473,7 @@
   {
     "id": "history_1",
     "category": "trophy",
-    "title": "まずは1ヶ月の熱量",
+    "title": "まずは1ヶ月の歩み",
     "description": "アカウント作成から 30日 が経過したアニオタの歩み。",
     "rank": "bronze",
     "is_secret": false
@@ -489,7 +489,7 @@
   {
     "id": "history_3",
     "category": "trophy",
-    "title": "年間最優秀ログ・アワード",
+    "title": "年間ログ・アワード",
     "description": "アカウント作成から 365日（1年）が経過した、もはや生活の一部。",
     "rank": "gold",
     "is_secret": false
@@ -497,7 +497,7 @@
   {
     "id": "history_4",
     "category": "trophy",
-    "title": "歴史を紡ぎし円盤コレクター",
+    "title": "タイムラインの証明",
     "description": "アカウント作成から 730日（2年）を超えて記録を続ける生ける伝説。",
     "rank": "platinum",
     "is_secret": false

@@ -774,7 +774,7 @@
         <div id="trophyPageArea" class="hidden">
           <div class="trophy-page-summary">
             <div class="summary-counter-block">
-              <div class="summary-counter-label">TOTAL TROPHIES</div>
+              <div class="summary-counter-label">通常トロフィー</div>
               <div class="trophy-progress-badge">
                 <span class="counter-highlight-num" id="unlockedTrophyCount"
                   >0</span
@@ -784,7 +784,7 @@
             </div>
 
             <div class="summary-counter-block">
-              <div class="summary-counter-label">ANIME MEDALS</div>
+              <div class="summary-counter-label">オタク勲章</div>
               <div class="trophy-progress-badge">
                 <span
                   class="counter-highlight-num"
@@ -828,7 +828,7 @@
                   accent-color: #9333ea;
                 "
               />
-              <span>オタク勲章（ファン称号）を表示する</span>
+              <span>オタク勲章を表示する</span>
             </label>
           </div>
 
@@ -1853,6 +1853,409 @@
         </div>
       </div>
     </div>
+    <div id="myPageModal" class="modal-overlay hidden">
+      <div class="modal-content glass-panel animate-pop">
+        <button class="modal-close-btn" onclick="closeModal('myPageModal')">
+          ✕
+        </button>
+
+        <h2 class="mypage-title">マイページ</h2>
+        <div class="profile-edit-container">
+          <div class="profile-img-section">
+            <div id="profileAvatarWrapper" class="profile-avatar-wrapper">
+              ME
+            </div>
+            <div class="profile-input-group">
+              <label
+                >アイコン画像リンク
+                <button
+                  id="clearIconBtn"
+                  class="btn-clear-icon pop-up-animation"
+                >
+                  ✕ 削除
+                </button>
+              </label>
+              <input
+                type="text"
+                id="profileImgUrl"
+                class="custom-input"
+                placeholder="画像のURLを入力"
+              />
+            </div>
+          </div>
+
+          <div class="profile-input-group profile-input-group-custom">
+            <label>表示名（Feedに表示される名前）</label>
+            <input
+              type="text"
+              id="profileDisplayName"
+              class="custom-input"
+              placeholder="例：自分"
+            />
+          </div>
+
+          <div class="profile-input-group profile-input-group-custom">
+            <label>アカウントID（@の後の英数字）</label>
+            <input
+              type="text"
+              id="profileName"
+              class="custom-input"
+              placeholder="例：otaku_log"
+            />
+          </div>
+
+          <form
+            id="geminiKeyForm"
+            action="#"
+            onsubmit="return false;"
+            class="profile-input-group profile-input-group-custom"
+          >
+            <input
+              type="text"
+              id="geminiUserEmailHidden"
+              name="username"
+              autocomplete="username"
+              style="display: none"
+            />
+            <label
+              >あらすじ生成用 Gemini APIキー（無料枠：1日 500回まで）</label
+            >
+            <div class="api-key-input-wrapper">
+              <input
+                type="password"
+                id="geminiApiKeyInput"
+                name="password"
+                autocomplete="current-password"
+                class="custom-input api-key-input"
+                placeholder="AIzaSy...（入力するとブラウザに安全に保存されます）"
+              />
+              <button
+                type="button"
+                id="togglePasswordBtn"
+                class="btn-toggle-password"
+                aria-label="パスワードの表示切り替え"
+              >
+                <svg
+                  id="eyeIcon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="svg-eye-icon"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          <div class="profile-actions mt-6 text-center">
+            <button id="saveProfileBtn" class="btn-save btn-profile-save">
+              プロフィールを保存
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="aboutModal" class="modal-overlay hidden">
+      <div
+        class="modal-content glass-panel animate-pop"
+        style="max-width: 450px"
+      >
+        <button class="modal-close-btn" onclick="closeModal('aboutModal')">
+          ✕
+        </button>
+        <h2 class="mypage-title" style="text-align: center">
+          オタクログとは？
+        </h2>
+        <div
+          style="
+            font-family: var(--f-jp);
+            font-size: 13px;
+            color: var(--c-black);
+            line-height: 1.8;
+            text-align: left;
+            padding: 0 10px;
+          "
+        >
+          <p
+            style="
+              font-weight: 800;
+              color: var(--c-blue);
+              text-align: center;
+              font-size: 15px;
+              margin-bottom: 15px;
+            "
+          >
+            "自分の好き"を安全にローカル管理する<br />可愛いアニメ記録システム
+          </p>
+          <p>
+            オタクログは、外部のサーバーにあなたの個人情報や視聴記録を一切保存しない、新しい形のアニメ管理ツールです。
+          </p>
+          <p>
+            ログインに使用したユーザー自身の<strong
+              >Google ドライブ（スプレッドシート）</strong
+            >をデータベースとして直接読み書きするため、データが漏洩する心配がなく、自分だけの秘密のログを安全に蓄積できます。
+          </p>
+          <p
+            style="
+              font-size: 11px;
+              color: #64748b;
+              border-top: 1px dashed var(--c-border);
+              padding-top: 10px;
+              margin-top: 15px;
+            "
+          >
+            ※本アプリは、作品データの取得に AniList API、あらすじの自動生成に
+            Gemini API を利用しています。
+          </p>
+        </div>
+      </div>
+    </div>
+    <div id="termsModal" class="modal-overlay hidden">
+      <div
+        class="modal-content glass-panel animate-pop"
+        style="max-width: 600px"
+      >
+        <button class="modal-close-btn" onclick="closeModal('termsModal')">
+          ✕
+        </button>
+        <h2 class="mypage-title" style="text-align: center">利用規約</h2>
+        <div class="legal-modal-body">
+          <p>
+            この利用規約（以下「本規約」）は、OTAKU
+            LOG（以下「運営者」）が提供するアプリケーション「OTAKU
+            LOG（オタクログ）」（以下「本サービス」）の利用条件を定めるものです。本サービスをご利用いただく際は、本規約に同意したものとみなします。
+          </p>
+
+          <h3>第1条（はじめに・データ保存の仕組み）</h3>
+          <ul>
+            <li>
+              本サービスは、独自の外部データベースサーバーを持っていません。ユーザーが記録したすべてのアニメ視聴データ、プロフィール設定、およびAPIキー等は、<strong
+                >ユーザーご自身のGoogle ドライブ内（Google
+                スプレッドシート：anime_log_db）に直接保存</strong
+              >されます。
+            </li>
+            <li>
+              運営者がユーザーのデータを閲覧、収集、保持、またはバックアップすることは一切ありません。データの管理責任は完全にユーザー本人にあります。
+            </li>
+          </ul>
+
+          <h3>第2条（サービス内容と外部APIの利用）</h3>
+          <p>
+            本サービスは、アニメの視聴記録・管理、レビューの保存、視聴傾向の分析などの機能を提供します。
+          </p>
+          <ul>
+            <li>
+              <strong>AniList APIの利用：</strong>
+              本サービスは、外部サービス「AniList
+              API」を利用してアニメ情報を取得・表示しています。AniListのデータは有志のコミュニティによって維持されているため、内容が必ずしも正確、最新、または完全であるとは限りません。情報の誤りや遅延等について、運営者は一切の保証をしません。
+            </li>
+            <li>
+              <strong>Gemini APIの利用：</strong>
+              本サービスのあらすじ自動生成機能等は、Googleの提供する「Gemini
+              API」を利用しています。AIが生成するテキスト（あらすじ等）は、事実と異なる情報（ハルシネーション）やネタバレを含む可能性があります。
+            </li>
+            <li>
+              <strong>画像および著作権について：</strong>
+              表示されるアニメの画像・ロゴ等の著作権および知的財産権は、各作品の権利元またはAniListに帰属します。本サービスはこれらをAPI経由で一時的に表示しているのみであり、ユーザーがこれらの画像を不当にダウンロード、複製、転載、または商業利用することを固く禁じます。
+            </li>
+          </ul>
+
+          <h3>第3条（利用資格・年齢制限）</h3>
+          <ul>
+            <li>
+              本サービスは13歳以上の方を対象としています。13歳未満の方は利用できません。
+            </li>
+            <li>未成年の方は、保護者の同意を得た上でご利用ください。</li>
+          </ul>
+
+          <h3>第4条（Googleアカウント連携およびAPIキーの管理）</h3>
+          <ul>
+            <li>
+              本サービスの利用には、ユーザー自身のGoogleアカウントによるOAuth
+              2.0認証、および当アプリへの専用スプレッドシート読み書き権限（drive.file
+              スコープ）の付与が必要です。
+            </li>
+            <li>
+              アカウントの管理責任、およびユーザー自身が取得・登録したGemini
+              APIキーの管理責任はユーザー本人にあります。第三者への共有や漏洩による損害について、運営者は一切の責任を負いません。
+            </li>
+          </ul>
+
+          <h3>第5条（禁止事項）</h3>
+          <p>本サービスの利用にあたり、以下の行為を禁止します。</p>
+          <ul>
+            <li>法令または公序良俗に反する行為</li>
+            <li>
+              本サービスのシステム、APIの挙動を意図的に妨害、解析、または攻撃する行為
+            </li>
+            <li>本サービスのデータを無断で不正に収集・転用する行為</li>
+            <li>
+              他人のGoogleアカウントを利用して本サービスにログインを試みる行為
+            </li>
+            <li>その他、運営者が不適切と判断する行為</li>
+          </ul>
+
+          <h3>第6条（サービスの変更・停止・終了）</h3>
+          <p>
+            運営者は、事前の通知なく本サービスの内容を変更、または提供を停止・終了することがあります。これによりユーザーに生じた損害について、運営者は一切の責任を負いません。
+          </p>
+
+          <h3>第7条（免責事項）</h3>
+          <ul>
+            <li>
+              本サービスは現状有姿（そのままの状態）で提供されます。すべての機能が常に正常に動作すること、特定の目的に適合することを保証するものではありません。
+            </li>
+            <li>
+              ユーザーがGoogle
+              ドライブ内の専用ファイル（anime_log_db）をご自身の操作で誤って変更・削除・破損したことによるデータの損失について、運営者は一切の責任を負いません。
+            </li>
+            <li>
+              本サービスの利用に関連して発生したユーザーの損害（データの消失、端末の不具合、Googleアカウントへの制限等）について、運営者は故意または重大な過失がある場合を除き、責任を負いかねます。あらかじめご了承ください。
+            </li>
+          </ul>
+
+          <h3>第8条（規約の変更）</h3>
+          <p>
+            運営者は、必要に応じて本規約をいつでも変更できます。変更後の規約は、本サービス上に掲載した時点で効力を生じます。変更後も本サービスを利用した場合、変更後の規約に同意したものとみなします。
+          </p>
+
+          <h3>第9条（準拠法・管轄裁判所）</h3>
+          <p>
+            本規約は日本法に準拠し、本サービスに関する一切の紛争は、日本国内の運営者の指定する裁判所を第一審の専属的合意管轄裁判所とします。
+          </p>
+
+          <div class="legal-modal-date">最終更新日：2026年7月4日</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="privacyModal" class="modal-overlay hidden">
+      <div
+        class="modal-content glass-panel animate-pop"
+        style="max-width: 600px"
+      >
+        <button class="modal-close-btn" onclick="closeModal('privacyModal')">
+          ✕
+        </button>
+        <h2 class="mypage-title" style="text-align: center">
+          プライバシーポリシー
+        </h2>
+        <div class="legal-modal-body">
+          <p>
+            本アプリケーション「OTAKU
+            LOG（オタクログ）」（以下「本サービス」）は、ユーザーのプライバシー情報の保護を最優先に考え、以下の通りプライバシーポリシーを定めます。
+          </p>
+
+          <h3>1. 取得・アクセスする情報</h3>
+          <p>
+            本サービスは、Google OAuth 2.0
+            認証システムを利用して、ユーザーの以下の情報にアクセス、およびアプリ内で利用します。
+          </p>
+          <ul>
+            <li>
+              <strong>アカウント情報（メールアドレス・プロフィール）：</strong>
+              ユーザーの識別、ログイン状態の維持、およびアプリ内でのユーザー名やアイコン画像の初期表示のために利用します。
+            </li>
+            <li>
+              <strong>視聴記録・感想・設定データ：</strong>
+              ユーザーが記録したアニメのタイトル、評価、話数、レビュー、およびカスタムプロフィール設定等は、すべてデータ保存用ファイルに記録されます。
+            </li>
+            <li>
+              <strong>APIキー情報：</strong> ユーザーが任意で登録する「Gemini
+              APIキー」は、AI機能の実行のためにのみ利用されます。
+            </li>
+          </ul>
+
+          <h3>2. データの管理と保存場所（重要）</h3>
+          <ul>
+            <li>
+              <strong>外部サーバーへの非保存：</strong>
+              本サービスは独自の外部データベースサーバー（Supabaseや独自のバックエンド等）を持っていません。ユーザーのアニメ記録、設定、Gemini
+              APIキー等を含むすべてのデータは、<strong
+                >ユーザーご自身の Google ドライブ内に直接保存（Google
+                スプレッドシート：anime_log_db）</strong
+              >されます。
+            </li>
+            <li>
+              開発者を含む第三者がこれらのデータにアクセスし、収集・蓄積・閲覧することは技術的に不可能です。
+            </li>
+          </ul>
+
+          <h3>3. 利用目的</h3>
+          <p>アクセスおよび保持された情報は、以下の目的でのみ利用します。</p>
+          <ul>
+            <li>本サービスの提供・画面上への視聴記録の表示および管理</li>
+            <li>Googleアカウントによるユーザー認証・マイページ管理</li>
+            <li>外部API（AniList / Gemini）との安全な連携</li>
+          </ul>
+
+          <h3>4. 外部サービスの利用およびサードパーティへの共有</h3>
+          <ul>
+            <li>
+              <strong>AniList API：</strong>
+              アニメの作品情報やカバー画像の取得のために利用しています。検索や情報取得に必要な範囲（作品ID等）でのみ通信を行い、ユーザーの個人情報が送信されることはありません。
+            </li>
+            <li>
+              <strong>Gemini API：</strong>
+              あらすじ自動生成などのAI機能の実行時に利用します。テキスト生成のために必要なプロンプト（作品情報など）がGoogleのAPIに送信されますが、ユーザーの個人情報が送信されることはありません。
+            </li>
+            <li>
+              <strong>第三者提供について：</strong>
+              法律に基づく正当な要請がある場合を除き、取得したユーザー情報を第三者に共有・販売・開示することは一切ありません。
+            </li>
+          </ul>
+
+          <h3>5. データの削除・連携解除について</h3>
+          <p>
+            本サービスはデータを保持するサーバーを持たないため、一般的な「退会手続き」のボタンはありません。データの消去および連携解除はユーザー自身でいつでも自由に行うことができます。
+          </p>
+          <ul>
+            <li>
+              <strong>連携の解除：</strong>
+              Googleアカウントのセキュリティ設定（サードパーティ製のアプリとサービス）から、本サービスのアクセス権限をいつでも削除できます。
+            </li>
+            <li>
+              <strong>データの完全削除：</strong>
+              ユーザーご自身のGoogleドライブ内にある専用ファイル（anime_log_db）を削除することで、本サービスに関わるすべてのデータを完全に消去できます。
+            </li>
+          </ul>
+
+          <h3>6. お問い合わせ</h3>
+          <p>
+            本サービスに関するお問い合わせや開発者へのご連絡は、公開元（GitHubリポジトリのIssueや、開発者のSNS等）の窓口よりお願いいたします。
+          </p>
+
+          <div class="legal-modal-date">最終更新日：2026年7月4日</div>
+        </div>
+      </div>
+    </div>
+    <footer class="app-common-footer">
+      <div class="footer-links-row">
+        <a href="#" class="footer-link-item" id="footerAboutBtn"
+          >オタクログとは</a
+        >
+        <span class="footer-divider">|</span>
+        <a href="#" class="footer-link-item" id="footerTermsBtn">利用規約</a>
+        <span class="footer-divider">|</span>
+        <a href="#" class="footer-link-item" id="footerPrivacyBtn"
+          >プライバシーポリシー</a
+        >
+        <span class="footer-divider">|</span>
+        <span class="footer-provider"
+          >データ提供:
+          <a href="https://anilist.co" target="_blank" rel="noopener noreferrer"
+            >AniList</a
+          ></span
+        >
+        <span class="footer-cr">&copy; 2026 OTAKU LOG.</span>
+      </div>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://apis.google.com/js/api.js"></script>
