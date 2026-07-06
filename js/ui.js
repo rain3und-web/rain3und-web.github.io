@@ -2,36 +2,39 @@
 // 🎨 js/ui.js：画面の描画・見た目の制御（UI専用）
 // =========================================================
 
-// -----------------------------------------
-// ② 画面全体の切り替え・更新に関する関数
-// -----------------------------------------
-
+/**
+ * ② 画面全体の切り替え・表示更新に関する制御
+ */
 window.switchView = function (viewType) {
   window.currentView = viewType;
   window.filterQuery = null;
 
-  // 1. すべてのエリアを一旦隠す（💡 trophyPageArea を追加）
-  document.getElementById("animeGrid").classList.add("hidden");
-  if (document.getElementById("listViewArea"))
-    document.getElementById("listViewArea").classList.add("hidden");
-  if (document.getElementById("myPageArea"))
-    document.getElementById("myPageArea").classList.add("hidden");
-  if (document.getElementById("oshiCharaArea"))
-    document.getElementById("oshiCharaArea").classList.add("hidden");
-  if (document.getElementById("trophyPageArea"))
-    document.getElementById("trophyPageArea").classList.add("hidden"); // 👈 追加
+  const areas = [
+    "animeGrid",
+    "listViewArea",
+    "myPageArea",
+    "oshiCharaArea",
+    "trophyPageArea",
+    "quoteLibraryArea",
+    "statsPageArea",
+  ];
 
-  // ★ 統計画面を閉じる時はスライドダウンも確実に解除する！
-  const statsArea = document.getElementById("statsPageArea");
-  if (statsArea) {
-    statsArea.classList.add("hidden");
-    statsArea.classList.remove("slide-down");
-  }
+  // 一旦すべての個別画面を隠す
+  areas.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add("hidden");
+      if (id === "statsPageArea") el.classList.remove("slide-down");
+    }
+  });
 
+  // 共通パーツの一時非表示
   document.getElementById("mainActionRow").style.display = "none";
   document.getElementById("mainFilterRow").style.display = "none";
   document.getElementById("breadcrumbArea").classList.add("hidden");
+  document.getElementById("dynamicReturnBtn")?.remove(); // 戻るボタンの残像完全消滅魔法！
 
+  // 目的の画面をピンポイントで覚醒
   if (viewType === "home") {
     document.getElementById("mainActionRow").style.display = "flex";
     document.getElementById("mainFilterRow").style.display = "flex";
@@ -42,33 +45,39 @@ window.switchView = function (viewType) {
   } else if (viewType === "oshiChara") {
     document.getElementById("oshiCharaArea").classList.remove("hidden");
     document.getElementById("breadcrumbArea").classList.remove("hidden");
-    const goldHeartSvg = `<svg class="oshi-title-heart" viewBox="0 0 24 24" fill="#F9C106"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-    document.getElementById("viewTitle").innerHTML =
-      `${goldHeartSvg}推しキャラコレクション`;
+    document.getElementById("viewTitle").innerHTML = `推しキャラコレクション`;
     window.renderGlobalOshiView();
   } else if (viewType === "trophy") {
-    // 🚀 【ここを追加！】トロフィーページの切り替えロジック
     document.getElementById("trophyPageArea").classList.remove("hidden");
-    document.getElementById("breadcrumbArea").classList.remove("hidden"); // パンくずを表示
-
-    // ゴールドに輝くトロフィーアイコン付きのタイトルに設定
-    const goldTrophySvg = `<svg class="oshi-title-heart" viewBox="0 0 24 24" fill="#EAB308"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>`;
-    document.getElementById("viewTitle").innerHTML =
-      `${goldTrophySvg}達成トロフィー`;
-
-    // トロフィーの描画関数を実行（あとで js/pages/trophies.js に作る関数）
-    if (typeof window.renderTrophyPage === "function") {
+    document.getElementById("breadcrumbArea").classList.remove("hidden");
+    document.getElementById("viewTitle").innerHTML = `達成トロフィー`;
+    if (typeof window.renderTrophyPage === "function")
       window.renderTrophyPage();
-    }
+  } else if (viewType === "quoteLibrary") {
+    document.getElementById("quoteLibraryArea").classList.remove("hidden");
+    document.getElementById("breadcrumbArea").classList.remove("hidden");
+    document.getElementById("viewTitle").innerHTML = `名言ライブラリ`;
+    if (typeof window.renderQuoteLibraryPage === "function")
+      window.renderQuoteLibraryPage();
   } else if (viewType === "stats") {
-    statsArea.classList.remove("hidden");
-    document.getElementById("breadcrumbArea").classList.add("hidden");
+    document.getElementById("statsPageArea").classList.remove("hidden");
     window.renderStatsPage();
   } else {
     document.getElementById("listViewArea").classList.remove("hidden");
     window.renderListView(viewType);
   }
 
+  // サイドパネルのボタンのアクティブ状態を完全同期
+  const navBtns = document.querySelectorAll(".nav-btn");
+  navBtns.forEach((btn) => {
+    if (btn.getAttribute("data-view") === viewType) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  // スクロール位置のリセット
   setTimeout(() => {
     const scrollAreas = [
       "animeGrid",
@@ -77,7 +86,8 @@ window.switchView = function (viewType) {
       "myPageArea",
       "oshiCharaArea",
       "statsPageArea",
-      "trophyPageArea", // 👈 スクロール位置リセット対象に追加
+      "trophyPageArea",
+      "quoteLibraryArea",
     ];
     scrollAreas.forEach((id) => {
       const el = document.getElementById(id);
@@ -86,13 +96,9 @@ window.switchView = function (viewType) {
   }, 10);
 };
 
-// -----------------------------------------
-// ③ 各種リストやカード一覧（グリッド）の描画関数
-// -----------------------------------------
-
-// ==========================================
-// 💡 絞り込み実行（★スクロールを戻す魔法を追加）
-// ==========================================
+/**
+ * ③ データの絞り込みと画面連動処理
+ */
 window.applyFilter = function (type, value, fromStats = false) {
   window.filterQuery = { type, value, fromStats };
   window.currentView = "home";
@@ -101,9 +107,14 @@ window.applyFilter = function (type, value, fromStats = false) {
   document.getElementById("mainFilterRow").style.display = "flex";
   document.getElementById("animeGrid").classList.remove("hidden");
 
+  // 🌟【追加】推しキャラコレクション画面のコンテナを非表示にして隠す
+  const oshiContainer = document.getElementById("oshiCharaArea");
+  if (oshiContainer) {
+    oshiContainer.classList.add("hidden");
+  }
+
   const statsArea = document.getElementById("statsPageArea");
   if (fromStats && statsArea) {
-    // ★これ！下の方のスタッフを押しても、一番上に戻してからスライドさせるので確実に文字が見える！
     statsArea.scrollTop = 0;
     statsArea.classList.add("slide-down");
   } else if (statsArea) {
@@ -119,10 +130,22 @@ window.applyFilter = function (type, value, fromStats = false) {
   }, 10);
 };
 
-// -----------------------------------------
-// ④ モーダルやUIパーツの更新に関する関数
-// -----------------------------------------
+window.applySearchSuggest = function (type, value) {
+  document.getElementById("mainSearchInput").value = "";
+  document.getElementById("searchSuggestBox").classList.add("hidden");
+  window.filterQuery = {
+    type: type === "title" ? "search" : type,
+    value: value,
+  };
+  window.currentView = "home";
+  window.renderGrid();
+};
 
+/**
+ * ④ モーダルやUI内部パーツの描画・更新に関する処理
+ */
+
+// 編集モーダル：現在の選択中声優リストの構築
 window.updateActorCurrentList = function () {
   let rawVal = document.getElementById("editVoiceActors").value;
   let currentTags = rawVal
@@ -131,6 +154,7 @@ window.updateActorCurrentList = function () {
         .map((s) => s.replace(/\n/g, "").trim())
         .filter(Boolean)
     : [];
+
   currentTags.sort((a, b) => {
     const getReading = (str) => {
       const match = str.match(/\[(.*?)\]/);
@@ -138,6 +162,7 @@ window.updateActorCurrentList = function () {
     };
     return getReading(a).localeCompare(getReading(b));
   });
+
   document.getElementById("editVoiceActors").value = currentTags.join(", ");
   const listContainer = document.getElementById("actorCurrentList");
   if (!listContainer) return;
@@ -147,8 +172,8 @@ window.updateActorCurrentList = function () {
     const displayTag = tag.replace(/\[[\s\S]*?\]/g, "");
     const div = document.createElement("div");
     div.className = "actor-remove-item pop-up-animation";
-
     div.innerHTML = `<span class="actor-remove-name">${displayTag}</span> <button type="button" class="actor-remove-btn" data-idx="${idx}" title="削除">✕</button>`;
+
     div.querySelector(".actor-remove-btn").onclick = (e) => {
       const index = e.currentTarget.getAttribute("data-idx");
       let tags = document
@@ -165,22 +190,56 @@ window.updateActorCurrentList = function () {
   });
 };
 
+// 編集モーダル：ジャンル選択ポップアップの内容生成
+window.openGenreModalPopup = function () {
+  const genrePopup = document.getElementById("genrePopup");
+  if (!genrePopup) return;
+  genrePopup.classList.toggle("hidden");
+  document.getElementById("actorPopup")?.classList.add("hidden");
+
+  const currentGenres = document
+    .getElementById("editGenres")
+    .value.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const listContainer = document.getElementById("genreCheckboxList");
+  if (!listContainer) return;
+
+  listContainer.innerHTML = "";
+  // 💡注：genreMapが別ファイル定義の場合はwindow経由、または同階層で呼べる前提
+  Object.values(genreMap).forEach((genreName) => {
+    const isActive = currentGenres.includes(genreName);
+    const div = document.createElement("div");
+    div.className = `genre-check-label ${isActive ? "is-active" : ""}`;
+    div.innerText = genreName;
+    div.onclick = () => {
+      let tags = document.getElementById("editGenres").value
+        ? document
+            .getElementById("editGenres")
+            .value.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+      if (tags.includes(genreName)) {
+        tags = tags.filter((t) => t !== genreName);
+        div.classList.remove("is-active");
+      } else {
+        tags.push(genreName);
+        div.classList.add("is-active");
+      }
+      document.getElementById("editGenres").value = tags.join(", ");
+      window.renderGenres();
+    };
+    listContainer.appendChild(div);
+  });
+};
+
 window.renderGenres = () =>
   window.renderCuteChips("editGenres", "genresTagsDisplay", true);
 window.renderVoiceActors = () =>
   window.renderCuteChips("editVoiceActors", "voiceActorsTagsDisplay", false);
 
-window.applySearchSuggest = function (type, value) {
-  document.getElementById("mainSearchInput").value = "";
-  document.getElementById("searchSuggestBox").classList.add("hidden");
-  window.filterQuery = {
-    type: type === "title" ? "search" : type,
-    value: value,
-  };
-  window.currentView = "home";
-  window.renderGrid();
-};
-
+// 編集モーダル：監督の入力サジェスト生成
 let directorSearchTimeout;
 window.searchDirectorSuggest = function (query) {
   clearTimeout(directorSearchTimeout);
@@ -193,6 +252,7 @@ window.searchDirectorSuggest = function (query) {
   }
   suggestBox.classList.remove("hidden");
   suggestBox.innerHTML = '<div class="suggest-message">検索中...</div>';
+
   directorSearchTimeout = setTimeout(async () => {
     try {
       const staffList = await window.fetchStaffFromAnilist(query);

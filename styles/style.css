@@ -35,6 +35,7 @@
 @import url("./pages/login.css");
 @import url("./pages/profile.css");
 @import url("./pages/trophies.css");
+@import url("./pages/quotes.css");
 
 /* 一番下に追記：iPad用のレスポンシブ設定 */
 @import url("./responsive.css");

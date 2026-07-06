@@ -62,7 +62,7 @@
 
 /* 分母用の斜線と数字 */
 .counter-total-num {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--c-text-gray);
   font-family: var(--f-eng);
   font-weight: 600;

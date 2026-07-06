@@ -226,12 +226,3 @@ const formatMap = {
   ONA: "ONA",
   SPECIAL: "スペシャル",
 };
-// 💡 カードでも表示を日本語に翻訳するための辞書
-const formatTranslationMap = {
-  TV: "TV",
-  TV_SHORT: "ショート",
-  MOVIE: "映画",
-  OVA: "OVA",
-  ONA: "ONA",
-  SPECIAL: "スペシャル",
-};

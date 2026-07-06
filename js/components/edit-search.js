@@ -1,56 +1,14 @@
-// -----------------------------------------
-// ③ 検索・予測変換（サジェスト）機能
-// -----------------------------------------
-// 【メイン検索】
-document.getElementById("mainSearchInput")?.addEventListener("input", (e) => {
-  const query = e.target.value.toLowerCase().trim();
-  const suggestBox = document.getElementById("searchSuggestBox");
-  if (query.length < 1) {
-    suggestBox.classList.add("hidden");
-    if (window.filterQuery && window.filterQuery.type === "search")
-      window.filterQuery = null;
-    window.renderGrid();
-    return;
-  }
-  let suggestions = [];
-  window.animeDB.forEach((a) => {
-    if (a.title.toLowerCase().includes(query))
-      suggestions.push({ type: "title", label: a.title, badge: "作品" });
-    if (a.studio && a.studio.toLowerCase().includes(query))
-      suggestions.push({ type: "studio", label: a.studio, badge: "制作" });
-    if (a.director) {
-      let name = a.director.replace(/[\r\n]/g, "").trim();
-      if (name.toLowerCase().includes(query))
-        suggestions.push({ type: "director", label: name, badge: "監督" });
-    }
-    if (a.cast) {
-      a.cast.split(",").forEach((c) => {
-        let name = c.replace(/[\r\n]/g, "").trim();
-        if (name.toLowerCase().includes(query))
-          suggestions.push({ type: "voiceActor", label: name, badge: "声優" });
-      });
-    }
-  });
-  let uniqueMap = new Map();
-  suggestions.forEach((item) => {
-    uniqueMap.set(item.label + item.type, item);
-  });
-  let uniqueList = Array.from(uniqueMap.values()).slice(0, 10);
-  if (uniqueList.length > 0) {
-    suggestBox.innerHTML = uniqueList
-      .map((s) => {
-        const displayLabel = s.label.replace(/\[[^\]]*\]/g, "").trim();
-        const safeLabel = s.label.replace(/'/g, "\\'");
-        return `<div class="suggest-item" onclick="window.applySearchSuggest('${s.type}', '${safeLabel}')"><span class="suggest-badge">${s.badge}</span> ${displayLabel}</div>`;
-      })
-      .join("");
-    suggestBox.classList.remove("hidden");
-  } else {
-    suggestBox.classList.add("hidden");
-  }
-});
+// =========================================================
+// 🎬 js/components/edit-search.js：モーダル専用検索・UI制御
+// 編集・追加モーダル内にある各種検索入力の動きを管理します。
+// =========================================================
 
-// 【アニメ追加検索(AniList)】
+// 🌟 対象アニメのキャラクター一覧を一時保存する変数
+let currentAnimeCharacters = [];
+
+// -----------------------------------------
+// ① モーダル内の「アニメ追加検索(AniList)」機能
+// -----------------------------------------
 let searchTimeout;
 document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
   clearTimeout(searchTimeout);
@@ -76,7 +34,6 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
         const studio = window.translateStudio(rawStudio);
         const img = anime.coverImage.large;
 
-        // ★シーズンを廃止し、純粋な「年」と「時間」だけにする
         const durationStr = anime.duration ? `(${anime.duration}分/話)` : "";
         const meta = `${anime.seasonYear || "不明"} ${anime.format || ""} ${anime.episodes ? "全" + anime.episodes + "話" : ""} ${durationStr}`;
 
@@ -134,18 +91,13 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
                         </div><button class="btn-pop-add">＋ 追加</button>
                     `;
         div.querySelector("button").onclick = async (e) => {
-          // 1. クリックされたボタンを取得
           const btn = e.currentTarget;
-
-          // 🌟【大復活！】アニリストの生データを丸ごと一時保管庫に叩き込む！
-          // これにより、画面（UI）を汚すことなく裏で anime.season が app.js へ引き継がれます
           window.currentActiveAnime = anime;
 
-          // 2. ボタンをローディング状態にする（CSSクラスで制御）
           btn.classList.add("is-loading");
           const originalText = btn.innerText;
           btn.innerText = "取得中...";
-          btn.disabled = true; // 連打防止
+          btn.disabled = true;
 
           try {
             const existingData = window.animeDB.find(
@@ -156,47 +108,34 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
                 ? existingData.synopsis
                 : "";
 
-            // -----------------------------------------------------------------
-            // 3. 既存のあらすじの判定 ＆ 誤操作による手書きあらすじ上書き完全防衛ガード
-            // -----------------------------------------------------------------
             const infoText =
               "（マイページでGemini APIキーを設定すると、AIによる自動あらすじ生成が有効になります）";
 
-            // 「まだあらすじが無い」または「あらすじ欄がただの初期案内テキストのまま」の場合のみ、上書き・生成の対象にする
             const isSynopsisEmptyOrGuide =
               !synopsis_jp ||
               synopsis_jp === infoText ||
               synopsis_jp.includes("Gemini APIキーを設定すると");
 
             if (isSynopsisEmptyOrGuide && anime.description) {
-              // 新規生成、または案内テキストからのアップデート時のみGeminiを呼び出す
               synopsis_jp = await window.translateSynopsis(
                 anime.description,
                 title,
               );
             } else if (existingData && existingData.synopsis) {
-              // 🌟 手書きのあらすじ、または過去にGeminiが生成したあらすじが既にある場合は、絶対に上書きせず死守する！
               synopsis_jp = existingData.synopsis;
-              console.log(
-                "🔒 ユーザーの手書きあらすじ、または既存ログを検出。上書きを完全にブロックしました。",
-              );
+              console.log("🔒 既存のあらすじを保護しました。");
             }
 
-            // ★元々あった処理：SAVEボタンに確定したあらすじをこっそり持たせておく
-            const saveBtn = document.getElementById("saveBtn");
-            if (saveBtn) saveBtn.dataset.synopsis = synopsis_jp;
-            // -----------------------------------------------------------------
-            // 4. データが揃ったらモーダルを開く
             window.openEditModal(null, {
               anilist_id: String(anime.id),
               title: title,
-              synopsis: synopsis_jp, // ★ここで取得したあらすじを渡す！
+              synopsis: synopsis_jp,
               year:
                 existingData && existingData.year
                   ? existingData.year
                   : `${anime.seasonYear || ""}${window.translateSeason ? window.translateSeason(anime.season) : ""}`,
               format: anime.format,
-              eps: anime.episodes ? "全" + anime.episodes + "話" : "",
+              eps: anime.episodes ? anime.episodes : "",
               duration:
                 existingData && existingData.duration
                   ? existingData.duration
@@ -222,8 +161,8 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
           } catch (err) {
             console.error("データ取得エラー:", err);
             alert("アニメ情報の取得中にエラーが発生しました。");
-          } finally {
-            // 5. 処理が終わったらローディング状態を解除
+          }
+          {
             btn.classList.remove("is-loading");
             btn.innerText = originalText;
             btn.disabled = false;
@@ -237,7 +176,10 @@ document.getElementById("addSearchInput")?.addEventListener("input", (e) => {
     }
   }, 600);
 });
-// 【声優検索】
+
+// -----------------------------------------
+// ② モーダル内の「声優検索」機能
+// -----------------------------------------
 let actorSearchTimeout;
 document.getElementById("actorSearchInput")?.addEventListener("input", (e) => {
   clearTimeout(actorSearchTimeout);
@@ -300,77 +242,153 @@ document.getElementById("actorSearchInput")?.addEventListener("input", (e) => {
   }, 500);
 });
 
-// 【キャラ検索】
-let charSearchTimeout;
-document.getElementById("charSearchInput")?.addEventListener("input", (e) => {
-  clearTimeout(charSearchTimeout);
-  const query = e.target.value.trim();
+// -----------------------------------------
+// ③ モーダル内の「キャラクター検索・サジェスト」表示処理
+// -----------------------------------------
+function renderCharacterSuggestBox(charactersToDisplay) {
   const suggestBox = document.getElementById("charSuggestBox");
   if (!suggestBox) return;
-  if (query.length < 1) {
-    suggestBox.innerHTML = "";
+  suggestBox.innerHTML = "";
+
+  if (charactersToDisplay.length === 0) {
+    suggestBox.innerHTML =
+      '<div class="suggest-message error">見つかりませんでした</div>';
     return;
   }
 
-  // 🌟 修正1：検索中メッセージを共通クラスに！
-  suggestBox.innerHTML = '<div class="suggest-message">検索中...</div>';
+  charactersToDisplay.forEach((edge) => {
+    const c = edge.node;
+    const cName = c.name.native || c.name.full;
+    const voiceActors = edge.voiceActors || [];
 
-  charSearchTimeout = setTimeout(async () => {
-    try {
-      const charList = await window.searchCharacterFromAnilist(query);
-      suggestBox.innerHTML = "";
-      if (charList && charList.length > 0) {
-        charList.forEach((c) => {
-          const cName = c.name.native || c.name.full;
-          const div = document.createElement("div");
-          div.className = "voiceActor-chara-suggest-item pop-up-animation";
+    const div = document.createElement("div");
+    div.className = "voiceActor-chara-suggest-item pop-up-animation";
+    div.innerHTML = `<img src="${c.image?.large || ""}" class="suggest-char-img"> ${cName} を追加`;
 
-          // 🌟 修正2：新人さん（アイコン画像）をクラスに置き換え！
-          div.innerHTML = `<img src="${c.image?.large || ""}" class="suggest-char-img"> ${cName} を追加`;
-
-          div.onclick = () => {
-            let chars = [];
-            const rawVal = document.getElementById("editCharacters").value;
-            if (rawVal)
-              try {
-                chars = JSON.parse(rawVal);
-              } catch (err) {}
-            if (!chars.find((x) => x.id === c.id)) {
-              chars.push({
-                id: c.id,
-                name: cName,
-                img: c.image?.large || "",
-                isOshi: false,
-              });
-              document.getElementById("editCharacters").value =
-                JSON.stringify(chars);
-            }
-            document.getElementById("charSearchInput").value = "";
-            suggestBox.innerHTML = "";
-            document
-              .getElementById("charaSearchContainer")
-              ?.classList.add("hidden");
-            window.renderCharacterList();
-          };
-          suggestBox.appendChild(div);
-        });
-      } else {
-        // 🌟 修正3：見つからない時のメッセージも共通クラスに！
-        suggestBox.innerHTML =
-          '<div class="suggest-message error">見つかりませんでした</div>';
+    div.onclick = () => {
+      let chars = [];
+      const rawVal = document.getElementById("editCharacters").value;
+      if (rawVal) {
+        try {
+          chars = JSON.parse(rawVal);
+        } catch (err) {}
       }
-    } catch (err) {
-      // 🌟 修正4：エラー時のメッセージも共通クラスに！
-      suggestBox.innerHTML =
-        '<div class="suggest-message error">エラーが発生しました</div>';
+      if (!chars.find((x) => x.id === c.id)) {
+        chars.push({
+          id: c.id,
+          name: cName,
+          img: c.image?.large || "",
+          isOshi: false,
+        });
+        document.getElementById("editCharacters").value = JSON.stringify(chars);
+      }
+
+      if (voiceActors.length > 0) {
+        const va = voiceActors[0];
+        const vaNative = va.name.native;
+        const vaFull = va.name.full;
+        let vaName = vaNative || vaFull;
+        if (vaNative && vaFull && vaNative !== vaFull) {
+          vaName = `${vaNative}[${full}]`;
+        }
+        vaName = vaName.replace(/\n/g, "").trim();
+
+        let actorTags = document.getElementById("editVoiceActors").value
+          ? document
+              .getElementById("editVoiceActors")
+              .value.split(",")
+              .map((s) => s.replace(/\n/g, "").trim())
+              .filter(Boolean)
+          : [];
+
+        if (!actorTags.includes(vaName)) {
+          actorTags.push(vaName);
+          document.getElementById("editVoiceActors").value =
+            actorTags.join(", ");
+          if (typeof window.updateActorCurrentList === "function")
+            window.updateActorCurrentList();
+          if (typeof window.renderVoiceActors === "function")
+            window.renderVoiceActors();
+        }
+      }
+
+      document.getElementById("charSearchInput").value = "";
+      suggestBox.innerHTML = "";
+      document.getElementById("charaSearchContainer")?.classList.add("hidden");
+      if (typeof window.renderCharacterList === "function")
+        window.renderCharacterList();
+    };
+    suggestBox.appendChild(div);
+  });
+}
+
+// -----------------------------------------
+// ④ モーダル内の「キャラ一覧を開く」処理
+// -----------------------------------------
+async function openCharacterDropdown() {
+  const suggestBox = document.getElementById("charSuggestBox");
+  if (!suggestBox) return;
+
+  suggestBox.innerHTML =
+    '<div class="suggest-message">キャラクター一覧を読み込み中...</div>';
+  suggestBox.classList.remove("hidden");
+
+  let currentAnilistId = document.getElementById("editAnilistId")?.value;
+
+  if (!currentAnilistId && window.currentEditingAnime) {
+    currentAnilistId = window.currentEditingAnime.anilist_id;
+  }
+
+  if (!currentAnilistId) {
+    suggestBox.innerHTML =
+      '<div class="suggest-message error">アニメIDが特定できません</div>';
+    return;
+  }
+
+  try {
+    if (currentAnimeCharacters.length === 0) {
+      currentAnimeCharacters =
+        await window.fetchAnimeCharactersAndActors(currentAnilistId);
     }
-  }, 500);
+    renderCharacterSuggestBox(currentAnimeCharacters);
+  } catch (err) {
+    suggestBox.innerHTML =
+      '<div class="suggest-message error">読み込みに失敗しました</div>';
+  }
+}
+
+// -----------------------------------------
+// ⑤ キャラ検索欄の入力イベント（絞り込み）
+// -----------------------------------------
+document.getElementById("charSearchInput")?.addEventListener("input", (e) => {
+  const query = e.target.value.trim().toLowerCase();
+  const suggestBox = document.getElementById("charSuggestBox");
+  if (!suggestBox) return;
+
+  if (query.length === 0) {
+    if (currentAnimeCharacters.length > 0) {
+      renderCharacterSuggestBox(currentAnimeCharacters);
+    } else {
+      suggestBox.innerHTML = "";
+    }
+    return;
+  }
+
+  const filteredChars = currentAnimeCharacters.filter((edge) => {
+    const cNameFull = (edge.node.name.full || "").toLowerCase();
+    const cNameNative = (edge.node.name.native || "").toLowerCase();
+    return cNameFull.includes(query) || cNameNative.includes(query);
+  });
+
+  renderCharacterSuggestBox(filteredChars);
 });
 
-// 【監督検索】
+// -----------------------------------------
+// ⑥ モーダル内の「監督検索」機能
+// -----------------------------------------
 document.getElementById("editDirector")?.addEventListener("input", (e) => {
   const query = e.target.value.trim();
-  document.getElementById("editDirectorRaw").value = query; // 手動入力時はそのまま同期
+  document.getElementById("editDirectorRaw").value = query;
   if (typeof window.searchDirectorSuggest === "function")
     window.searchDirectorSuggest(query);
 });

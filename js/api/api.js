@@ -1,7 +1,11 @@
 // =================================================================
-// 📊 スプレッドシート 管理 (api.js) - 列名自動マッピング版（行指定完全廃止）
+// 📊 js/api/api.js：スプレッドシート管理（完全列名自動マッピング版）
+// Google Sheets APIと通信し、アニメ・プロファイル・トロフィーの同期を行います。
 // =================================================================
 
+/**
+ * Google APIの認証トークンがセットされているか確認・保証する安全関数
+ */
 function ensureGoogleToken() {
   if (typeof gapi !== "undefined" && gapi.client) {
     const token = gapi.client.getToken ? gapi.client.getToken() : null;
@@ -11,7 +15,10 @@ function ensureGoogleToken() {
   }
 }
 
-// 💡 ヘッダー行（1行目）から「列名 -> インデックス」のマップを自動で作る魔法の関数
+/**
+ * 💡 ヘッダー行（1行目）から「列名 -> インデックス」のマップを自動生成する
+ * これにより、ユーザーがスプシの列を入れ替えてもシステムがバグらなくなります
+ */
 function createColumnMap(headerRow) {
   const map = {};
   if (!headerRow) return map;
@@ -21,9 +28,13 @@ function createColumnMap(headerRow) {
   return map;
 }
 
-// -----------------------------------------
-// ① アニメデータを取得する（列名ベース）
-// -----------------------------------------
+// =================================================================
+// 🎬 1. アニメデータ（anime_log シート）の制御
+// =================================================================
+
+/**
+ * ① スプシから全アニメデータを取得する
+ */
 async function getAnimeDataFromDB(uid) {
   if (!window.userSpreadsheetId) return [];
   ensureGoogleToken();
@@ -31,7 +42,7 @@ async function getAnimeDataFromDB(uid) {
   try {
     console.log("📥 スプレッドシートからアニメデータを取得中...");
 
-    // 💡 変更：列指定を完全になくし、データがある分すべてをごそっと取る
+    // 💡 データの塊をごそっと一括取得（A1からZZまで制限なく全回収）
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
       range: "anime_log!A1:ZZ",
@@ -52,6 +63,7 @@ async function getAnimeDataFromDB(uid) {
           : defaultValue;
       };
 
+      // キャラクターデータのJSONパース処理（壊れたデータでも落ちない安全ガード付き）
       let parsedCharacters = [];
       const rawCharacters = getValue("characters");
       if (rawCharacters) {
@@ -65,7 +77,11 @@ async function getAnimeDataFromDB(uid) {
             parsedCharacters = rawCharacters;
           }
         } catch (e) {
-          parsedCharacters = rawCharacters;
+          console.warn(
+            "⚠️ キャラクターデータのパースに失敗、生データを保持します:",
+            e,
+          );
+          parsedCharacters = [];
         }
       }
 
@@ -97,9 +113,12 @@ async function getAnimeDataFromDB(uid) {
         img_position: getValue("img_position", "50% 50%"),
         memo: getValue("memo"),
         characters: parsedCharacters,
+        is_favorite: getValue("is_favorite", "false"),
+        favorite_quotes: getValue("favorite_quotes", ""),
       };
     });
 
+    // 常に最終更新日時が新しい順（降順）にソートして画面に渡す
     return animeList.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
   } catch (err) {
     console.error("❌ アニメデータの取得に失敗:", err);
@@ -107,9 +126,9 @@ async function getAnimeDataFromDB(uid) {
   }
 }
 
-// -----------------------------------------
-// ② アニメデータを保存・更新する（列名ベース・自動マップ型）
-// -----------------------------------------
+/**
+ * ② アニメデータを保存・新規追加・上書き更新する
+ */
 async function saveAnimeToDB(uid, anilist_id, animeData) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
   ensureGoogleToken();
@@ -117,7 +136,6 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
   const now = Date.now();
   animeData.updated_at = now;
 
-  // まず現在のシートの状態（1行目のヘッダーとA列のID）を取得
   const response = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: window.userSpreadsheetId,
     range: "anime_log!A1:ZZ",
@@ -127,21 +145,20 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
   const headerRow = allRows[0] || [];
   const col = createColumnMap(headerRow);
 
-  // 💡 もし万が一スプシが完全な空っぽなら、標準のヘッダーを自動生成してあげる安全ガード
   if (headerRow.length === 0) {
     throw new Error(
       "スプレッドシートの1行目にヘッダー（列名）が見つかりません。",
     );
   }
 
-  // 更新対象の行を探す（anilist_idの列の位置を動的に特定）
+  // アニメIDの列をもとに、既存の行データがあるか探す
   let targetRowIndex = -1;
   const idColIndex = col["anilist_id"];
 
   if (idColIndex !== undefined) {
     for (let i = 1; i < allRows.length; i++) {
       if (String(allRows[i][idColIndex]) === String(anilist_id)) {
-        targetRowIndex = i + 1;
+        targetRowIndex = i + 1; // スプシの行番号（1始まり）に変換
         break;
       }
     }
@@ -154,9 +171,10 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
       ? JSON.stringify(animeData.characters)
       : animeData.characters || "[]";
 
-  // 💡 決定：現在のスプシの列幅に合わせて、正しい名前の位置にデータを流し込む配列を動的作成
+  // 現在のシートにある列数と同じ幅の空箱配列を作成
   const rowValue = new Array(headerRow.length).fill("");
 
+  // 格納するデータ構造のマッピング定義
   const mapping = {
     anilist_id: String(animeData.anilist_id || ""),
     title: String(animeData.title || ""),
@@ -185,9 +203,11 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
     img_position: String(animeData.img_position || "50% 50%"),
     memo: String(animeData.memo || ""),
     characters: charactersStr,
+    is_favorite: String(animeData.is_favorite || "false"),
+    favorite_quotes: String(animeData.favorite_quotes || ""),
   };
 
-  // スプシのヘッダー名に合わせて配列を組み立て（順番が入れ替わっていてもここにハマる）
+  // スプシの並び順に合わせて、正しい箱の中にデータを流し込む
   headerRow.forEach((key, index) => {
     const cleanKey = key.trim();
     if (mapping[cleanKey] !== undefined) {
@@ -196,15 +216,18 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
   });
 
   if (targetRowIndex !== -1) {
-    // 既存行の上書き（その行のA列から右端までを綺麗に上書き）
+    // 既存アニメの「上書き更新」
     await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId: window.userSpreadsheetId,
       range: `anime_log!A${targetRowIndex}`,
       valueInputOption: "RAW",
       resource: { values: [rowValue] },
     });
+    console.log(
+      `💾 アニメ '${animeData.title}' のデータを上書き更新しました。`,
+    );
   } else {
-    // 新規行の追加
+    // 新規アニメの「末尾追加」
     await gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: window.userSpreadsheetId,
       range: "anime_log!A1",
@@ -212,12 +235,15 @@ async function saveAnimeToDB(uid, anilist_id, animeData) {
       insertDataOption: "INSERT_ROWS",
       resource: { values: [rowValue] },
     });
+    console.log(
+      `✨ 新しいアニメ '${animeData.title}' をスプシに追加しました！`,
+    );
   }
 }
 
-// -----------------------------------------
-// ③ アニメデータを削除する（列名ベース）
-// -----------------------------------------
+/**
+ * ③ 対象のアニメを行ごと完全に削除する
+ */
 async function deleteAnimeFromDB(uid, anilist_id) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
   ensureGoogleToken();
@@ -238,13 +264,14 @@ async function deleteAnimeFromDB(uid, anilist_id) {
   let targetRowIndex = -1;
   for (let i = 1; i < allRows.length; i++) {
     if (String(allRows[i][idColIndex]) === String(anilist_id)) {
-      targetRowIndex = i; // batchUpdate用の0始まりインデックス
+      targetRowIndex = i; // APIリクエスト用に0から始まるインデックスを保持
       break;
     }
   }
 
   if (targetRowIndex === -1) return;
 
+  // シートの内部ID（sheetId）を取得して行削除リクエストを送る
   const spreadsheet = await gapi.client.sheets.spreadsheets.get({
     spreadsheetId: window.userSpreadsheetId,
   });
@@ -267,11 +294,18 @@ async function deleteAnimeFromDB(uid, anilist_id) {
       ],
     },
   });
+  console.log(
+    `🗑️ ID: ${anilist_id} のアニメデータをスプシから完全に削除しました。`,
+  );
 }
 
-// -----------------------------------------
-// ④ ユーザープロファイルを取得する（列名ベース）
-// -----------------------------------------
+// =================================================================
+// 👤 2. ユーザープロファイル（user_profile シート）の制御
+// =================================================================
+
+/**
+ * ④ スプシからユーザープロファイルデータを取得する
+ */
 async function getUserProfileFromDB(uid) {
   if (!window.userSpreadsheetId) return null;
   ensureGoogleToken();
@@ -288,6 +322,7 @@ async function getUserProfileFromDB(uid) {
     const col = createColumnMap(allRows[0]);
     const dataRows = allRows.slice(1);
 
+    // アカウントのメアドが一致する行を探索
     const userRow = dataRows.find((row) => {
       const emailIndex = col["account_id"];
       return (
@@ -314,7 +349,6 @@ async function getUserProfileFromDB(uid) {
       last_updated: getValue("last_updated")
         ? Number(getValue("last_updated"))
         : Date.now(),
-      // 💡 列名を account_created_at に修正
       account_created_at: getValue("account_created_at")
         ? Number(getValue("account_created_at"))
         : Date.now(),
@@ -325,9 +359,9 @@ async function getUserProfileFromDB(uid) {
   }
 }
 
-// -----------------------------------------
-// ⑤ ユーザープロファイルを保存・更新する（列名ベース・自動マップ型）
-// -----------------------------------------
+/**
+ * ⑤ ユーザープロファイルデータを保存・更新する
+ */
 async function saveUserProfileToDB(uid, profileData) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
   ensureGoogleToken();
@@ -337,7 +371,7 @@ async function saveUserProfileToDB(uid, profileData) {
 
   if (!targetUid || targetUid.includes("@") === false) {
     console.warn(
-      "⚠️ 有効なユーザーID（メアド）が特定できないため中断:",
+      "⚠️ 有効なユーザーID（メアド）が特定できないため処理を中断します:",
       targetUid,
     );
     return false;
@@ -368,7 +402,7 @@ async function saveUserProfileToDB(uid, profileData) {
           String(targetUid).trim().toLowerCase()
         ) {
           targetRowIndex = i + 1;
-          // 💡 列名を account_created_at に修正して保護
+          // アカウント作成日（一番最初の日時）を上書きしないよう保護
           const createdAtIndex = col["account_created_at"];
           if (createdAtIndex !== undefined && allRows[i][createdAtIndex]) {
             existingCreatedAt = allRows[i][createdAtIndex];
@@ -378,14 +412,12 @@ async function saveUserProfileToDB(uid, profileData) {
       }
     }
 
-    // データの詰め込み用オブジェクト
     const mapping = {
       account_id: String(targetUid),
       display_name: String(profileData.display_name || ""),
       avatar_url: String(profileData.avatar_url || ""),
       dummy_id: String(profileData.dummy_id || ""),
       last_updated: Number(now),
-      // 💡 列名を account_created_at に修正
       account_created_at:
         existingCreatedAt || Number(profileData.account_created_at || now),
     };
@@ -399,6 +431,7 @@ async function saveUserProfileToDB(uid, profileData) {
     });
 
     if (targetRowIndex !== -1) {
+      // プロファイルの上書き更新
       await gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: window.userSpreadsheetId,
         range: `user_profile!A${targetRowIndex}`,
@@ -406,6 +439,7 @@ async function saveUserProfileToDB(uid, profileData) {
         resource: { values: [rowValue] },
       });
     } else {
+      // 新規プロファイルの追加
       await gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: window.userSpreadsheetId,
         range: "user_profile!A1",
@@ -414,6 +448,7 @@ async function saveUserProfileToDB(uid, profileData) {
         resource: { values: [rowValue] },
       });
     }
+    console.log("👤 ユーザープロファイルをスプシに同期しました。");
     return true;
   } catch (err) {
     console.error("❌ ユーザープロファイルの保存に失敗:", err);
@@ -421,9 +456,13 @@ async function saveUserProfileToDB(uid, profileData) {
   }
 }
 
-// -----------------------------------------
-// ⑥ スプシの3枚目から獲得済みトロフィーデータを取得する
-// -----------------------------------------
+// =================================================================
+// 🏆 3. トロフィーデータ（trophy_log シート）の制御
+// =================================================================
+
+/**
+ * ⑥ スプシの3枚目から獲得済みトロフィーデータをすべて取得する
+ */
 async function getTrophyDataFromDB() {
   if (!window.userSpreadsheetId) return {};
   ensureGoogleToken();
@@ -439,7 +478,7 @@ async function getTrophyDataFromDB() {
     if (!allRows || allRows.length === 0) return {};
 
     const headerRow = allRows[0];
-    const col = createColumnMap(headerRow); // 👈 雨音さんの自動マッピング魔法をここでも使用！
+    const col = createColumnMap(headerRow);
 
     const dataRows = allRows.slice(1);
     const trophyMap = {};
@@ -457,27 +496,26 @@ async function getTrophyDataFromDB() {
         trophyMap[id] = {
           trophy_id: id,
           is_unlocked: getValue("is_unlocked") === "true",
-          unlocked_at: getValue("unlocked_at"), // "2026-07-03 21:00" などの文字列
+          unlocked_at: getValue("unlocked_at"), // 獲得した記念日時文字列
         };
       }
     });
 
-    return trophyMap; // { first_step: { is_unlocked: true, unlocked_at: "..." }, ... } という形で返る
+    return trophyMap; // { first_step: { is_unlocked: true, unlocked_at: "..." }, ... }
   } catch (err) {
     console.error("❌ トロフィーデータの取得に失敗:", err);
     return {};
   }
 }
 
-// -----------------------------------------
-// ⑦ スプシの3枚目に新しく達成したトロフィーを記録する（上書き・重複防止ガード付き）
-// -----------------------------------------
+/**
+ * ⑦ 新しく達成したトロフィーを記録する（重複防止安全ガード付き）
+ */
 async function saveTrophyToDB(trophyId, unlockedAtStr) {
   if (!window.userSpreadsheetId) throw new Error("スプシIDがありません");
   ensureGoogleToken();
 
   try {
-    // 現在のシートの状態を取得
     const response = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.userSpreadsheetId,
       range: "trophy_log!A1:ZZ",
@@ -491,7 +529,7 @@ async function saveTrophyToDB(trophyId, unlockedAtStr) {
       throw new Error("trophy_logシートにヘッダーが見つかりません。");
     }
 
-    // 🛡️ 決定事項の安心ガード：すでに同じトロフィーIDがあるか探す（重複・上書き防止！）
+    // 🛡️ 歴史の保護：すでに同じトロフィーIDがスプシにあるか探す
     let targetRowIndex = -1;
     const idColIndex = col["trophy_id"];
 
@@ -504,19 +542,18 @@ async function saveTrophyToDB(trophyId, unlockedAtStr) {
       }
     }
 
-    // 🔥 すでに登録されている場合は、最初の歴史を守るために何もしないで終了！
+    // 🔥 すでに登録されている場合は、最初の感動（獲得日時）を守るために何もしない
     if (targetRowIndex !== -1) {
       console.log(
-        `🛡️ トロフィー '${trophyId}' はすでにスプシに記録されているため、上書きをスキップしました。`,
+        `🛡️ トロフィー '${trophyId}' はすでに記録されているため、重複保存をブロックしました。`,
       );
       return true;
     }
 
-    // 新規登録用の配列を組み立て
     const mapping = {
       trophy_id: String(trophyId),
       is_unlocked: "true",
-      unlocked_at: String(unlockedAtStr), // 最初に達成した記念日
+      unlocked_at: String(unlockedAtStr),
     };
 
     const rowValue = new Array(headerRow.length).fill("");
@@ -527,7 +564,7 @@ async function saveTrophyToDB(trophyId, unlockedAtStr) {
       }
     });
 
-    // スプシの3枚目の末尾に新しく追加
+    // トロフィーログの末尾に行を追加
     await gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: window.userSpreadsheetId,
       range: "trophy_log!A1",
@@ -537,7 +574,7 @@ async function saveTrophyToDB(trophyId, unlockedAtStr) {
     });
 
     console.log(
-      `🏆 トロフィー '${trophyId}' の達成記録をスプシに保存しました！ (${unlockedAtStr})`,
+      `🏆 トロフィー '${trophyId}' の達成記録を永久保存しました！ (${unlockedAtStr})`,
     );
     return true;
   } catch (err) {

@@ -5,9 +5,11 @@
 /* --- 🖼️ アニメカードのグリッド --- */
 .anime-grid {
   display: grid;
-  /* 💡 もとのサイズ感「minmax(180px, 1fr)」に戻して、カードの横幅に余裕を持たせます */
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
+
+  /* 💡 1frを廃止して「180px」固定に。画面幅が変わると、引き伸ばされずに自動で「枚数」だけが変化します */
+  grid-template-columns: repeat(auto-fill, 200px);
+  justify-content: center;
+  gap: 8px;
   padding-bottom: 55px !important;
   flex: 1;
   min-height: 0;

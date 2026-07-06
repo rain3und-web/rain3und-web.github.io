@@ -94,7 +94,10 @@ window.searchCharacterFromAnilist = async function (query) {
   const json = await res.json();
   return json.data.Page.characters || [];
 };
+
+// -----------------------------------------
 // ⑤ 英語のあらすじを日本語に翻訳する魔法（Gemini API経由）
+// -----------------------------------------
 window.translateSynopsis = async function (englishText, animeTitle) {
   if (!englishText) return "";
 
@@ -106,7 +109,6 @@ window.translateSynopsis = async function (englishText, animeTitle) {
     ? localStorage.getItem(`gemini_api_key_${userEmail}`)
     : null;
 
-  // 🌟 修正：キーが「空っぽ（nullや空文字）」または「消去フラグ（EMPTY）」の場合は未設定として扱う！
   if (!userApiKey || userApiKey === "EMPTY") {
     console.log(
       "Gemini APIキー未設定のため、AIあらすじ生成をスキップしました。",
@@ -131,5 +133,44 @@ window.translateSynopsis = async function (englishText, animeTitle) {
   } catch (e) {
     console.error("翻訳エラー:", e);
     return "あらすじの取得に失敗しました。";
+  }
+};
+
+// -----------------------------------------
+// ⑥ 対象アニメの全キャラクターと担当声優をまとめて取得する魔法
+// -----------------------------------------
+window.fetchAnimeCharactersAndActors = async function (anilistId) {
+  const query = `
+    query ($id: Int) {
+      Media (id: $id, type: ANIME) {
+        characters (sort: [ROLE, FAVOURITES_DESC], perPage: 50) {
+          edges {
+            node {
+              id
+              name { full native }
+              image { large }
+            }
+            voiceActors (language: JAPANESE) {
+              name { full native }
+            }
+          }
+        }
+      }
+    }
+  `;
+  try {
+    const res = await fetch("https://graphql.anilist.co", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: query,
+        variables: { id: parseInt(anilistId) },
+      }),
+    });
+    const json = await res.json();
+    return json.data.Media.characters.edges;
+  } catch (e) {
+    console.error("アニメのキャラ・声優一括取得エラー", e);
+    return [];
   }
 };

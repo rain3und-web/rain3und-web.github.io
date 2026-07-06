@@ -469,6 +469,8 @@ async function initSpreadsheetHeaders() {
     "img_position",
     "memo",
     "characters",
+    "is_favorite", // 🔖 追加：お気に入りフラグ
+    "favorite_quotes", // 💬 追加：名言データ
   ];
 
   // 💡 account_created_at に変更！

@@ -1,0 +1,333 @@
+/* =========================================================
+   📦 名言ライブラリー 見開き2ページ・下までいっぱいに広げる修正版
+   ========================================================= */
+
+/* 📖 1. 親要素：必ずここをポップアップの配置基準にする（!importantで強制固定） */
+#quoteLibraryArea {
+  position: relative !important; /* 💡 これで目次が本の外へ逃げ出すのを絶対に防ぎます */
+  display: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 16px;
+}
+#quoteLibraryArea:not(.hidden) {
+  display: flex;
+}
+
+/* 📋 2. 目次ポップアップ：右上のボタンの真下にカチッと配置する */
+.quote-index-popup {
+  position: absolute;
+  top: 55px; /* 💡 トップバー（ヘッダー）のすぐ下 */
+  right: 25px; /* 💡 「作品目次」ボタンの右端に綺麗に合わせる */
+  width: 240px;
+  max-height: 300px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  padding: 14px;
+  z-index: 100; /* 💡 本の紙やナビボタンよりも必ず手前に表示 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ポップアップが非表示のとき */
+.quote-index-popup.hidden {
+  display: none !important;
+}
+
+/* 目次内のタイトルとリストの見た目調整 */
+.quote-index-popup h5 {
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.quote-index-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+.quote-index-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.quote-index-item:hover {
+  background: #f1f5f9;
+  color: var(--c-blue);
+}
+
+/* ② トップバー：パディングを維持 */
+.quote-book-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  margin: -20px -25px 0 -25px;
+  padding: 14px 25px;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.quote-header-left-group {
+  width: 120px;
+  display: flex;
+  align-items: center;
+}
+.quote-header-right-group {
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.quote-book-header-fixed {
+  text-align: center;
+  flex: 1;
+}
+.quote-book-title {
+  font-size: 16px;
+  font-family: var(--f-jp);
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* 📖 ③ 見開き2ページのレイアウトコンテナ */
+.quote-spread-wrapper {
+  flex: 1; /* 💡 これで縦幅いっぱいにグッと広がります */
+  display: flex;
+  position: relative;
+  width: calc(100% + 50px);
+  margin: 0 -25px -20px -25px;
+  background: #ffffff;
+  min-height: 0;
+  overflow: hidden;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+}
+
+/* 📓 中央の境界線 */
+.book-spine {
+  width: 1px;
+  height: 100%;
+  background: #f1f5f9;
+  position: relative;
+  z-index: 5;
+}
+
+/* 📄 左右共通の「紙（ページ）」 */
+.quote-sheet {
+  flex: 1;
+  height: 100%;
+  box-sizing: border-box;
+  /* 💡 縦の計測を狂わせないため、上下パディングは少し控えめの 20px にし、左右はボタン避けの 60px をキープ */
+  padding: 20px 70px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* 内側のコンテンツコンテナ */
+.quote-sheet-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: flex-start;
+  /* 💡 スクリプトがはみ出し（scrollHeight）を検知できるように overflow: hidden を指定 */
+  overflow: hidden;
+  gap: 10px; /* お気に入りの gap: 10px を指定 */
+}
+
+/* 💡 フチなし・背景なし・点線デバイダー */
+.quote-text-block {
+  padding: 14px 0; /* 💡 少し上下の間隔を広げてゆったり美しく */
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #f1f5f9;
+  flex-shrink: 0;
+}
+.quote-text-block:last-child {
+  border-bottom: none;
+}
+
+.quote-main-speech {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0;
+  font-style: italic;
+  font-family: var(--f-jp);
+  font-weight: 500;
+}
+.quote-main-speech::before {
+  content: "“";
+  font-family: var(--f-jp);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--c-blue);
+  margin-right: 4px;
+}
+.quote-main-speech::after {
+  content: "”";
+  font-family: var(--f-jp);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--c-blue);
+  margin-left: 4px;
+}
+.quote-author-credit {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 6px;
+  margin-bottom: 0;
+  text-align: right;
+}
+
+/* 各種パーツ */
+.quote-page-number {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* 作品目次ボタン */
+.quote-index-trigger {
+  font-size: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: #475569;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.15s;
+}
+.quote-index-trigger:hover {
+  background: #f8fafc;
+  color: var(--c-blue);
+}
+
+/* 🏹 固定矢印ボタン */
+.quote-page-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: 0.2s ease-in-out;
+  z-index: 15;
+}
+.quote-page-nav-btn:hover {
+  background: #f8fafc;
+  color: var(--c-blue);
+}
+.quote-page-nav-btn.prev-btn {
+  left: 16px;
+}
+.quote-page-nav-btn.next-btn {
+  right: 16px;
+}
+/* =========================================================
+   回転・ページめくり用の3Dエフェクト
+   ========================================================= */
+
+/* 見開き全体に3Dの奥行き（パースペクティブ）を設定 */
+.quote-spread-wrapper {
+  perspective: 1500px;
+  position: relative;
+}
+
+/* 💡 めくりアニメーション用の動く「フリップ紙」 */
+.quote-page-flip {
+  position: absolute;
+  top: 0;
+  width: 50%; /* 半ページ分 */
+  height: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  z-index: 30;
+
+  /* 回転の軸を「本の中心（左ページなら右端、右ページなら左端）」に固定 */
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none; /* アニメーション中にクリックを邪魔しない */
+}
+
+/* 右から左へめくるときの軸（右ページの左端が軸） */
+.quote-page-flip.flip-to-left {
+  left: 50%;
+  transform-origin: left center;
+}
+
+/* 左から右へめくるときの軸（左ページの右端が軸） */
+.quote-page-flip.flip-to-right {
+  left: 0;
+  transform-origin: right center;
+}
+
+/* アニメーション発火用のクラス */
+.quote-page-flip.effect-next {
+  transform: rotateY(-180deg);
+}
+.quote-page-flip.effect-prev {
+  transform: rotateY(180deg);
+}
+
+/* フリップ紙の「表面」と「裏面」を完全に重なり合わせる */
+.flip-surface-front,
+.flip-surface-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  backface-visibility: hidden; /* ✨ 回転して裏返ったときは見えなくする魔法のCSS */
+}
+
+/* 裏面は最初から180度ひっくり返しておく */
+.flip-surface-back {
+  transform: rotateY(180deg);
+}
+
+/* アニメーション中に文字が消えたりチラついたりするのを防ぐ */
+.quote-sheet-inner {
+  backface-visibility: hidden;
+}

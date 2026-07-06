@@ -1,6 +1,5 @@
 // =========================================================
 // 🧠 js/app.js：全体の統括・メインロジック（指令室）
-// ユーザーがクリックしたり入力した時の「操作への反応」をすべてここに集約しています。
 // =========================================================
 
 window.animeDB = [];
@@ -10,17 +9,17 @@ window.currentView = "home";
 window.filterQuery = null;
 window.listSortMode = "count";
 
-// 💡 Adobe Fontsがブロックされた時のための「絶対表示タイマー」
+// 💡 Adobe Fonts用絶対表示タイマー
 setTimeout(function () {
   const htmlTag = document.getElementsByTagName("html")[0];
-  // 3秒経ってもフォントが読み込めていなければ、強制表示用のクラスを付与
   if (!htmlTag.classList.contains("wf-active")) {
     htmlTag.classList.add("loading-delay");
   }
 }, 3000);
-// -----------------------------------------
-// ① 起動時の初期データ読み込み
-// -----------------------------------------
+
+/**
+ * ① 起動時の初期データ読み込み
+ */
 async function fetchData() {
   if (!window.currentUserId) return;
   try {
@@ -40,128 +39,100 @@ async function fetchData() {
     console.error("データ読み込みエラー:", e);
     window.updateAllViews();
   } finally {
-    // 💡 iPadなどの描画速度に合わせて、ブラウザのレンダリング完了を待ってから消す
     requestAnimationFrame(() => {
       setTimeout(() => {
         const overlay = document.getElementById("startupOverlay");
         if (overlay) overlay.classList.add("fade-out");
-      }, 500); // 描画処理のバッファとして500msあれば十分安全です
+      }, 500);
     });
   }
 }
 
-// =========================================================
-// 🖱️ ここから下は、画面が読み込まれた後に設定する「操作への反応」です
-// =========================================================
+/**
+ * 🖱️ イベントリスナー（DOM構築後の操作の反応をすべて集約）
+ */
 document.addEventListener("DOMContentLoaded", () => {
-  // -----------------------------------------
-  // 🌟 追加：ナビゲーションボタンのアクティブ（紫色）状態切り替え
-  // -----------------------------------------
+  // 1. ナビゲーションボタン
   const navBtns = document.querySelectorAll(".nav-btn");
   navBtns.forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      // 一旦すべてのボタンから 'active' を外す
-      navBtns.forEach((b) => b.classList.remove("active"));
-      // クリックされたボタンにだけ 'active' を付ける
-      e.currentTarget.classList.add("active");
+      const targetView = e.currentTarget.getAttribute("data-view");
+      if (targetView) window.switchView(targetView);
     });
   });
-  // -----------------------------------------
 
-  // 🌟 修正：ジャンルパネルの開閉は、クラス（is-open）の付け外しのみに変更
+  // 2. 左カラム（サイドバー）の開閉
+  document.getElementById("sidebarToggleBtn")?.addEventListener("click", () => {
+    document
+      .querySelector(".app-container")
+      .classList.toggle("is-sidebar-closed");
+    document.getElementById("mainSidebar").classList.toggle("is-closed");
+  });
+
+  // 3. ホーム画面：ジャンルパネルの開閉トグル
   document.getElementById("genreToggleBtn")?.addEventListener("click", () => {
-    // ラップトップサイズ（矢印が表示されている状態）の時だけクリックを有効にする魔法
     const icon = document.querySelector("#genreToggleBtn .toggle-icon");
     if (icon && window.getComputedStyle(icon).display !== "none") {
       document.getElementById("genrePanelBox").classList.toggle("is-open");
     }
   });
 
-  // -----------------------------------------
-  // ② 画面・UIの開閉アクション（メニュー・モーダル等）
-  // -----------------------------------------
-  const addAnimeBtn = document.getElementById("addAnimeBtn");
-  const addPopup = document.getElementById("addPopup");
-  addAnimeBtn?.addEventListener("click", (e) => {
-    addPopup.classList.toggle("hidden");
+  // 4. アニメ追加ポップアップトグル
+  document.getElementById("addAnimeBtn")?.addEventListener("click", (e) => {
+    document.getElementById("addPopup").classList.toggle("hidden");
     e.stopPropagation();
   });
 
-  // 白いアイコンボタンで左カラムを開閉する処理
-  const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
-  const mainSidebar = document.getElementById("mainSidebar");
-  const appContainer = document.querySelector(".app-container");
+  // 5. 編集モーダル：お気に入り（栞）ボタン
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn) {
+    favBtn.onclick = function (e) {
+      e.stopPropagation();
+      const isFav = favBtn.getAttribute("data-favorite") === "true";
+      const nextState = !isFav;
+      favBtn.setAttribute("data-favorite", String(nextState));
+      favBtn.style.transform = nextState ? "scale(1.2)" : "scale(1.0)";
+      setTimeout(() => {
+        favBtn.style.transform = "scale(1.0)";
+      }, 150);
+    };
+  }
 
-  sidebarToggleBtn?.addEventListener("click", () => {
-    // 全体のGrid幅を変更するクラスと、中身を隠すクラスを両方つける
-    appContainer.classList.toggle("is-sidebar-closed");
-    mainSidebar.classList.toggle("is-closed");
+  // 6. 編集モーダル：名言追加ボタン
+  document.getElementById("addQuoteLineBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (typeof window.addQuoteRow === "function") window.addQuoteRow("", "");
   });
-  document
-    .getElementById("closeEditBtn")
-    ?.addEventListener("click", () =>
-      document.getElementById("editModal").classList.add("hidden"),
-    );
 
-  // ジャンル・声優の選択ポップアップ開閉
+  // 7. 編集モーダル：ジャンル・声優選択ポップアップを開く
   document
     .getElementById("openGenrePopupBtn")
     ?.addEventListener("click", () => {
-      const genrePopup = document.getElementById("genrePopup");
-      if (!genrePopup) return;
-      genrePopup.classList.toggle("hidden");
-      document.getElementById("actorPopup")?.classList.add("hidden");
-
-      const currentGenres = document
-        .getElementById("editGenres")
-        .value.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const listContainer = document.getElementById("genreCheckboxList");
-      if (listContainer) {
-        listContainer.innerHTML = "";
-        Object.values(genreMap).forEach((genreName) => {
-          // genreMapはui.jsで定義
-          const isActive = currentGenres.includes(genreName);
-          const div = document.createElement("div");
-          div.className = `genre-check-label ${isActive ? "is-active" : ""}`;
-          div.innerText = genreName;
-          div.onclick = () => {
-            let tags = document.getElementById("editGenres").value
-              ? document
-                  .getElementById("editGenres")
-                  .value.split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : [];
-            if (tags.includes(genreName)) {
-              tags = tags.filter((t) => t !== genreName);
-              div.classList.remove("is-active");
-            } else {
-              tags.push(genreName);
-              div.classList.add("is-active");
-            }
-            document.getElementById("editGenres").value = tags.join(", ");
-            window.renderGenres();
-          };
-          listContainer.appendChild(div);
-        });
-      }
+      if (typeof window.openGenreModalPopup === "function")
+        window.openGenreModalPopup();
     });
-
   document
     .getElementById("openActorPopupBtn")
     ?.addEventListener("click", () => {
-      const actorPopup = document.getElementById("actorPopup");
-      if (!actorPopup) return;
-      actorPopup.classList.toggle("hidden");
+      document.getElementById("actorPopup")?.classList.toggle("hidden");
       document.getElementById("genrePopup")?.classList.add("hidden");
-      window.updateActorCurrentList();
+      if (typeof window.updateActorCurrentList === "function")
+        window.updateActorCurrentList();
     });
 
-  // -----------------------------------------
-  // ⑤ モーダルの入力補助（スコア連動・ステータス色変更・画像プレビュー）
-  // -----------------------------------------
+  // 8. 編集モーダル：閉じる処理とお掃除
+  document.getElementById("closeEditBtn")?.addEventListener("click", () => {
+    document.getElementById("editModal").classList.add("hidden");
+    const fav = document.getElementById("favoriteBtn");
+    if (fav) {
+      fav.setAttribute("data-favorite", "false");
+      fav.style.color = "#cbd5e1";
+    }
+    const quoteContainer = document.getElementById("quoteListContainer");
+    if (quoteContainer) quoteContainer.innerHTML = "";
+  });
+
+  // 9. 編集モーダル：入力補助関連の連動
   document
     .getElementById("editStatus")
     ?.addEventListener("change", window.updateStatusColor);
@@ -175,64 +146,47 @@ document.addEventListener("DOMContentLoaded", () => {
     if (preview) preview.src = e.target.value;
   });
 
-  // -----------------------------------------
-  // ⑥ モーダル保存・削除（スプレッドシート連携）
-  // -----------------------------------------
+  // 10. 編集モーダル：保存アクション（スプレッドシート連携）
   document.getElementById("saveBtn")?.addEventListener("click", async () => {
-    if (!window.currentUserId) {
-      return; // 💡 ログインなし時は静かに中断
-    }
+    if (!window.currentUserId) return;
     const btn = document.getElementById("saveBtn");
     btn.innerText = "Saving...";
 
     const anilist_id = String(document.getElementById("editAnilistId").value);
-
-    // ★ 刺さり度を特別扱いにして、1.5倍で計算するロジック
     const scores = {};
     let totalScore = 0;
     let resonanceScore = 0;
+
     document.querySelectorAll(".score-val").forEach((sel) => {
       const val = parseInt(sel.value);
       scores[sel.dataset.type] = val;
-      if (sel.dataset.type === "resonance") {
-        resonanceScore = val;
-      } else {
-        totalScore += val;
-      }
+      if (sel.dataset.type === "resonance") resonanceScore = val;
+      else totalScore += val;
     });
-    // (4項目 + 刺さり度×1.5) ÷ 5.5 で計算
+
     const calculatedMyScore = parseFloat(
       ((totalScore + resonanceScore * 1.5) / 5.5).toFixed(1),
     );
-
-    // 既存のデータがあるかチェック
     const existingIndex = window.animeDB.findIndex(
       (a) => String(a.anilist_id) === anilist_id,
     );
     const existingData =
       existingIndex !== -1 ? window.animeDB[existingIndex] : null;
-
     const nowTimestamp = Date.now();
 
-    // 🌟【ここから追加！】画面に入力された「2026春」などの文字を自動で分解するロジック
-    const rawYearInput = document.getElementById("editYear").value.trim(); // 例: "2026春"
-
-    // 1. 数字の4桁を抽出して「年」にする
+    // 年・季節の自動分解ロジック
+    const rawYearInput = document.getElementById("editYear").value.trim();
     const yearMatch = rawYearInput.match(/\d{4}/);
-    const parsedYear = yearMatch ? yearMatch[0] : rawYearInput; // 4桁の数字が取れればそれ、取れなければ入力文字をそのまま
+    const parsedYear = yearMatch ? yearMatch[0] : rawYearInput;
 
-    // 2. 文字列の中に「春・夏・秋・冬」が含まれているか探して「季節」を抜き出す
     let parsedSeason = "";
     if (rawYearInput.includes("春")) parsedSeason = "春";
     else if (rawYearInput.includes("夏")) parsedSeason = "夏";
     else if (rawYearInput.includes("秋")) parsedSeason = "秋";
     else if (rawYearInput.includes("冬")) parsedSeason = "冬";
-    else {
-      // もし画面の入力欄に季節が書かれていなかった場合（例: 長寿アニメで「1999」とだけ書いた時）
-      // 既存のデータがあればその漢字の季節を引き継ぎ、なければ空文字にする
+    else
       parsedSeason =
         existingData && existingData.season ? existingData.season : "";
-    }
 
     const animeData = {
       anilist_id: anilist_id,
@@ -245,11 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
       score_music: scores.music,
       score_resonance: scores.resonance,
       format: document.getElementById("editFormat").value,
-
-      // 🌟【ここを書き換え！】自動分解したデータをそれぞれ格納します
       year: parsedYear,
       season: parsedSeason,
-
       episodes: document.getElementById("editEps").value,
       duration: document.getElementById("editDuration")
         ? document.getElementById("editDuration").value
@@ -275,7 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ? document.getElementById("editImgPosition").value
         : "50% 50%",
       memo: document.getElementById("editMemo").value,
-
+      is_favorite:
+        document
+          .getElementById("favoriteBtn")
+          ?.getAttribute("data-favorite") === "true"
+          ? "true"
+          : "false",
+      favorite_quotes:
+        typeof window.collectQuoteDataDataStr === "function"
+          ? window.collectQuoteDataDataStr()
+          : "",
       characters: (() => {
         const raw = document.getElementById("editCharacters")?.value || "[]";
         try {
@@ -289,38 +249,36 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      // 1. api.js側のスマート保存を呼び出し
       await saveAnimeToDB(window.currentUserId, anilist_id, animeData);
-
-      // モーダルを静かに閉じる
       document.getElementById("editModal").classList.add("hidden");
 
-      // 2. ローカル表示用の日本語翻訳などをトッピング
       animeData.genres_jp = window.translateGenres(animeData.genres);
       animeData.studio = window.translateStudio(animeData.studio);
       if (animeData.cast)
         animeData.cast = animeData.cast.replace(/[\r\n]/g, "");
+      animeData.is_favorite =
+        document
+          .getElementById("favoriteBtn")
+          ?.getAttribute("data-favorite") === "true"
+          ? "true"
+          : "false";
 
-      // 3. メモリ上の配列（window.animeDB）を更新
       if (existingIndex !== -1) {
         window.animeDB[existingIndex] = animeData;
       } else {
         window.animeDB.push(animeData);
       }
 
-      // 4. 並び替えて画面をパッと静かにリフレッシュ
       window.animeDB.sort((a, b) => (b.updated_at || 0) - (a.updated_at || 0));
       window.updateAllViews();
-
-      // 💡 alert("保存が完了しました！") は綺麗さっぱり消去しました
     } catch (e) {
-      // 💡 画面上の不快なエラーポップアップも廃止し、デベロッパーツール（コンソール）にだけログを出すように変更
       console.error("スプレッドシートへの保存に失敗しました:", e);
     } finally {
       btn.innerText = "SAVE";
     }
   });
 
+  // 11. 編集モーダル：削除アクション
   document.getElementById("deleteBtn")?.addEventListener("click", () => {
     if (!window.currentUserId) return;
     const anilist_id = document.getElementById("editAnilistId").value;
@@ -346,19 +304,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   });
 
-  // -----------------------------------------
-  // ⑧ その他・外側クリックで閉じる処理やプルダウンの初期化
-  // -----------------------------------------
-  if (typeof window.setupCustomSelects === "function")
-    window.setupCustomSelects();
-
+  // 12. 外側クリック判定による各種UI閉じ処理一括
   document.addEventListener("click", (e) => {
-    // 自作プルダウン
     document
       .querySelectorAll(".cute-custom-options")
       .forEach((opt) => opt.classList.add("hidden"));
 
-    // 検索サジェスト
     const suggestBox = document.getElementById("searchSuggestBox");
     const searchInput = document.getElementById("mainSearchInput");
     if (
@@ -368,33 +319,94 @@ document.addEventListener("DOMContentLoaded", () => {
     )
       suggestBox.classList.add("hidden");
 
-    // 編集モーダル（外側クリックで閉じる）
-    const editModal = document.getElementById("editModal");
-    if (e.target === editModal) editModal.classList.add("hidden");
+    if (e.target === document.getElementById("editModal")) {
+      document.getElementById("editModal").classList.add("hidden");
+      const quoteContainer = document.getElementById("quoteListContainer");
+      if (quoteContainer) quoteContainer.innerHTML = "";
+    }
 
-    // ジャンル・声優ポップアップ
     const genrePopup = document.getElementById("genrePopup");
     const genreBtn = document.getElementById("openGenrePopupBtn");
-    if (genrePopup && !genrePopup.classList.contains("hidden")) {
-      if (!genrePopup.contains(e.target) && !genreBtn?.contains(e.target))
-        genrePopup.classList.add("hidden");
-    }
-    const actorPopup = document.getElementById("actorPopup");
-    const actorBtn = document.getElementById("openActorPopupBtn");
-    if (actorPopup && !actorPopup.classList.contains("hidden")) {
-      if (!actorPopup.contains(e.target) && !actorBtn?.contains(e.target))
-        actorPopup.classList.add("hidden");
+    if (
+      genrePopup &&
+      !genrePopup.classList.contains("hidden") &&
+      !genrePopup.contains(e.target) &&
+      !genreBtn?.contains(e.target)
+    ) {
+      genrePopup.classList.add("hidden");
     }
 
-    // 監督サジェスト
+    const actorPopup = document.getElementById("actorPopup");
+    const actorBtn = document.getElementById("openActorPopupBtn");
+    if (
+      actorPopup &&
+      !actorPopup.classList.contains("hidden") &&
+      !actorPopup.contains(e.target) &&
+      !actorBtn?.contains(e.target)
+    ) {
+      actorPopup.classList.add("hidden");
+    }
+
     const dirSuggestBox = document.getElementById("directorSuggestBox");
     const dirSearchInput = document.getElementById("editDirector");
-    if (dirSuggestBox && !dirSuggestBox.classList.contains("hidden")) {
-      if (!dirSuggestBox.contains(e.target) && e.target !== dirSearchInput)
-        dirSuggestBox.classList.add("hidden");
+    if (
+      dirSuggestBox &&
+      !dirSuggestBox.classList.contains("hidden") &&
+      !dirSuggestBox.contains(e.target) &&
+      e.target !== dirSearchInput
+    ) {
+      dirSuggestBox.classList.add("hidden");
+    }
+
+    const charaContainer = document.getElementById("charaSearchContainer");
+    if (
+      charaContainer &&
+      !charaContainer.classList.contains("hidden") &&
+      !charaContainer.contains(e.target)
+    ) {
+      charaContainer.classList.add("hidden");
     }
   });
 
-  // 起動時のデータ取得開始
+  // 13. 声優欄折りたたみ状態管理の初期化
+  const toggleVaBtn = document.getElementById("toggleVaBtn");
+  const vaWrapper = document.getElementById("voiceActorWrapper");
+  if (toggleVaBtn && vaWrapper) {
+    const isCollapsed =
+      localStorage.getItem("isVoiceActorCollapsed") === "true";
+    if (isCollapsed) {
+      vaWrapper.classList.add("hidden");
+      toggleVaBtn.innerText = "声優欄を展開する ▼";
+    } else {
+      vaWrapper.classList.remove("hidden");
+      toggleVaBtn.innerText = "声優欄を折りたたむ ▲";
+    }
+
+    toggleVaBtn.onclick = function (e) {
+      e.stopPropagation();
+      vaWrapper.classList.toggle("hidden");
+      const closed = vaWrapper.classList.contains("hidden");
+      toggleVaBtn.innerText = closed
+        ? "声優欄を展開する ▼"
+        : "声優欄を折りたたむ ▲";
+      localStorage.setItem("isVoiceActorCollapsed", closed ? "true" : "false");
+    };
+
+    document
+      .getElementById("openActorPopupBtn")
+      ?.addEventListener("click", () => {
+        if (vaWrapper.classList.contains("hidden")) {
+          vaWrapper.classList.remove("hidden");
+          toggleVaBtn.innerText = "声優欄を折りたたむ ▲";
+          localStorage.setItem("isVoiceActorCollapsed", "false");
+        }
+      });
+  }
+
+  // 各種カスタムプルダウンの初期化
+  if (typeof window.setupCustomSelects === "function")
+    window.setupCustomSelects();
+
+  // 初回データ取得
   fetchData();
 });

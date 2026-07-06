@@ -560,3 +560,223 @@
   border-top: none;
   z-index: 10;
 }
+
+/* =========================================================
+   🌟 追加：セクションの折りたたみボタン用デザイン
+   ========================================================= */
+.toggle-section-bottom {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.toggle-text-btn {
+  background: none;
+  border: none;
+  color: #94a3b8; /* 控えめなグレー */
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-family: var(--f-jp);
+}
+
+.toggle-text-btn:hover {
+  background: #f1f5f9;
+  color: var(--c-blue); /* マウスを乗せるとテーマカラーに */
+}
+
+/* =========================================================
+   🔖 お気に入り（栞）＆ 💬 名言登録機能の拡張デザイン
+   ========================================================= */
+
+/* 1. お気に入り（栞）ボタンの基本スタイル（クラス名を修正） */
+.btn-favorite-bookmark {
+  color: #cbd5e1; /* 初期状態はスタイリッシュなグレー */
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.btn-favorite-bookmark:hover {
+  transform: scale(1.1);
+}
+
+/* 🌟 お気に入りが「true」になった時、線も中身もゴールドに輝く魔法！ */
+.btn-favorite-bookmark[data-favorite="true"] {
+  color: var(--c-yellow) !important; /* 線の色をゴールドに */
+}
+
+/* 🌟 さらにSVGの中身（path）をゴールドで塗りつぶす */
+.btn-favorite-bookmark[data-favorite="true"] svg {
+  fill: var(--c-yellow) !important;
+}
+
+/* 2. 名言セクション全体のコンテナ */
+.quote-section-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.45); /* ふんわり透ける乳白色 */
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* 3. 増殖する名言の1行ラッパー */
+.quote-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  transition: all 0.25s ease;
+}
+
+/* キャラクター選択プルダウンの洗練化 */
+.quote-char-select {
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  font-family: var(--f-jp);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+  outline: none;
+  min-width: 140px;
+  max-width: 180px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.quote-char-select:focus {
+  border-color: var(--c-blue, #6366f1);
+}
+
+/* セリフ入力欄の洗練化 */
+.quote-text-input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  font-family: var(--f-jp);
+  font-size: 13px;
+  color: var(--c-text);
+  outline: none;
+  transition: all 0.2s;
+}
+.quote-text-input:focus {
+  border-color: var(--c-blue, #6366f1);
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* ゴミ箱ボタンのホバーエフェクト */
+.delete-quote-row-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.05);
+  transition: all 0.2s;
+}
+.delete-quote-row-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* 行が追加された時のふわっとしたアニメーション */
+.pop-up-animation {
+  animation: quoteRowPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes quoteRowPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+/* --- 🆕 話数入力欄の洗練化 --- */
+.quote-episode-wrapper {
+  width: 85px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.quote-episode-input {
+  padding: 10px 8px;
+  text-align: center;
+  font-weight: 700;
+  padding-right: 24px;
+}
+.quote-episode-unit {
+  position: absolute;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-gray, #94a3b8);
+  pointer-events: none;
+}
+
+/* --- 🆕 上開き・キャラ名サジェストボックス --- */
+.quote-char-wrapper {
+  min-width: 160px;
+  max-width: 180px;
+  position: relative;
+}
+.quote-char-wrapper .chara-suggest-list {
+  position: absolute;
+  top: auto;
+  bottom: 100%; /* 💡 ボタンの上に開く */
+  left: 0;
+  width: 100%;
+  max-height: 180px;
+  margin-bottom: 8px;
+  overflow-y: auto;
+  z-index: 9999;
+}
+/* 名言追加ボタンの親要素の余白 */
+.add-quote-btn-wrapper {
+  margin-top: 14px;
+}
+
+/* 名言追加ボタン本体のカスタムスタイル */
+.add-quote-line-btn {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px dashed var(--c-blue, #3b82f6);
+  color: var(--c-blue, #3b82f6);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+/* 💡 ついでに：マウスを乗せた時（ホバー）の可愛いリアクション */
+.add-quote-line-btn:hover {
+  background: rgba(59, 130, 246, 0.08); /* ほんのり青く光る */
+  transform: translateY(-1px); /* ちょっとだけ上に浮く */
+}
+
+/* 💡 ついでに：クリックした瞬間の手応え */
+.add-quote-line-btn:active {
+  transform: translateY(1px);
+}

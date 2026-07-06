@@ -89,7 +89,7 @@
 /*下部プロフィールボックス*/
 
 .sidebar-user-box {
-  padding: 8px 15px;
+  padding: 15px 30px;
   margin-top: auto;
   border: 1px solid var(--c-border) !important;
   box-shadow: none !important;

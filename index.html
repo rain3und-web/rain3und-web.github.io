@@ -95,10 +95,7 @@
               <h4 class="nav-category">メイン</h4>
               <ul class="nav-list">
                 <li>
-                  <button
-                    class="nav-btn active"
-                    onclick="window.switchView('home')"
-                  >
+                  <button class="nav-btn active" data-view="home">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -115,7 +112,7 @@
                   </button>
                 </li>
                 <li>
-                  <button class="nav-btn" onclick="window.switchView('year')">
+                  <button class="nav-btn" data-view="year">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -139,7 +136,7 @@
                   </button>
                 </li>
                 <li>
-                  <button class="nav-btn" onclick="window.switchView('genre')">
+                  <button class="nav-btn" data-view="genre">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -158,10 +155,7 @@
                   </button>
                 </li>
                 <li>
-                  <button
-                    class="nav-btn"
-                    onclick="window.switchView('voiceActor')"
-                  >
+                  <button class="nav-btn" data-view="voiceActor">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -178,10 +172,7 @@
                   </button>
                 </li>
                 <li>
-                  <button
-                    class="nav-btn"
-                    onclick="window.switchView('director')"
-                  >
+                  <button class="nav-btn" data-view="director">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -202,7 +193,7 @@
                   </button>
                 </li>
                 <li>
-                  <button class="nav-btn" onclick="window.switchView('studio')">
+                  <button class="nav-btn" data-view="studio">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -230,7 +221,7 @@
               <h4 class="nav-category">統計</h4>
               <ul class="nav-list">
                 <li>
-                  <button class="nav-btn" onclick="window.switchView('stats')">
+                  <button class="nav-btn" data-view="stats">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -250,10 +241,7 @@
               <h4 class="nav-category">コレクション</h4>
               <ul class="nav-list">
                 <li>
-                  <button
-                    class="nav-btn"
-                    onclick="window.switchView('oshiChara')"
-                  >
+                  <button class="nav-btn" data-view="oshiChara">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -269,7 +257,24 @@
                   </button>
                 </li>
                 <li>
-                  <button class="nav-btn">
+                  <button class="nav-btn" data-view="quoteLibrary">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                      class="nav-icon-quote"
+                    >
+                      <path
+                        d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                      ></path></svg
+                    >名言ライブラリ
+                  </button>
+                </li>
+                <li>
+                  <button class="nav-btn" data-view="favorite">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -285,7 +290,7 @@
                   </button>
                 </li>
                 <li>
-                  <button class="nav-btn" onclick="window.switchView('trophy')">
+                  <button class="nav-btn" data-view="trophy">
                     <svg
                       viewBox="0 0 24 24"
                       width="16"
@@ -537,6 +542,8 @@
           <div id="globalOshiContainer" class="oshi-grid"></div>
         </div>
 
+        <div id="quoteLibraryArea" class="hidden glass-panel"></div>
+
         <div id="statsPageArea" class="hidden">
           <div class="stats-header-wrap">
             <h2 class="stats-header-title">
@@ -786,13 +793,10 @@
             <div class="summary-counter-block">
               <div class="summary-counter-label">オタク勲章</div>
               <div class="trophy-progress-badge">
-                <span
-                  class="counter-highlight-num"
-                  id="unlockedMedalCount"
-                  style="color: #9333ea"
+                <span class="counter-highlight-num" id="unlockedMedalCount"
                   >0</span
                 >
-                <span class="counter-total-num">MEDALS</span>
+                <span class="counter-total-num"> 個</span>
               </div>
             </div>
           </div>
@@ -1370,12 +1374,48 @@
           </div>
 
           <div class="archive-right no-scrollbar">
-            <div class="archive-header-row">
+            <div
+              class="archive-header-row"
+              style="display: flex; align-items: center; gap: 12px; width: 100%"
+            >
+              <button
+                type="button"
+                id="favoriteBtn"
+                class="btn-favorite-bookmark"
+                data-favorite="false"
+                title="お気に入り作品に登録"
+                style="
+                  background: none;
+                  border: none;
+                  padding: 0;
+                  cursor: pointer;
+                  /* 💡 color: #cbd5e1; を削除しました！ */
+                  transition: all 0.2s;
+                "
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="32"
+                  height="32"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="feather feather-bookmark"
+                >
+                  <path
+                    d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+                  ></path>
+                </svg>
+              </button>
+
               <input
                 type="text"
                 id="editTitle"
                 class="archive-title-input"
                 placeholder="アニメタイトル"
+                style="flex: 1"
               />
             </div>
 
@@ -1476,7 +1516,7 @@
                   type="text"
                   id="editEps"
                   class="meta-input-box"
-                  placeholder="全◯話"
+                  placeholder="12"
                 />
               </div>
 
@@ -1590,9 +1630,15 @@
                   type="button"
                   class="btn-svg-icon pop-up-animation"
                   onclick="
-                    document
-                      .getElementById('charaSearchContainer')
-                      .classList.toggle('hidden')
+                    event.stopPropagation(); /* 🌟 これを追加（外側クリック判定に巻き込まれないための魔法） */
+                    const container = document.getElementById(
+                      'charaSearchContainer',
+                    );
+                    container.classList.toggle('hidden');
+
+                    if (!container.classList.contains('hidden')) {
+                      openCharacterDropdown();
+                    }
                   "
                 >
                   キャラを追加
@@ -1704,33 +1750,46 @@
                     編集
                   </button>
                 </div>
-                <div
-                  class="cute-tags-display"
-                  id="voiceActorsTagsDisplay"
-                ></div>
-                <input type="hidden" id="editVoiceActors" />
 
-                <div
-                  id="actorPopup"
-                  class="glass-panel hidden pop-up-animation voiceActor-popup-box"
-                >
-                  <h4 class="voiceActor-popup-title">声優を追加・編集</h4>
-                  <div class="voiceActor-searchbar">
-                    <input
-                      type="text"
-                      id="actorSearchInput"
-                      class="custom-input voiceActor-searchbar-input"
-                      placeholder="声優名を検索..."
-                    />
+                <div id="voiceActorWrapper">
+                  <div
+                    class="cute-tags-display"
+                    id="voiceActorsTagsDisplay"
+                  ></div>
+                  <input type="hidden" id="editVoiceActors" />
+
+                  <div
+                    id="actorPopup"
+                    class="glass-panel hidden pop-up-animation voiceActor-popup-box"
+                  >
+                    <h4 class="voiceActor-popup-title">声優を追加・編集</h4>
+                    <div class="voiceActor-searchbar">
+                      <input
+                        type="text"
+                        id="actorSearchInput"
+                        class="custom-input voiceActor-searchbar-input"
+                        placeholder="声優名を検索..."
+                      />
+                      <div
+                        id="actorSuggestBox"
+                        class="suggest-box hidden pop-up-animation no-scrollbar"
+                      ></div>
+                    </div>
                     <div
-                      id="actorSuggestBox"
-                      class="suggest-box hidden pop-up-animation no-scrollbar"
+                      id="actorCurrentList"
+                      class="voiceActor-currentList"
                     ></div>
                   </div>
-                  <div
-                    id="actorCurrentList"
-                    class="voiceActor-currentList"
-                  ></div>
+                </div>
+
+                <div class="toggle-section-bottom">
+                  <button
+                    type="button"
+                    id="toggleVaBtn"
+                    class="toggle-text-btn"
+                  >
+                    声優欄を折りたたむ ▲
+                  </button>
                 </div>
               </div>
             </div>
@@ -1785,6 +1844,47 @@
                   class="archive-textarea"
                   placeholder="この作品への愛や感想を綴る..."
                 ></textarea>
+              </div>
+            </div>
+            <div class="archive-section">
+              <div class="archive-section-header">
+                <span class="archive-section-title">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="
+                      vertical-align: middle;
+                      margin-right: 6px;
+                      color: var(--c-blue);
+                    "
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    ></path>
+                  </svg>
+                  名言・セリフ記録
+                </span>
+              </div>
+
+              <div
+                id="quoteListContainer"
+                style="display: flex; flex-direction: column; gap: 12px"
+              ></div>
+
+              <div class="add-quote-btn-wrapper">
+                <button
+                  type="button"
+                  id="addQuoteLineBtn"
+                  class="add-quote-line-btn"
+                >
+                  <span>＋ 名言を追加する</span>
+                </button>
               </div>
             </div>
 
@@ -1850,113 +1950,6 @@
             </svg>
             保存する
           </button>
-        </div>
-      </div>
-    </div>
-    <div id="myPageModal" class="modal-overlay hidden">
-      <div class="modal-content glass-panel animate-pop">
-        <button class="modal-close-btn" onclick="closeModal('myPageModal')">
-          ✕
-        </button>
-
-        <h2 class="mypage-title">マイページ</h2>
-        <div class="profile-edit-container">
-          <div class="profile-img-section">
-            <div id="profileAvatarWrapper" class="profile-avatar-wrapper">
-              ME
-            </div>
-            <div class="profile-input-group">
-              <label
-                >アイコン画像リンク
-                <button
-                  id="clearIconBtn"
-                  class="btn-clear-icon pop-up-animation"
-                >
-                  ✕ 削除
-                </button>
-              </label>
-              <input
-                type="text"
-                id="profileImgUrl"
-                class="custom-input"
-                placeholder="画像のURLを入力"
-              />
-            </div>
-          </div>
-
-          <div class="profile-input-group profile-input-group-custom">
-            <label>表示名（Feedに表示される名前）</label>
-            <input
-              type="text"
-              id="profileDisplayName"
-              class="custom-input"
-              placeholder="例：自分"
-            />
-          </div>
-
-          <div class="profile-input-group profile-input-group-custom">
-            <label>アカウントID（@の後の英数字）</label>
-            <input
-              type="text"
-              id="profileName"
-              class="custom-input"
-              placeholder="例：otaku_log"
-            />
-          </div>
-
-          <form
-            id="geminiKeyForm"
-            action="#"
-            onsubmit="return false;"
-            class="profile-input-group profile-input-group-custom"
-          >
-            <input
-              type="text"
-              id="geminiUserEmailHidden"
-              name="username"
-              autocomplete="username"
-              style="display: none"
-            />
-            <label
-              >あらすじ生成用 Gemini APIキー（無料枠：1日 500回まで）</label
-            >
-            <div class="api-key-input-wrapper">
-              <input
-                type="password"
-                id="geminiApiKeyInput"
-                name="password"
-                autocomplete="current-password"
-                class="custom-input api-key-input"
-                placeholder="AIzaSy...（入力するとブラウザに安全に保存されます）"
-              />
-              <button
-                type="button"
-                id="togglePasswordBtn"
-                class="btn-toggle-password"
-                aria-label="パスワードの表示切り替え"
-              >
-                <svg
-                  id="eyeIcon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="svg-eye-icon"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-              </button>
-            </div>
-          </form>
-
-          <div class="profile-actions mt-6 text-center">
-            <button id="saveProfileBtn" class="btn-save btn-profile-save">
-              プロフィールを保存
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -2266,15 +2259,19 @@
     <script src="js/utils/statsExporter.js"></script>
 
     <script src="js/ui.js"></script>
-    <script src="js/components/search.js"></script>
+    <script src="js/components/edit-search.js"></script>
     <script src="js/components/customSelect.js"></script>
     <script src="js/components/modal.js"></script>
+    <script src="js/components/edit-modal.js"></script>
 
     <script src="js/pages/home.js"></script>
     <script src="js/pages/profile.js"></script>
     <script src="js/pages/oshiChara.js"></script>
     <script src="js/pages/stats.js"></script>
     <script src="js/pages/trophies.js"></script>
+    <script src="js/pages/quotes.js"></script>
+    <script src="js/pages/listView.js"></script>
+    <script src="js/pages/feed.js"></script>
 
     <script src="js/api/anilist.js"></script>
     <script src="js/api/api.js"></script>
